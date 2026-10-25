@@ -1,6 +1,9 @@
 <?php
 /**
  * Plugin Name: Aeon
+ * Plugin URI: https://github.com/smededwards/aeon
+ * Author: Michael Edwards
+ * Author URI: https://smededwards.com
  * Description: Portfolio functionality foundation.
  * Version: 0.1.0
  * Requires PHP: 8.3

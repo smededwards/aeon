@@ -1,6 +1,6 @@
 # Aeon
 
-Portfolio functionality plugin with namespaced PHP services and Composer PSR-4 autoloading.
+Portfolio functionality plugin with namespaced PHP services and Composer classmap autoloading.
 
 ## Classic navigation menus
 
@@ -13,18 +13,18 @@ Menu locations and frontend rendering belong to Obel. Aeon does not create menus
 ## Architecture
 
 - `aeon.php`: small WordPress entry point and Composer autoloader fallback.
-- `src/Plugin.php`: composes and registers services.
-- `src/Settings.php`: reads and sanitises known preferences.
-- `src/Admin/SettingsPage.php`: native Settings API form, restricted to administrators.
-- `src/Features/Navigation.php`: theme support for classic navigation menus.
+- `class-plugin.php`: composes and registers services.
+- `class-settings.php`: reads and sanitises known preferences.
+- `admin/class-settings-page.php`: native Settings API form, restricted to administrators.
+- `features/class-navigation.php`: theme support for classic navigation menus.
 
-Classes use the `Aeon` namespace. Constructors receive dependencies; hook registration is explicit. No framework, service container or global singleton is required. Future core controls can live in separate feature classes.
+Classes keep the `Aeon` namespace and existing class names. PHP files use lowercase, hyphenated WordPress-style names, grouped directly at the plugin root without a `src/` wrapper. Constructors receive dependencies; hook registration is explicit. No framework, service container or global singleton is required. Future core controls can live in separate feature classes.
 
 ## Development and checks
 
-Develop alongside `portfolio`, `obel` and `rune`, using the site's containers. Run `composer install` in this plugin directory to generate its development autoloader. When installed as a production Composer dependency, the site's autoloader loads Aeon's classes. A missing autoloader produces an administrator notice instead of a fatal error. No vendor directory is committed.
+Develop alongside `portfolio`, `obel` and `rune`, using the site's containers. Run `composer install` in this plugin directory to generate its development autoloader. When installed as a production Composer dependency, the site's autoloader loads Aeon's classes. A missing autoloader produces an administrator notice instead of a fatal error. No vendor directory is committed. After adding or moving classes, regenerate the classmap with `composer dump-autoload` in the plugin directory. After updating the package as a site dependency, regenerate the site's Composer metadata/autoloader too.
 
-Run `composer validate --strict`, `composer lint` and PHP syntax checks. PSR-4 class filenames are the explicit exception to WordPress's lowercase/hyphenated filename convention; remaining WPCS checks are retained.
+Run `composer validate --strict`, `composer lint` and PHP syntax checks. WordPress filename checks are enabled. Only the class-to-filename check for `admin/class-settings-page.php` is exempted, preserving the existing `SettingsPage` class name while using a hyphenated filename.
 
 Behavioural tests run against real WordPress, checking default/on/off behaviour, strict sanitisation, preservation of saved menu items and respect for theme-provided support. CI uses an isolated database and a minimal test theme without menu support. Locally, with Aeon active and Obel selected:
 
@@ -34,7 +34,7 @@ docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfoli
 
 Run that command from the site directory. The tests temporarily create one menu and change Aeon's option, then restore the previous setting and remove the test menu. No theme files or other content are changed.
 
-Package changes are reviewed in PRs. Publish a new semantic version tag after checks pass, then update the site's production Composer lock separately. Development working copies remain linked locally; production keeps tagged dependencies.
+Code changes are reviewed locally first. Wait for explicit approval before committing, pushing or opening/updating a PR. Publish a new semantic version tag after checks pass, then update the site's production Composer lock separately. Development working copies remain linked locally; production keeps tagged dependencies.
 
 ## Contribution conventions
 

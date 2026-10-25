@@ -20,8 +20,18 @@
     "lint:fix": "phpcbf"
   },
   "autoload": {
-    "psr-4": {
-      "Aeon\\": "src/"
+    "classmap": [
+      "class-plugin.php",
+      "class-settings.php",
+      "admin/",
+      "features/"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Michael Edwards",
+      "homepage": "https://smededwards.com"
     }
-  }
+  ],
+  "homepage": "https://github.com/smededwards/aeon"
 }
