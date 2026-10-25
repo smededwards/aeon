@@ -12,6 +12,7 @@ else
   backup='{}'
 fi
 menu_id=''
+pattern_id=''
 restore() {
   if [ "$existed" = 1 ]; then
     wp_run option update aeon_core_features "$backup" --format=json >/dev/null
@@ -19,6 +20,7 @@ restore() {
     wp_run option delete aeon_core_features >/dev/null 2>&1 || true
   fi
   if [ -n "$menu_id" ]; then wp_run menu delete "$menu_id" >/dev/null; fi
+  if [ -n "$pattern_id" ]; then wp_run post delete "$pattern_id" --force >/dev/null; fi
 }
 trap restore EXIT
 menu_id=$(wp_run menu create "Aeon integration $(date +%s)" --porcelain)
@@ -29,3 +31,15 @@ wp_run option update aeon_core_features '{"navigation":false}' --format=json >/d
 wp_run eval-file "$repo_dir/tests/integration.php" disabled "$menu_id"
 wp_run option update aeon_core_features '{"navigation":true}' --format=json >/dev/null
 wp_run eval-file "$repo_dir/tests/integration.php" enabled "$menu_id"
+
+pattern_id=$(wp_run post create --post_type=wp_block --post_status=publish --post_title='Aeon pattern integration' --post_content='<!-- wp:paragraph --><p>Aeon pattern verification.</p><!-- /wp:paragraph -->' --porcelain)
+wp_run option delete aeon_core_features >/dev/null 2>&1 || true
+wp_run eval-file "$repo_dir/tests/patterns.php" default "$pattern_id"
+for flags in 000 001 010 011 100 101 110 111; do
+  shortcut=$(printf '%s' "$flags" | cut -c1)
+  core=$(printf '%s' "$flags" | cut -c2)
+  remote=$(printf '%s' "$flags" | cut -c3)
+  values=$(printf '{"navigation":true,"patterns_shortcut":%s,"core_patterns":%s,"remote_patterns":%s}' "$shortcut" "$core" "$remote")
+  wp_run option update aeon_core_features "$values" --format=json >/dev/null
+  wp_run eval-file "$repo_dir/tests/patterns.php" "$flags" "$pattern_id"
+done
