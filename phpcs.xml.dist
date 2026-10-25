@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<ruleset name="Portfolio"><description>WordPress standards for custom code.</description><file>.</file><exclude-pattern>vendor/*</exclude-pattern><exclude-pattern>node_modules/*</exclude-pattern><exclude-pattern>build/*</exclude-pattern><arg name="extensions" value="php"/><rule ref="WordPress"/><config name="minimum_supported_wp_version" value="6.8"/><rule ref="WordPress.Files.FileName"><exclude name="WordPress.Files.FileName.InvalidClassFileName"/></rule></ruleset>

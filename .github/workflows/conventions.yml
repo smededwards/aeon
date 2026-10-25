@@ -1,0 +1,33 @@
+name: Commit conventions
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  conventions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate PR title and commit subjects
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^()]+\))?!?: .+$'
+          if [[ ! "$PR_TITLE" =~ $pattern ]]; then
+            echo '::error::Use a Conventional Commit PR title, for example feat(theme): add navigation'
+            exit 1
+          fi
+          while IFS= read -r sha; do
+            subject=$(git show -s --format=%s "$sha")
+            if [[ ! "$subject" =~ $pattern ]]; then
+              echo "::error::Commit $sha needs a Conventional Commit subject"
+              exit 1
+            fi
+          done < <(git rev-list "$BASE_SHA..$HEAD_SHA")
