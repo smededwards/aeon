@@ -19,8 +19,9 @@ $aeon_assert( $aeon_settings->navigation_enabled() === $aeon_expected, 'Stored p
 $aeon_assert( current_theme_supports( 'menus' ) === $aeon_expected, 'Classic menu support did not follow the preference.' );
 $aeon_assert( false !== wp_get_nav_menu_object( $aeon_menu_id ), 'The saved navigation menu was removed.' );
 $aeon_assert( 1 === count( wp_get_nav_menu_items( $aeon_menu_id ) ), 'Saved navigation links were altered.' );
+$aeon_values = array_replace( \Aeon\Settings::DEFAULTS, array( 'navigation' => $aeon_expected ) );
 $aeon_assert(
-	array( 'navigation' => true ) === $aeon_settings->sanitise(
+	array_replace( $aeon_values, array( 'navigation' => true ) ) === $aeon_settings->sanitise(
 		array(
 			'navigation' => '1',
 			'unknown'    => 'discard',
@@ -28,9 +29,11 @@ $aeon_assert(
 	),
 	'Settings must discard unknown keys.'
 );
-$aeon_assert( array( 'navigation' => false ) === $aeon_settings->sanitise( array( 'navigation' => 'false' ) ), 'Arbitrary strings must not enable features.' );
-$aeon_assert( array( 'navigation' => false ) === $aeon_settings->sanitise( array() ), 'An unchecked checkbox must disable the feature.' );
-$aeon_assert( array( 'navigation' => $aeon_expected ) === $aeon_settings->sanitise( 'invalid' ), 'Malformed input must preserve the current preference.' );
+$aeon_assert( array_replace( $aeon_values, array( 'navigation' => false ) ) === $aeon_settings->sanitise( array( 'navigation' => 'false' ) ), 'Arbitrary strings must not enable features.' );
+$aeon_assert( array_replace( $aeon_values, array( 'navigation' => false ) ) === $aeon_settings->sanitise( array( 'navigation' => '0' ) ), 'An unchecked checkbox must disable the feature.' );
+$aeon_assert( $aeon_values === $aeon_settings->sanitise( array() ), 'Partial submissions must preserve omitted preferences.' );
+$aeon_assert( $aeon_values === $aeon_settings->sanitise( 'invalid' ), 'Malformed input must preserve the current preference.' );
+$aeon_assert( ! $aeon_settings->is_enabled( 'unknown' ), 'Unknown features must remain disabled.' );
 
 if ( ! $aeon_expected ) {
 	add_theme_support( 'menus' );

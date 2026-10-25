@@ -53,13 +53,36 @@ final class SettingsPage {
 			Settings::OPTION,
 			array(
 				'type'              => 'array',
-				'default'           => array( 'navigation' => true ),
+				'default'           => Settings::DEFAULTS,
 				'sanitize_callback' => array( $this->settings, 'sanitise' ),
 				'show_in_rest'      => false,
 			)
 		);
 		add_settings_section( 'aeon_core', __( 'WordPress core features', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_field( 'aeon_navigation', __( 'Classic navigation menus', 'aeon' ), array( $this, 'navigation_field' ), self::PAGE, 'aeon_core' );
+		$fields = array(
+			array(
+				'key'         => 'patterns_shortcut',
+				'title'       => __( 'Patterns shortcut', 'aeon' ),
+				'label'       => __( 'Show Appearance → Patterns', 'aeon' ),
+				'description' => __( 'Adds a direct link to the native pattern manager. Turning it off hides only Aeon’s shortcut; patterns remain available through WordPress.', 'aeon' ),
+			),
+			array(
+				'key'         => 'core_patterns',
+				'title'       => __( 'Bundled core patterns', 'aeon' ),
+				'label'       => __( 'Show WordPress’s bundled patterns', 'aeon' ),
+				'description' => __( 'Controls built-in core layouts. Theme, plugin, remote and saved user patterns are preserved.', 'aeon' ),
+			),
+			array(
+				'key'         => 'remote_patterns',
+				'title'       => __( 'Remote patterns', 'aeon' ),
+				'label'       => __( 'Allow patterns from WordPress.org', 'aeon' ),
+				'description' => __( 'Controls automatic remote patterns and directory queries. Patterns already saved or inserted into content are preserved.', 'aeon' ),
+			),
+		);
+		foreach ( $fields as $field ) {
+			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'pattern_field' ), self::PAGE, 'aeon_core', $field );
+		}
 	}
 
 	/**
@@ -75,6 +98,24 @@ final class SettingsPage {
 			<?php esc_html_e( 'Enable Appearance → Menus', 'aeon' ); ?>
 		</label>
 		<p class="description"><?php esc_html_e( 'Adds classic menu support to the active theme. Turning this off stops Aeon adding support; existing menus and support provided by your theme are preserved.', 'aeon' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Render a pattern-source control using a known feature key.
+	 *
+	 * @param array<string, string> $field Field labels and identifier.
+	 * @return void
+	 */
+	public function pattern_field( array $field ): void {
+		$key = $field['key'];
+		?>
+		<input type="hidden" name="<?php echo esc_attr( Settings::OPTION . '[' . $key . ']' ); ?>" value="0">
+		<label for="<?php echo esc_attr( 'aeon-' . $key ); ?>">
+			<input id="<?php echo esc_attr( 'aeon-' . $key ); ?>" type="checkbox" name="<?php echo esc_attr( Settings::OPTION . '[' . $key . ']' ); ?>" value="1" <?php checked( $this->settings->is_enabled( $key ) ); ?>>
+			<?php echo esc_html( $field['label'] ); ?>
+		</label>
+		<p class="description"><?php echo esc_html( $field['description'] ); ?></p>
 		<?php
 	}
 
