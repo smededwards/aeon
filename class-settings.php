@@ -18,6 +18,8 @@ final class Settings {
 	public const DEFAULTS = array(
 		'navigation'        => true,
 		'disable_comments'  => true,
+		'simplify_blocks'   => true,
+		'hide_openverse'    => true,
 		'patterns_shortcut' => true,
 		'core_patterns'     => true,
 		'remote_patterns'   => true,

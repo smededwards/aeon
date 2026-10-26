@@ -58,3 +58,13 @@ Use Conventional Commit subjects and PR titles. The first commit is the sole exc
 This controls the site's discussion interfaces, not access to stored comments through administrative APIs. It does not delete comments or alter their moderation status. WordPress handles rejection of new standard and REST comment submissions once discussion is closed.
 
 Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/comments.sh` from the site directory to check both modes. The runner restores the original option and removes its temporary posts/comments.
+
+## Editor controls
+
+**Settings → Aeon → Block editor → Simplify available blocks** is enabled by default. It limits the Posts, Pages and saved patterns inserter to essential native content and layout blocks, including Code, Table, Page List, synced patterns and the complete Query Loop hierarchy used by the portfolio. Other editor contexts are unchanged; earlier block restrictions are respected.
+
+Turning it off restores the selection on the next request. Blocks are not unregistered, saved content is not rewritten and frontend rendering is unchanged. Obel controls visual options such as gradients and duotone through `theme.json`.
+
+Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/editor.sh` from the site directory to verify both modes. The runner restores the original settings.
+
+**Settings → Aeon → Openverse → Hide Openverse in the editor** is enabled by default, independently of block simplification. It disables the native Openverse media category across block editors while retaining uploads, the Media Library and existing images. Turning it off restores the normal editor setting.
