@@ -17,6 +17,7 @@ final class Settings {
 	/** Default behaviour for known controls; absent new settings stay enabled. */
 	public const DEFAULTS = array(
 		'navigation'        => true,
+		'seo'               => true,
 		'disable_comments'  => true,
 		'simplify_blocks'   => true,
 		'hide_openverse'    => true,

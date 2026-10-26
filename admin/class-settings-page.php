@@ -62,6 +62,12 @@ final class SettingsPage {
 		add_settings_field( 'aeon_navigation', __( 'Classic navigation menus', 'aeon' ), array( $this, 'navigation_field' ), self::PAGE, 'aeon_core' );
 		$fields = array(
 			array(
+				'key'         => 'seo',
+				'title'       => __( 'SEO and sharing', 'aeon' ),
+				'label'       => __( 'Manage SEO and sharing metadata with Aeon', 'aeon' ),
+				'description' => __( 'Adds optional post/page fields and sharing tags. Turn this off before enabling another SEO metadata provider; saved overrides are retained.', 'aeon' ),
+			),
+			array(
 				'key'         => 'hide_openverse',
 				'title'       => __( 'Openverse', 'aeon' ),
 				'label'       => __( 'Hide Openverse in the editor', 'aeon' ),

@@ -10,6 +10,8 @@ namespace Aeon;
 use Aeon\Admin\SettingsPage;
 use Aeon\Features\Navigation;
 use Aeon\Features\Comments;
+use Aeon\Features\Seo;
+use Aeon\Admin\Seo as SeoAdmin;
 use Aeon\Features\Patterns;
 use Aeon\Features\Editor;
 
@@ -26,6 +28,8 @@ final class Plugin {
 		$settings = new Settings();
 		( new Navigation( $settings ) )->register();
 		( new Comments( $settings ) )->register();
+		( new Seo( $settings ) )->register();
+		( new SeoAdmin( $settings ) )->register();
 		( new Patterns( $settings ) )->register();
 		( new Editor( $settings ) )->register();
 		( new SettingsPage( $settings ) )->register();

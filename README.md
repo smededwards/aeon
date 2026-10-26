@@ -31,6 +31,20 @@ The core and remote controls remain independent: Aeon does not remove `core-bloc
 
 Classes keep the `Aeon` namespace and existing class names. PHP files use lowercase, hyphenated WordPress-style names, grouped directly at the plugin root without a `src/` wrapper. Constructors receive dependencies; hook registration is explicit. No framework, service container or global singleton is required. Future core controls can live in separate feature classes.
 
+## SEO and sharing
+
+Posts and Pages have a native **Meta boxes → SEO and sharing** panel below the block editor (also available in the classic editor):
+
+- **SEO title** overrides the content portion of WordPress’s document title, retaining its site/tagline and pagination components. It does not rename the post/page.
+- **Meta description** overrides the default excerpt or short text summary. Core block-excerpt extraction excludes Query Loop/no-results content; no description is emitted when there is no useful text.
+- **Social image** uses the native Media Library picker. Leaving it unset, removing it, or deleting an unavailable override falls back to the featured image. Only image attachment IDs are stored. The existing full-size image is used; this feature creates no additional image sizes.
+
+Aeon adds one meta description plus Open Graph and Twitter Card tags on public Posts and Pages, including the static homepage and configured Posts index. It skips drafts, previews and password-protected/private content. Values are sanitised on save and escaped on output. Fields use native post meta, per-post edit permissions, edit-context REST schemas and revision support.
+
+Core continues to render the document title, canonical links, robots directives and XML sitemaps. Aeon does not print replacement title/canonical/robots markup. **Settings → Aeon → SEO and sharing** turns off Aeon’s metadata hooks and editor panel without deleting saved fields. Turn this off before enabling another SEO metadata provider to avoid duplicate tags.
+
+Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/seo.sh` from the site directory. The tests restore settings and remove their temporary posts/images. They cover fallbacks, overrides, escaping, image IDs, protected content, native REST/editor persistence, permissions and the handoff switch. Browser checks also cover selecting/removing a social image and saving through the block editor.
+
 ## Development and checks
 
 Develop alongside `portfolio`, `obel` and `rune`, using the site's containers. Run `composer install` in this plugin directory to generate its development autoloader. When installed as a production Composer dependency, the site's autoloader loads Aeon's classes. A missing autoloader produces an administrator notice instead of a fatal error. No vendor directory is committed. After adding or moving classes, regenerate the classmap with `composer dump-autoload` in the plugin directory. After updating the package as a site dependency, regenerate the site's Composer metadata/autoloader too.
