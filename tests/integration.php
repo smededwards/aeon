@@ -56,9 +56,12 @@ $aeon_users = get_users(
 );
 $aeon_user  = get_current_user_id();
 wp_set_current_user( (int) $aeon_users[0] );
+add_settings_error( 'aeon_notice_regression', 'aeon_notice_single', 'Aeon notice regression marker.', 'success' );
 ob_start();
+require ABSPATH . 'wp-admin/options-head.php';
 $aeon_page->render();
 $aeon_form = ob_get_clean();
+$aeon_assert( 1 === substr_count( $aeon_form, 'Aeon notice regression marker.' ), 'Settings notices must be rendered once by the native settings header.' );
 $aeon_assert( str_contains( $aeon_form, 'action="options.php"' ), 'Settings must use the core save endpoint.' );
 $aeon_assert( str_contains( $aeon_form, 'name="_wpnonce"' ), 'The settings form is missing its nonce.' );
 $aeon_assert( str_contains( $aeon_form, 'aeon_core_features[navigation]' ), 'The navigation control was not rendered.' );
