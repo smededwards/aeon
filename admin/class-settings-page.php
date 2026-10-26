@@ -62,6 +62,18 @@ final class SettingsPage {
 		add_settings_field( 'aeon_navigation', __( 'Classic navigation menus', 'aeon' ), array( $this, 'navigation_field' ), self::PAGE, 'aeon_core' );
 		$fields = array(
 			array(
+				'key'         => 'hide_openverse',
+				'title'       => __( 'Openverse', 'aeon' ),
+				'label'       => __( 'Hide Openverse in the editor', 'aeon' ),
+				'description' => __( 'Removes Openverse from editor media sources. Uploads and the Media Library remain available.', 'aeon' ),
+			),
+			array(
+				'key'         => 'simplify_blocks',
+				'title'       => __( 'Block editor', 'aeon' ),
+				'label'       => __( 'Simplify available blocks', 'aeon' ),
+				'description' => __( 'Limits the Posts, Pages and saved patterns inserter to essential content and layout blocks. Turning this off restores the full selection.', 'aeon' ),
+			),
+			array(
 				'key'         => 'disable_comments',
 				'title'       => __( 'Comments', 'aeon' ),
 				'label'       => __( 'Disable comments and pingbacks on Posts and Pages', 'aeon' ),
