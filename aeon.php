@@ -28,7 +28,7 @@ if ( ! class_exists( \Aeon\Plugin::class ) ) {
 		'admin_notices',
 		static function () {
 			if ( current_user_can( 'activate_plugins' ) ) {
-				echo '<div class="notice notice-error"><p>' . esc_html__( 'Aeon requires its Composer autoloader. Run Composer install for the site or plugin.', 'aeon' ) . '</p></div>';
+				printf( '<div class="notice notice-error"><p>%s</p></div>', esc_html__( 'Aeon requires its Composer autoloader. Run Composer install for the site or plugin.', 'aeon' ) );
 			}
 		}
 	);

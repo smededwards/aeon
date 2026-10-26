@@ -92,9 +92,9 @@ final class SettingsPage {
 	 */
 	public function navigation_field(): void {
 		?>
-		<input type="hidden" name="<?php echo esc_attr( Settings::OPTION ); ?>[navigation]" value="0">
+		<input type="hidden" name="<?php printf( '%s', esc_attr( Settings::OPTION ) ); ?>[navigation]" value="0">
 		<label for="aeon-navigation">
-			<input id="aeon-navigation" type="checkbox" name="<?php echo esc_attr( Settings::OPTION ); ?>[navigation]" value="1" <?php checked( $this->settings->navigation_enabled() ); ?>>
+			<input id="aeon-navigation" type="checkbox" name="<?php printf( '%s', esc_attr( Settings::OPTION ) ); ?>[navigation]" value="1" <?php checked( $this->settings->navigation_enabled() ); ?>>
 			<?php esc_html_e( 'Enable Appearance → Menus', 'aeon' ); ?>
 		</label>
 		<p class="description"><?php esc_html_e( 'Adds classic menu support to the active theme. Turning this off stops Aeon adding support; existing menus and support provided by your theme are preserved.', 'aeon' ); ?></p>
@@ -110,12 +110,12 @@ final class SettingsPage {
 	public function pattern_field( array $field ): void {
 		$key = $field['key'];
 		?>
-		<input type="hidden" name="<?php echo esc_attr( Settings::OPTION . '[' . $key . ']' ); ?>" value="0">
-		<label for="<?php echo esc_attr( 'aeon-' . $key ); ?>">
-			<input id="<?php echo esc_attr( 'aeon-' . $key ); ?>" type="checkbox" name="<?php echo esc_attr( Settings::OPTION . '[' . $key . ']' ); ?>" value="1" <?php checked( $this->settings->is_enabled( $key ) ); ?>>
-			<?php echo esc_html( $field['label'] ); ?>
+		<input type="hidden" name="<?php printf( '%s', esc_attr( Settings::OPTION . '[' . $key . ']' ) ); ?>" value="0">
+		<label for="<?php printf( '%s', esc_attr( 'aeon-' . $key ) ); ?>">
+			<input id="<?php printf( '%s', esc_attr( 'aeon-' . $key ) ); ?>" type="checkbox" name="<?php printf( '%s', esc_attr( Settings::OPTION . '[' . $key . ']' ) ); ?>" value="1" <?php checked( $this->settings->is_enabled( $key ) ); ?>>
+			<?php printf( '%s', esc_html( $field['label'] ) ); ?>
 		</label>
-		<p class="description"><?php echo esc_html( $field['description'] ); ?></p>
+		<p class="description"><?php printf( '%s', esc_html( $field['description'] ) ); ?></p>
 		<?php
 	}
 
