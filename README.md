@@ -71,6 +71,10 @@ Run that command from the site directory. The tests temporarily create one menu 
 
 Code changes are reviewed locally first. Wait for explicit approval before committing, pushing or opening/updating a PR. Publish a new semantic version tag after checks pass, then update the site's production Composer lock separately. Development working copies remain linked locally; production keeps tagged dependencies.
 
+## Frontend emoji styles
+
+Aeon dequeues `wp-emoji-styles` after WordPress enqueues it, removing `wp-emoji-styles-inline-css` from the frontend. Emoji scripts and administration styles are unchanged.
+
 ## Contribution conventions
 
 Use Conventional Commit subjects and PR titles. The first commit is the sole exception: `Initial Commit`. See `AGENTS.md` for repository guidance.
