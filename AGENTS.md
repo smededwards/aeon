@@ -8,3 +8,11 @@
 - The sole exception is the repository's first commit, whose subject is exactly `Initial Commit`.
 - Keep PR descriptions focused on the core premise and features, using one short paragraph or a few brief bullets plus a short validation line. Omit implementation inventories and work logs unless necessary for review. Use British English in documentation.
 - Never commit secrets, certificates, local environment files, uploads or generated dependency directories.
+
+## Branch and release workflow
+
+- Create focused feature branches from the latest `dev`; target feature PRs at `dev` and squash-merge using their Conventional Commit titles.
+- Release connected batches through a `dev` to `main` PR using a merge commit with a Conventional Commit subject. Preserve feature history and fast-forward `dev` to released `main` before new work.
+- Version each repository independently. Tag only the approved release commit on `main`; published tags are immutable. Releases and deployments require explicit agreement.
+- Keep `main` as the GitHub default branch. Avoid stacked PRs unless agreed; merge dependencies into `dev` first.
+- The local approval requirement above applies before publishing new changes.
