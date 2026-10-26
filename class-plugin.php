@@ -7,6 +7,7 @@
 
 namespace Aeon;
 
+use Aeon\Features\Contact;
 use Aeon\Admin\SettingsPage;
 use Aeon\Features\Navigation;
 use Aeon\Features\Comments;
@@ -24,6 +25,7 @@ final class Plugin {
 	 */
 	public function register(): void {
 		$settings = new Settings();
+		( new Contact() )->register();
 		( new Navigation( $settings ) )->register();
 		( new Comments( $settings ) )->register();
 		( new Patterns( $settings ) )->register();

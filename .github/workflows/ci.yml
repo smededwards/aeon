@@ -49,4 +49,5 @@ jobs:
           wp plugin activate aeon --path=/tmp/aeon-wordpress
       - run: WP_PATH=/tmp/aeon-wordpress sh tests/integration.sh
       - run: WP_PATH=/tmp/aeon-wordpress sh tests/comments.sh
+      - run: wp eval-file tests/contact.php --path=/tmp/aeon-wordpress
       - run: WP_PATH=/tmp/aeon-wordpress sh tests/editor.sh

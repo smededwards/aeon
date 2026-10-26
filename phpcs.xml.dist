@@ -12,4 +12,13 @@
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
 		<exclude-pattern>*/admin/class-settings-page.php</exclude-pattern>
 	</rule>
+
+	<!-- This adapter returns only the tested, immutable sanitised submission. -->
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<properties>
+			<property name="customSanitizingFunctions" type="array">
+				<element value="aeon_sanitise_contact_submission"/>
+			</property>
+		</properties>
+	</rule>
 </ruleset>

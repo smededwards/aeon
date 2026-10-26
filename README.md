@@ -20,6 +20,16 @@ Three independent settings are available under **Settings → Aeon**, all enable
 
 The core and remote controls remain independent: Aeon does not remove `core-block-patterns` theme support, because WordPress uses that flag for both sources. Unsynced layouts already inserted into content and saved synced patterns continue to render. Obel remains responsible for designed theme patterns.
 
+## Contact submissions
+
+The input boundary lives in `features/contact/class-submission.php`. Its private constructor and readonly properties ensure delivery receives only factory-created, sanitised values and validation errors. Original lengths and email line breaks are checked before raw data is discarded; invalid values retained for feedback are bounded too. `functions-contact.php` provides the thin global `aeon_sanitise_contact_submission()` adapter because WPCS recognises global sanitising functions rather than class methods. The PHPCS ruleset registers only that adapter; no contact-form inline suppressions are needed.
+
+Rune’s Contact form block posts back to its published Page without frontend JavaScript. Aeon validates the page-bound nonce, honeypot, field types, required values, email syntax/header safety and length limits (name 100, email 254, message 5,000 characters), then sanitises the text before sending plain-text mail. The recipient is the WordPress administration email under Settings → General; visitors cannot override it. The sender uses `wordpress@` plus the site hostname, with the validated visitor address as Reply-To.
+
+Errors render on the same page with HTTP 422 and request-local retained values. Success redirects with HTTP 303 and a page-bound nonce receipt to prevent resubmission on refresh; the block receives verified success state from Aeon. No submission content is written to WordPress. A salted peer-address hash and attempt counter are retained for up to 15 minutes, with five attempts per window. This is a modest best-effort application limit; forwarded headers are not trusted. Contact pages send no-cache headers to keep nonces fresh; exclude them from any production page/CDN cache too.
+
+Run `docker compose run --rm tools wp eval-file /workspace/aeon/tests/contact.php` from the site directory. Tests intercept mail, remove their fixture page and rate counters, and cover validation, sanitisation, header injection, honeypot, rate limits and delivery failure. Local end-to-end delivery uses Mailpit; production delivery must be configured before launch.
+
 ## Architecture
 
 - `aeon.php`: small WordPress entry point and Composer autoloader fallback.

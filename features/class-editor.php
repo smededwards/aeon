@@ -14,6 +14,7 @@ final class Editor {
 
 	/** Content, layout and nested blocks used by the portfolio. */
 	private const BLOCKS = array(
+		'rune/contact-form',
 		'core/paragraph',
 		'core/heading',
 		'core/list',

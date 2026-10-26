@@ -35,4 +35,6 @@ if ( ! class_exists( \Aeon\Plugin::class ) ) {
 	return;
 }
 
+require_once __DIR__ . '/functions-contact.php';
+
 ( new \Aeon\Plugin() )->register();
