@@ -50,3 +50,11 @@ Code changes are reviewed locally first. Wait for explicit approval before commi
 ## Contribution conventions
 
 Use Conventional Commit subjects and PR titles. The first commit is the sole exception: `Initial Commit`. See `AGENTS.md` for repository guidance.
+
+## Comment controls
+
+**Settings → Aeon → Comments** disables comments and pingbacks on Posts and Pages by default. It removes their editor support and comment columns, hides the Comments menu and toolbar shortcut, and suppresses classic comment output/counts and native discussion blocks. Settings → Discussion stays available. Existing comments and saved per-post discussion preferences are retained; turning the control off restores normal WordPress behaviour on the next request. Other post types are not changed.
+
+This controls the site's discussion interfaces, not access to stored comments through administrative APIs. It does not delete comments or alter their moderation status. WordPress handles rejection of new standard and REST comment submissions once discussion is closed.
+
+Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/comments.sh` from the site directory to check both modes. The runner restores the original option and removes its temporary posts/comments.

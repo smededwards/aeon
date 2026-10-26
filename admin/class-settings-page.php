@@ -62,6 +62,12 @@ final class SettingsPage {
 		add_settings_field( 'aeon_navigation', __( 'Classic navigation menus', 'aeon' ), array( $this, 'navigation_field' ), self::PAGE, 'aeon_core' );
 		$fields = array(
 			array(
+				'key'         => 'disable_comments',
+				'title'       => __( 'Comments', 'aeon' ),
+				'label'       => __( 'Disable comments and pingbacks on Posts and Pages', 'aeon' ),
+				'description' => __( 'Hides comment interfaces while retaining saved comments and Settings → Discussion.', 'aeon' ),
+			),
+			array(
 				'key'         => 'patterns_shortcut',
 				'title'       => __( 'Patterns shortcut', 'aeon' ),
 				'label'       => __( 'Show Appearance → Patterns', 'aeon' ),
@@ -81,7 +87,7 @@ final class SettingsPage {
 			),
 		);
 		foreach ( $fields as $field ) {
-			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'pattern_field' ), self::PAGE, 'aeon_core', $field );
+			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'feature_field' ), self::PAGE, 'aeon_core', $field );
 		}
 	}
 
@@ -102,12 +108,12 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Render a pattern-source control using a known feature key.
+	 * Render a feature control using a known setting key.
 	 *
 	 * @param array<string, string> $field Field labels and identifier.
 	 * @return void
 	 */
-	public function pattern_field( array $field ): void {
+	public function feature_field( array $field ): void {
 		$key = $field['key'];
 		?>
 		<input type="hidden" name="<?php printf( '%s', esc_attr( Settings::OPTION . '[' . $key . ']' ) ); ?>" value="0">
@@ -131,7 +137,6 @@ final class SettingsPage {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Aeon', 'aeon' ); ?></h1>
-			<?php settings_errors(); ?>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( self::PAGE );

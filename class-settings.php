@@ -17,6 +17,7 @@ final class Settings {
 	/** Default behaviour for known controls; absent new settings stay enabled. */
 	public const DEFAULTS = array(
 		'navigation'        => true,
+		'disable_comments'  => true,
 		'patterns_shortcut' => true,
 		'core_patterns'     => true,
 		'remote_patterns'   => true,

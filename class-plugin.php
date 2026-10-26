@@ -9,6 +9,7 @@ namespace Aeon;
 
 use Aeon\Admin\SettingsPage;
 use Aeon\Features\Navigation;
+use Aeon\Features\Comments;
 use Aeon\Features\Patterns;
 
 /**
@@ -23,6 +24,7 @@ final class Plugin {
 	public function register(): void {
 		$settings = new Settings();
 		( new Navigation( $settings ) )->register();
+		( new Comments( $settings ) )->register();
 		( new Patterns( $settings ) )->register();
 		( new SettingsPage( $settings ) )->register();
 	}
