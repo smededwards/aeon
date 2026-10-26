@@ -9,6 +9,7 @@ namespace Aeon;
 
 use Aeon\Admin\SettingsPage;
 use Aeon\Features\Navigation;
+use Aeon\Features\Emoji;
 use Aeon\Features\Comments;
 use Aeon\Features\Patterns;
 use Aeon\Features\Editor;
@@ -25,6 +26,7 @@ final class Plugin {
 	public function register(): void {
 		$settings = new Settings();
 		( new Navigation( $settings ) )->register();
+		( new Emoji() )->register();
 		( new Comments( $settings ) )->register();
 		( new Patterns( $settings ) )->register();
 		( new Editor( $settings ) )->register();
