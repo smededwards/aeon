@@ -31,6 +31,8 @@ final class Editor {
 		'core/buttons',
 		'core/button',
 		'core/separator',
+		'core/social-links',
+		'core/social-link',
 		'core/spacer',
 		'core/site-logo',
 		'core/site-tagline',
