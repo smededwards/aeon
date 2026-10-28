@@ -16,8 +16,8 @@ final class DashboardColour {
 	/** Settings API option name. */
 	public const OPTION = 'aeon_dashboard_environment';
 
-	/** Default to the detected Bedrock environment, falling back to WordPress blue. */
-	public const DEFAULT_SELECTION = 'environment';
+	/** Follow the detected Bedrock environment, falling back to WordPress blue. */
+	public const DEFAULT_SELECTION = 'default';
 
 	/** Environment accent colours. */
 	private const COLOURS = array(
@@ -28,8 +28,9 @@ final class DashboardColour {
 
 	/** Register dashboard and editor styles. */
 	public function register(): void {
-		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_styles' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_editor_canvas_styles' ), 100 );
 	}
 
 	/**
@@ -39,7 +40,11 @@ final class DashboardColour {
 	 * @return string
 	 */
 	public static function sanitise_selection( mixed $selection ): string {
-		$allowed = array_merge( array( self::DEFAULT_SELECTION, 'default' ), array_keys( self::COLOURS ) );
+		if ( 'environment' === $selection ) {
+			return self::DEFAULT_SELECTION;
+		}
+
+		$allowed = array_merge( array( self::DEFAULT_SELECTION ), array_keys( self::COLOURS ) );
 
 		return is_string( $selection ) && in_array( $selection, $allowed, true )
 			? $selection
@@ -80,21 +85,46 @@ final class DashboardColour {
 		return null;
 	}
 
-	/**
-	 * Add a body class when Aeon replaces the default admin blue.
-	 *
-	 * @param string $classes Existing classes.
-	 * @return string
-	 */
-	public function admin_body_class( string $classes ): string {
-		return null === $this->active_environment()
-			? $classes
-			: trim( $classes . ' aeon-dashboard--environment-active' );
-	}
-
 	/** Enqueue the dashboard accent stylesheet. */
 	public function enqueue_styles(): void {
-		$this->enqueue_accent_styles();
+		$environment = $this->active_environment();
+
+		if ( null === $environment ) {
+			return;
+		}
+
+		$this->enqueue_accent_styles( $this->dashboard_variables_css( $environment ) );
+	}
+
+	/** Enqueue the environment palette in the block editor interface. */
+	public function enqueue_editor_styles(): void {
+		$environment = $this->active_environment();
+
+		if ( null === $environment ) {
+			return;
+		}
+
+		$css = $this->dashboard_variables_css( $environment );
+		$this->enqueue_accent_styles( $css );
+
+		foreach ( array( 'wp-edit-post', 'wp-edit-site', 'wp-edit-widgets' ) as $handle ) {
+			wp_add_inline_style( $handle, $css );
+		}
+	}
+
+	/** Apply the environment palette to the block editor canvas without affecting the front end. */
+	public function enqueue_editor_canvas_styles(): void {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		$environment = $this->active_environment();
+
+		if ( null === $environment ) {
+			return;
+		}
+
+		wp_add_inline_style( 'wp-edit-blocks', $this->dashboard_variables_css( $environment ) );
 	}
 
 	/**
@@ -114,14 +144,37 @@ final class DashboardColour {
 			: $selection;
 	}
 
-	/** Enqueue the selected palette after WordPress' admin colour scheme. */
-	private function enqueue_accent_styles(): void {
-		$environment = $this->active_environment();
-
-		if ( null === $environment ) {
+	/**
+	 * Enqueue the selected palette after WordPress' admin colour scheme.
+	 *
+	 * @param string $css Dynamic environment variables.
+	 * @return void
+	 */
+	private function enqueue_accent_styles( string $css ): void {
+		if ( wp_style_is( 'aeon-dashboard-environment', 'enqueued' ) ) {
 			return;
 		}
 
+		$style_path    = dirname( __DIR__ ) . '/build/dashboard-colours.css';
+		$style_version = is_file( $style_path ) ? (string) filemtime( $style_path ) : Plugin::VERSION;
+
+		wp_register_style(
+			'aeon-dashboard-environment',
+			plugins_url( '../build/dashboard-colours.css', __FILE__ ),
+			array( 'colors' ),
+			$style_version
+		);
+		wp_enqueue_style( 'aeon-dashboard-environment' );
+		wp_add_inline_style( 'aeon-dashboard-environment', $css );
+	}
+
+	/**
+	 * Build the dynamic WordPress colour variables for the selected environment.
+	 *
+	 * @param string $environment Active environment key.
+	 * @return string
+	 */
+	private function dashboard_variables_css( string $environment ): string {
 		$colour        = self::COLOURS[ $environment ];
 		$rgb           = self::hex_to_rgb( $colour );
 		$darker_10     = self::adjust_lightness( $rgb, -0.05 );
@@ -129,8 +182,27 @@ final class DashboardColour {
 		$focus         = self::adjust_lightness( $rgb, 0.10 );
 		$menu_focus    = self::adjust_hsl( $rgb, 0.1745, 0.1991, 0.00362 );
 		$mix_darker_10 = array_map( static fn( int $channel ): int => (int) round( $channel * 0.9 ), $rgb );
-		$css           = sprintf(
-			'body.aeon-dashboard--environment-active, :root { --wp-admin-theme-color: %1$s !important; --wp-admin-theme-color--rgb: %2$s !important; --wp-admin-theme-color-darker-10: %3$s !important; --wp-admin-theme-color-darker-10--rgb: %4$s !important; --wp-admin-theme-color-darker-20: %5$s !important; --wp-admin-theme-color-darker-20--rgb: %6$s !important; --wp-components-color-accent: %1$s !important; --wp-components-color-accent--rgb: %2$s !important; --wp-components-color-accent-darker-10: %3$s !important; --wp-components-color-accent-darker-20: %5$s !important; --aeon-dashboard-accent: %1$s; --aeon-dashboard-accent-hover: %7$s; --aeon-dashboard-accent-focus: %8$s; --aeon-dashboard-accent-menu: %9$s; --aeon-dashboard-accent-mix-dark-10: %10$s; }',
+
+		return sprintf(
+			<<<'CSS'
+			:root, body, .interface-interface-skeleton, .editor-styles-wrapper {
+				--wp-admin-theme-color: %1$s !important;
+				--wp-admin-theme-color--rgb: %2$s !important;
+				--wp-admin-theme-color-darker-10: %3$s !important;
+				--wp-admin-theme-color-darker-10--rgb: %4$s !important;
+				--wp-admin-theme-color-darker-20: %5$s !important;
+				--wp-admin-theme-color-darker-20--rgb: %6$s !important;
+				--wp-components-color-accent: %1$s !important;
+				--wp-components-color-accent--rgb: %2$s !important;
+				--wp-components-color-accent-darker-10: %3$s !important;
+				--wp-components-color-accent-darker-20: %5$s !important;
+				--aeon-dashboard-accent: %1$s;
+				--aeon-dashboard-accent-hover: %7$s;
+				--aeon-dashboard-accent-focus: %8$s;
+				--aeon-dashboard-accent-menu: %9$s;
+				--aeon-dashboard-accent-mix-dark-10: %10$s;
+			}
+			CSS,
 			$colour,
 			self::format_rgb( $rgb ),
 			$darker_10['hex'],
@@ -142,15 +214,6 @@ final class DashboardColour {
 			$menu_focus['hex'],
 			self::format_rgb( $mix_darker_10 )
 		);
-
-		wp_register_style(
-			'aeon-dashboard-environment',
-			plugins_url( '../build/dashboard-colours.css', __FILE__ ),
-			array( 'colors' ),
-			Plugin::VERSION
-		);
-		wp_enqueue_style( 'aeon-dashboard-environment' );
-		wp_add_inline_style( 'aeon-dashboard-environment', $css );
 	}
 
 	/**
