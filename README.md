@@ -2,13 +2,7 @@
 
 Portfolio functionality plugin with namespaced PHP services and Composer classmap autoloading.
 
-## Classic navigation menus
-
-Aeon enables WordPress's **Appearance → Menus** screen by adding `menus` support after the active theme sets up. Manage this under **Settings → Aeon → Classic navigation menus**. The feature is enabled by default.
-
-Turning the setting off stops Aeon adding support on the next request. It never removes menu support supplied by the theme or another plugin, and never deletes saved menus or menu items. With Obel's current scaffold, switching this off hides the classic Menus screen. This controls classic menus, not the block-based Navigation editor.
-
-Menu locations and frontend rendering belong to Obel. Aeon does not create menus, register layout-specific locations, change permissions or force menu output on the frontend.
+Settings are grouped under **Dashboard**, **Content** and **Editor**. The site menu is managed through the active block theme's native Navigation editor.
 
 ## Pattern controls
 
@@ -36,7 +30,6 @@ Run `docker compose run --rm tools wp eval-file /workspace/aeon/tests/contact.ph
 - `class-plugin.php`: composes and registers services.
 - `class-settings.php`: reads and sanitises known preferences.
 - `admin/class-settings-page.php`: native Settings API form, restricted to administrators.
-- `features/class-navigation.php`: theme support for classic navigation menus.
 - `features/class-patterns.php`: the native manager shortcut and pattern-source controls.
 
 Classes keep the `Aeon` namespace and existing class names. PHP files use lowercase, hyphenated WordPress-style names, grouped directly at the plugin root without a `src/` wrapper. Constructors receive dependencies; hook registration is explicit. No framework, service container or global singleton is required. Future core controls can live in separate feature classes.
@@ -63,13 +56,13 @@ Dashboard colours are authored in `src/scss/admin/` and compiled with the shared
 
 Run `composer validate --strict`, `composer lint` and PHP syntax checks. WordPress filename checks are enabled. Only the class-to-filename check for `admin/class-settings-page.php` is exempted, preserving the existing `SettingsPage` class name while using a hyphenated filename.
 
-Behavioural tests run against real WordPress, checking default/on/off behaviour, strict sanitisation, preservation of saved menu items and respect for theme-provided support. CI uses an isolated database and a minimal test theme without menu support. Locally, with Aeon active and Obel selected:
+Behavioural tests run against real WordPress, checking settings registration, strict sanitisation and pattern controls. CI uses an isolated database and a minimal test theme. Locally, with Aeon active and Obel selected:
 
 ```sh
 docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/integration.sh
 ```
 
-Run that command from the site directory. The tests temporarily create one menu and one saved pattern, check all eight combinations of pattern controls, then restore the previous setting and remove both test fixtures. Directory-off behaviour is tested without making external network requests. No theme files or other content are changed.
+Run that command from the site directory. The tests temporarily create one saved pattern, check all eight combinations of pattern controls, then restore the previous setting and remove the fixture. Directory-off behaviour is tested without making external network requests. No theme files or other content are changed.
 
 Code changes are reviewed locally first. Wait for explicit approval before committing, pushing or opening/updating a PR. Publish a new semantic version tag after checks pass, then update the site's production Composer lock separately. Development working copies remain linked locally; production keeps tagged dependencies.
 
