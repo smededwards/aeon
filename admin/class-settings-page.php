@@ -81,7 +81,6 @@ final class SettingsPage {
 		add_settings_section( 'aeon_core', __( 'WordPress core features', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_section( 'aeon_environment_urls', __( 'Environment switcher', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_field( 'aeon_navigation', __( 'Classic navigation menus', 'aeon' ), array( $this, 'navigation_field' ), self::PAGE, 'aeon_core' );
-		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_core' );
 		foreach ( Environment::ENVIRONMENTS as $environment ) {
 			add_settings_field(
 				'aeon_environment_url_' . $environment,
@@ -96,6 +95,7 @@ final class SettingsPage {
 				array( 'environment' => $environment )
 			);
 		}
+		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_environment_urls' );
 		$fields = array(
 			array(
 				'key'         => 'seo',
@@ -163,25 +163,15 @@ final class SettingsPage {
 
 	/** Render the dashboard colour selector. */
 	public function dashboard_environment_field(): void {
-		$selection      = DashboardColour::selection();
-		$detected       = DashboardColour::detected_environment();
-		$detected_label = null === $detected
-			? __( 'Default blue (no supported environment detected)', 'aeon' )
-			: self::environment_label( $detected );
+		$selection = DashboardColour::selection();
 		?>
 		<select id="aeon-dashboard-environment" name="<?php printf( '%s', esc_attr( DashboardColour::OPTION ) ); ?>">
-			<option value="environment" <?php selected( $selection, 'environment' ); ?>>
-			<?php
-			// Translators: %s is the environment detected from Bedrock configuration.
-			printf( esc_html__( 'Use detected environment — %s', 'aeon' ), esc_html( $detected_label ) );
-			?>
-			</option>
-			<option value="default" <?php selected( $selection, 'default' ); ?>><?php esc_html_e( 'Default WordPress blue', 'aeon' ); ?></option>
-			<option value="production" <?php selected( $selection, 'production' ); ?>><?php esc_html_e( 'Production (red)', 'aeon' ); ?></option>
-			<option value="local" <?php selected( $selection, 'local' ); ?>><?php esc_html_e( 'Local (green)', 'aeon' ); ?></option>
-			<option value="development" <?php selected( $selection, 'development' ); ?>><?php esc_html_e( 'Development (orange)', 'aeon' ); ?></option>
+			<option value="default" <?php selected( $selection, 'default' ); ?>><?php esc_html_e( 'Default', 'aeon' ); ?></option>
+			<option value="production" <?php selected( $selection, 'production' ); ?>><?php esc_html_e( 'Production', 'aeon' ); ?></option>
+			<option value="development" <?php selected( $selection, 'development' ); ?>><?php esc_html_e( 'Development', 'aeon' ); ?></option>
+			<option value="local" <?php selected( $selection, 'local' ); ?>><?php esc_html_e( 'Local', 'aeon' ); ?></option>
 		</select>
-		<p class="description"><?php esc_html_e( 'Uses Bedrock WP_ENV, then WP_ENVIRONMENT_TYPE. Unknown or unset environments keep the default blue. You can select a colour manually to override detection.', 'aeon' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Default follows Bedrock WP_ENV, then WP_ENVIRONMENT_TYPE. Unsupported or unset environments use WordPress blue. Choose an environment to override detection.', 'aeon' ); ?></p>
 		<?php
 	}
 
@@ -205,22 +195,6 @@ final class SettingsPage {
 		<input id="<?php printf( '%s', esc_attr( $id ) ); ?>" class="regular-text" type="url" name="<?php printf( '%s', esc_attr( $name ) ); ?>" value="<?php printf( '%s', esc_attr( $value ) ); ?>" placeholder="https://example.com">
 		<p class="description"><?php esc_html_e( 'Enter each environment’s base URL. The active site URL is used automatically when its field is blank.', 'aeon' ); ?></p>
 		<?php
-	}
-
-	/**
-	 * Get the visible label for a supported environment.
-	 *
-	 * @param string $environment Environment slug.
-	 * @return string
-	 */
-	private static function environment_label( string $environment ): string {
-		$labels = array(
-			'production'  => __( 'Production (red)', 'aeon' ),
-			'local'       => __( 'Local (green)', 'aeon' ),
-			'development' => __( 'Development (orange)', 'aeon' ),
-		);
-
-		return $labels[ $environment ] ?? __( 'Default blue', 'aeon' );
 	}
 
 	/**

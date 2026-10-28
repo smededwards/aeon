@@ -2,7 +2,8 @@
  * Accent rules follow WordPress' modern admin scheme. Its neutral colours
  * remain controlled by the user's selected WordPress colour scheme.
  */
-a {
+.wp-core-ui a,
+.interface-interface-skeleton a {
 	color: var(--aeon-dashboard-accent);
 
 	&:hover,
@@ -189,19 +190,22 @@ a {
 		background-color: var(--aeon-dashboard-accent);
 	}
 
-	.wp-submenu {
-		a {
-			&:focus,
-			&:hover {
-				color: var(--aeon-dashboard-accent-menu);
-			}
+	.wp-submenu a,
+	.wp-has-current-submenu .wp-submenu a,
+	a.wp-has-current-submenu:focus + .wp-submenu a,
+	.wp-has-current-submenu.opensub .wp-submenu a {
+		&:focus,
+		&:hover {
+			color: var(--aeon-dashboard-accent-menu);
 		}
+	}
 
-		li.current a {
-			&:hover,
-			&:focus {
-				color: var(--aeon-dashboard-accent-menu);
-			}
+	.wp-submenu li.current a,
+	a.wp-has-current-submenu:focus + .wp-submenu li.current a,
+	.wp-has-current-submenu.opensub .wp-submenu li.current a {
+		&:hover,
+		&:focus {
+			color: var(--aeon-dashboard-accent-menu);
 		}
 	}
 
