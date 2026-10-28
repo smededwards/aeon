@@ -11,6 +11,8 @@
 	<!-- Keep the existing SettingsPage class name with a word-separated filename. -->
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
 		<exclude-pattern>*/admin/class-settings-page.php</exclude-pattern>
+		<!-- Use the preferred hyphenated WordPress filename for DashboardColour. -->
+		<exclude-pattern>*/admin/class-dashboard-colour.php</exclude-pattern>
 	</rule>
 
 	<!-- This adapter returns only the tested, immutable sanitised submission. -->

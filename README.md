@@ -59,6 +59,8 @@ Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/por
 
 Develop alongside `portfolio`, `obel` and `rune`, using the site's containers. Run `composer install` in this plugin directory to generate its development autoloader. When installed as a production Composer dependency, the site's autoloader loads Aeon's classes. A missing autoloader produces an administrator notice instead of a fatal error. No vendor directory is committed. After adding or moving classes, regenerate the classmap with `composer dump-autoload` in the plugin directory. After updating the package as a site dependency, regenerate the site's Composer metadata/autoloader too.
 
+Dashboard colours are authored in `src/scss/admin/` and compiled with the shared `@wordpress/scripts` Webpack setup to the ignored `build/` directory. Run `npm ci && npm run build` from this directory; use `npm run lint:js` and `npm run lint:scss` for code checks. From the portfolio directory, run `make assets-install assets-build`. CI and the deployment-candidate workflow build the stylesheet before packaging the site; generated assets are not committed.
+
 Run `composer validate --strict`, `composer lint` and PHP syntax checks. WordPress filename checks are enabled. Only the class-to-filename check for `admin/class-settings-page.php` is exempted, preserving the existing `SettingsPage` class name while using a hyphenated filename.
 
 Behavioural tests run against real WordPress, checking default/on/off behaviour, strict sanitisation, preservation of saved menu items and respect for theme-provided support. CI uses an isolated database and a minimal test theme without menu support. Locally, with Aeon active and Obel selected:
