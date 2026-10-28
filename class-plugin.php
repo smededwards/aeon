@@ -7,8 +7,10 @@
 
 namespace Aeon;
 
-use Aeon\Features\Contact;
+use Aeon\Admin\DashboardColour;
+use Aeon\Admin\Environment;
 use Aeon\Admin\SettingsPage;
+use Aeon\Features\Contact;
 use Aeon\Features\Navigation;
 use Aeon\Features\Emoji;
 use Aeon\Features\Comments;
@@ -21,6 +23,9 @@ use Aeon\Features\Editor;
  * Wires the plugin's services without changing behaviour in constructors.
  */
 final class Plugin {
+	/** Plugin release version, also used for inline dashboard styles. */
+	public const VERSION = '0.2.1';
+
 	/**
 	 * Register the plugin's features and administration hooks.
 	 *
@@ -37,5 +42,7 @@ final class Plugin {
 		( new Patterns( $settings ) )->register();
 		( new Editor( $settings ) )->register();
 		( new SettingsPage( $settings ) )->register();
+		( new DashboardColour() )->register();
+		( new Environment() )->register();
 	}
 }

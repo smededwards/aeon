@@ -16,6 +16,16 @@ jobs:
       - run: find . -path ./vendor -prune -o -path ./node_modules -prune -o -name '*.php' -print0 | xargs -0 -n 1 php -l
       - run: composer lint
       - run: node --check assets/seo.js
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:js && npm run lint:scss && npm run build
   integration:
     runs-on: ubuntu-latest
     services:

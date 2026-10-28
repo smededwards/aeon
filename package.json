@@ -1,0 +1,19 @@
+{
+	"name": "aeon",
+	"version": "0.2.1",
+	"private": true,
+	"engines": {
+		"node": ">=24 <25"
+	},
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"lint:js": "wp-scripts lint-js src webpack.config.js",
+		"lint:scss": "wp-scripts lint-style \"src/**/*.scss\"",
+		"lint:scss:fix": "npm run lint:scss -- --fix"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "37.0.0",
+		"mini-css-extract-plugin": "2.10.2"
+	}
+}
