@@ -11,7 +11,6 @@ use Aeon\Admin\DashboardColour;
 use Aeon\Admin\Environment;
 use Aeon\Admin\SettingsPage;
 use Aeon\Features\Contact;
-use Aeon\Features\Navigation;
 use Aeon\Features\Emoji;
 use Aeon\Features\Comments;
 use Aeon\Features\Seo;
@@ -34,7 +33,6 @@ final class Plugin {
 	public function register(): void {
 		$settings = new Settings();
 		( new Contact() )->register();
-		( new Navigation( $settings ) )->register();
 		( new Emoji() )->register();
 		( new Comments( $settings ) )->register();
 		( new Seo( $settings ) )->register();

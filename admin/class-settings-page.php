@@ -78,10 +78,13 @@ final class SettingsPage {
 				'show_in_rest'      => false,
 			)
 		);
-		add_settings_section( 'aeon_core', __( 'WordPress core features', 'aeon' ), '__return_null', self::PAGE );
-		add_settings_section( 'aeon_environment_urls', __( 'Environment switcher', 'aeon' ), '__return_null', self::PAGE );
-		add_settings_field( 'aeon_navigation', __( 'Classic navigation menus', 'aeon' ), array( $this, 'navigation_field' ), self::PAGE, 'aeon_core' );
-		foreach ( Environment::ENVIRONMENTS as $environment ) {
+		add_settings_section( 'aeon_dashboard', __( 'Dashboard', 'aeon' ), '__return_null', self::PAGE );
+		add_settings_section( 'aeon_content', __( 'Content', 'aeon' ), '__return_null', self::PAGE );
+		add_settings_section( 'aeon_editor', __( 'Editor', 'aeon' ), '__return_null', self::PAGE );
+		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_dashboard' );
+		$environments = Environment::ENVIRONMENTS;
+		sort( $environments, SORT_STRING );
+		foreach ( $environments as $environment ) {
 			add_settings_field(
 				'aeon_environment_url_' . $environment,
 				sprintf(
@@ -91,49 +94,55 @@ final class SettingsPage {
 				),
 				array( $this, 'environment_url_field' ),
 				self::PAGE,
-				'aeon_environment_urls',
+				'aeon_dashboard',
 				array( 'environment' => $environment )
 			);
 		}
-		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_environment_urls' );
 		$fields = array(
 			array(
-				'key'         => 'seo',
-				'title'       => __( 'SEO and sharing', 'aeon' ),
-				'label'       => __( 'Manage SEO and sharing metadata with Aeon', 'aeon' ),
-				'description' => __( 'Adds optional post/page fields and sharing tags. Turn this off before enabling another SEO metadata provider; saved overrides are retained.', 'aeon' ),
-			),
-			array(
-				'key'         => 'hide_openverse',
-				'title'       => __( 'Openverse', 'aeon' ),
-				'label'       => __( 'Hide Openverse in the editor', 'aeon' ),
-				'description' => __( 'Removes Openverse from editor media sources. Uploads and the Media Library remain available.', 'aeon' ),
-			),
-			array(
-				'key'         => 'simplify_blocks',
-				'title'       => __( 'Block editor', 'aeon' ),
-				'label'       => __( 'Simplify available blocks', 'aeon' ),
-				'description' => __( 'Limits the Posts, Pages and saved patterns inserter to essential content and layout blocks. Turning this off restores the full selection.', 'aeon' ),
-			),
-			array(
+				'section'     => 'aeon_content',
 				'key'         => 'disable_comments',
 				'title'       => __( 'Comments', 'aeon' ),
 				'label'       => __( 'Disable comments and pingbacks on Posts and Pages', 'aeon' ),
 				'description' => __( 'Hides comment interfaces while retaining saved comments and Settings → Discussion.', 'aeon' ),
 			),
 			array(
-				'key'         => 'patterns_shortcut',
-				'title'       => __( 'Patterns shortcut', 'aeon' ),
-				'label'       => __( 'Show Appearance → Patterns', 'aeon' ),
-				'description' => __( 'Adds a direct link to the native pattern manager. Turning it off hides only Aeon’s shortcut; patterns remain available through WordPress.', 'aeon' ),
+				'section'     => 'aeon_content',
+				'key'         => 'seo',
+				'title'       => __( 'SEO and sharing', 'aeon' ),
+				'label'       => __( 'Manage SEO and sharing metadata with Aeon', 'aeon' ),
+				'description' => __( 'Adds optional post/page fields and sharing tags. Turn this off before enabling another SEO metadata provider; saved overrides are retained.', 'aeon' ),
 			),
 			array(
+				'section'     => 'aeon_editor',
+				'key'         => 'simplify_blocks',
+				'title'       => __( 'Block editor', 'aeon' ),
+				'label'       => __( 'Simplify available blocks', 'aeon' ),
+				'description' => __( 'Limits the Posts, Pages and saved patterns inserter to essential content and layout blocks. Turning this off restores the full selection.', 'aeon' ),
+			),
+			array(
+				'section'     => 'aeon_editor',
+				'key'         => 'hide_openverse',
+				'title'       => __( 'Openverse', 'aeon' ),
+				'label'       => __( 'Hide Openverse in the editor', 'aeon' ),
+				'description' => __( 'Removes Openverse from editor media sources. Uploads and the Media Library remain available.', 'aeon' ),
+			),
+			array(
+				'section'     => 'aeon_editor',
 				'key'         => 'core_patterns',
 				'title'       => __( 'Bundled core patterns', 'aeon' ),
 				'label'       => __( 'Show WordPress’s bundled patterns', 'aeon' ),
 				'description' => __( 'Controls built-in core layouts. Theme, plugin, remote and saved user patterns are preserved.', 'aeon' ),
 			),
 			array(
+				'section'     => 'aeon_editor',
+				'key'         => 'patterns_shortcut',
+				'title'       => __( 'Patterns shortcut', 'aeon' ),
+				'label'       => __( 'Show Appearance → Patterns', 'aeon' ),
+				'description' => __( 'Adds a direct link to the native pattern manager. Turning it off hides only Aeon’s shortcut; patterns remain available through WordPress.', 'aeon' ),
+			),
+			array(
+				'section'     => 'aeon_editor',
 				'key'         => 'remote_patterns',
 				'title'       => __( 'Remote patterns', 'aeon' ),
 				'label'       => __( 'Allow patterns from WordPress.org', 'aeon' ),
@@ -141,24 +150,8 @@ final class SettingsPage {
 			),
 		);
 		foreach ( $fields as $field ) {
-			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'feature_field' ), self::PAGE, 'aeon_core', $field );
+			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'feature_field' ), self::PAGE, $field['section'], $field );
 		}
-	}
-
-	/**
-	 * Render an accessible checkbox and explicit unchecked value.
-	 *
-	 * @return void
-	 */
-	public function navigation_field(): void {
-		?>
-		<input type="hidden" name="<?php printf( '%s', esc_attr( Settings::OPTION ) ); ?>[navigation]" value="0">
-		<label for="aeon-navigation">
-			<input id="aeon-navigation" type="checkbox" name="<?php printf( '%s', esc_attr( Settings::OPTION ) ); ?>[navigation]" value="1" <?php checked( $this->settings->navigation_enabled() ); ?>>
-			<?php esc_html_e( 'Enable Appearance → Menus', 'aeon' ); ?>
-		</label>
-		<p class="description"><?php esc_html_e( 'Adds classic menu support to the active theme. Turning this off stops Aeon adding support; existing menus and support provided by your theme are preserved.', 'aeon' ); ?></p>
-		<?php
 	}
 
 	/** Render the dashboard colour selector. */
