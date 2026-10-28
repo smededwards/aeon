@@ -5,7 +5,7 @@
  * Author: Michael Edwards
  * Author URI: https://smededwards.com
  * Description: Portfolio functionality foundation.
- * Version: 0.1.0
+ * Version: 0.2.1
  * Requires PHP: 8.3
  * License: GPL-2.0-or-later
  * Text Domain: aeon
@@ -28,11 +28,13 @@ if ( ! class_exists( \Aeon\Plugin::class ) ) {
 		'admin_notices',
 		static function () {
 			if ( current_user_can( 'activate_plugins' ) ) {
-				echo '<div class="notice notice-error"><p>' . esc_html__( 'Aeon requires its Composer autoloader. Run Composer install for the site or plugin.', 'aeon' ) . '</p></div>';
+				printf( '<div class="notice notice-error"><p>%s</p></div>', esc_html__( 'Aeon requires its Composer autoloader. Run Composer install for the site or plugin.', 'aeon' ) );
 			}
 		}
 	);
 	return;
 }
+
+require_once __DIR__ . '/functions-contact.php';
 
 ( new \Aeon\Plugin() )->register();

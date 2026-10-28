@@ -15,6 +15,7 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
       - run: find . -path ./vendor -prune -o -path ./node_modules -prune -o -name '*.php' -print0 | xargs -0 -n 1 php -l
       - run: composer lint
+      - run: node --check assets/seo.js
   integration:
     runs-on: ubuntu-latest
     services:
@@ -48,3 +49,7 @@ jobs:
           wp theme activate aeon-test --path=/tmp/aeon-wordpress
           wp plugin activate aeon --path=/tmp/aeon-wordpress
       - run: WP_PATH=/tmp/aeon-wordpress sh tests/integration.sh
+      - run: WP_PATH=/tmp/aeon-wordpress sh tests/seo.sh
+      - run: WP_PATH=/tmp/aeon-wordpress sh tests/comments.sh
+      - run: wp eval-file tests/contact.php --path=/tmp/aeon-wordpress
+      - run: WP_PATH=/tmp/aeon-wordpress sh tests/editor.sh

@@ -1,0 +1,9 @@
+.aeon-seo__preview {
+	max-width: 100%;
+	height: auto;
+}
+
+.aeon-seo__preview[hidden],
+.aeon-seo__remove[hidden] {
+	display: none;
+}

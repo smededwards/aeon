@@ -10,6 +10,26 @@ Turning the setting off stops Aeon adding support on the next request. It never 
 
 Menu locations and frontend rendering belong to Obel. Aeon does not create menus, register layout-specific locations, change permissions or force menu output on the frontend.
 
+## Pattern controls
+
+Three independent settings are available under **Settings → Aeon**, all enabled by default:
+
+- **Patterns shortcut** adds **Appearance → Patterns**, linking to WordPress's native manager. It avoids duplicating an existing core shortcut. Turning it off removes only Aeon's link; the native Design/Editor screen and saved patterns remain accessible with their normal permissions.
+- **Bundled core patterns** controls the layouts supplied with WordPress. Turning it off unregisters only patterns marked with the `core` source, preserving theme/plugin patterns, categories and independently controlled remote patterns.
+- **Remote patterns** controls automatic WordPress.org pattern loading and manual directory REST queries. When disabled, the directory endpoint returns an explicit 403 response; other REST routes are unaffected. Existing saved patterns and content are preserved.
+
+The core and remote controls remain independent: Aeon does not remove `core-block-patterns` theme support, because WordPress uses that flag for both sources. Unsynced layouts already inserted into content and saved synced patterns continue to render. Obel remains responsible for designed theme patterns.
+
+## Contact submissions
+
+The input boundary lives in `features/contact/class-submission.php`. Its private constructor and readonly properties ensure delivery receives only factory-created, sanitised values and validation errors. Original lengths and email line breaks are checked before raw data is discarded; invalid values retained for feedback are bounded too. `functions-contact.php` provides the thin global `aeon_sanitise_contact_submission()` adapter because WPCS recognises global sanitising functions rather than class methods. The PHPCS ruleset registers only that adapter; no contact-form inline suppressions are needed.
+
+Rune’s Contact form block posts back to its published Page without frontend JavaScript. Aeon validates the page-bound nonce, honeypot, field types, required values, email syntax/header safety and length limits (name 100, email 254, message 5,000 characters), then sanitises the text before sending plain-text mail. The recipient is the WordPress administration email under Settings → General; visitors cannot override it. The sender uses `wordpress@` plus the site hostname, with the validated visitor address as Reply-To.
+
+Errors render on the same page with HTTP 422 and request-local retained values. Success redirects with HTTP 303 and a page-bound nonce receipt to prevent resubmission on refresh; the block receives verified success state from Aeon. No submission content is written to WordPress. A salted peer-address hash and attempt counter are retained for up to 15 minutes, with five attempts per window. This is a modest best-effort application limit; forwarded headers are not trusted. Contact pages send no-cache headers to keep nonces fresh; exclude them from any production page/CDN cache too.
+
+Run `docker compose run --rm tools wp eval-file /workspace/aeon/tests/contact.php` from the site directory. Tests intercept mail, remove their fixture page and rate counters, and cover validation, sanitisation, header injection, honeypot, rate limits and delivery failure. Local end-to-end delivery uses Mailpit; production delivery must be configured before launch.
+
 ## Architecture
 
 - `aeon.php`: small WordPress entry point and Composer autoloader fallback.
@@ -17,8 +37,23 @@ Menu locations and frontend rendering belong to Obel. Aeon does not create menus
 - `class-settings.php`: reads and sanitises known preferences.
 - `admin/class-settings-page.php`: native Settings API form, restricted to administrators.
 - `features/class-navigation.php`: theme support for classic navigation menus.
+- `features/class-patterns.php`: the native manager shortcut and pattern-source controls.
 
 Classes keep the `Aeon` namespace and existing class names. PHP files use lowercase, hyphenated WordPress-style names, grouped directly at the plugin root without a `src/` wrapper. Constructors receive dependencies; hook registration is explicit. No framework, service container or global singleton is required. Future core controls can live in separate feature classes.
+
+## SEO and sharing
+
+Posts and Pages have a native **Meta boxes → SEO and sharing** panel below the block editor (also available in the classic editor):
+
+- **SEO title** overrides the content portion of WordPress’s document title, retaining its site/tagline and pagination components. It does not rename the post/page.
+- **Meta description** overrides the default excerpt or short text summary. Core block-excerpt extraction excludes Query Loop/no-results content; no description is emitted when there is no useful text.
+- **Social image** uses the native Media Library picker. Leaving it unset, removing it, or deleting an unavailable override falls back to the featured image. Only image attachment IDs are stored. The existing full-size image is used; this feature creates no additional image sizes.
+
+Aeon adds one meta description plus Open Graph and Twitter Card tags on public Posts and Pages, including the static homepage and configured Posts index. It skips drafts, previews and password-protected/private content. Values are sanitised on save and escaped on output. Fields use native post meta, per-post edit permissions, edit-context REST schemas and revision support.
+
+Core continues to render the document title, canonical links, robots directives and XML sitemaps. Aeon does not print replacement title/canonical/robots markup. **Settings → Aeon → SEO and sharing** turns off Aeon’s metadata hooks and editor panel without deleting saved fields. Turn this off before enabling another SEO metadata provider to avoid duplicate tags.
+
+Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/seo.sh` from the site directory. The tests restore settings and remove their temporary posts/images. They cover fallbacks, overrides, escaping, image IDs, protected content, native REST/editor persistence, permissions and the handoff switch. Browser checks also cover selecting/removing a social image and saving through the block editor.
 
 ## Development and checks
 
@@ -32,10 +67,32 @@ Behavioural tests run against real WordPress, checking default/on/off behaviour,
 docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/integration.sh
 ```
 
-Run that command from the site directory. The tests temporarily create one menu and change Aeon's option, then restore the previous setting and remove the test menu. No theme files or other content are changed.
+Run that command from the site directory. The tests temporarily create one menu and one saved pattern, check all eight combinations of pattern controls, then restore the previous setting and remove both test fixtures. Directory-off behaviour is tested without making external network requests. No theme files or other content are changed.
 
 Code changes are reviewed locally first. Wait for explicit approval before committing, pushing or opening/updating a PR. Publish a new semantic version tag after checks pass, then update the site's production Composer lock separately. Development working copies remain linked locally; production keeps tagged dependencies.
+
+## Frontend emoji styles
+
+Aeon dequeues `wp-emoji-styles` after WordPress enqueues it, removing `wp-emoji-styles-inline-css` from the frontend. Emoji scripts and administration styles are unchanged.
 
 ## Contribution conventions
 
 Use Conventional Commit subjects and PR titles. The first commit is the sole exception: `Initial Commit`. See `AGENTS.md` for repository guidance.
+
+## Comment controls
+
+**Settings → Aeon → Comments** disables comments and pingbacks on Posts and Pages by default. It removes their editor support and comment columns, hides the Comments menu and toolbar shortcut, and suppresses classic comment output/counts and native discussion blocks. Settings → Discussion stays available. Existing comments and saved per-post discussion preferences are retained; turning the control off restores normal WordPress behaviour on the next request. Other post types are not changed.
+
+This controls the site's discussion interfaces, not access to stored comments through administrative APIs. It does not delete comments or alter their moderation status. WordPress handles rejection of new standard and REST comment submissions once discussion is closed.
+
+Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/comments.sh` from the site directory to check both modes. The runner restores the original option and removes its temporary posts/comments.
+
+## Editor controls
+
+**Settings → Aeon → Block editor → Simplify available blocks** is enabled by default. It limits the Posts, Pages and saved patterns inserter to essential native content and layout blocks, including Code, Table, Page List, synced patterns and the complete Query Loop hierarchy used by the portfolio. Other editor contexts are unchanged; earlier block restrictions are respected.
+
+Turning it off restores the selection on the next request. Blocks are not unregistered, saved content is not rewritten and frontend rendering is unchanged. Obel controls visual options such as gradients and duotone through `theme.json`.
+
+Run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/editor.sh` from the site directory to verify both modes. The runner restores the original settings.
+
+**Settings → Aeon → Openverse → Hide Openverse in the editor** is enabled by default, independently of block simplification. It disables the native Openverse media category across block editors while retaining uploads, the Media Library and existing images. Turning it off restores the normal editor setting.
