@@ -5,7 +5,7 @@
  * Author: Michael Edwards
  * Author URI: https://smededwards.com
  * Description: Portfolio functionality foundation.
- * Version: 0.1.0
+ * Version: 0.2.1
  * Requires PHP: 8.3
  * License: GPL-2.0-or-later
  * Text Domain: aeon
