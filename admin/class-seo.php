@@ -45,15 +45,20 @@ final class Seo {
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) || ! $screen || ! in_array( $screen->post_type, array( 'post', 'page' ), true ) ) {
 			return;
 		}
-		wp_enqueue_media();
 		$build_dir   = dirname( __DIR__ ) . '/build';
 		$asset_file  = $build_dir . '/seo.asset.php';
+		$script_file = $build_dir . '/seo.js';
+		$style_file  = $build_dir . '/seo.css';
+
+		if ( ! is_file( $script_file ) || ! is_file( $style_file ) ) {
+			return;
+		}
+
+		wp_enqueue_media();
 		$asset       = file_exists( $asset_file ) ? require $asset_file : array(
 			'dependencies' => array(),
 			'version'      => '0.0.0',
 		);
-		$script_file = $build_dir . '/seo.js';
-		$style_file  = $build_dir . '/seo.css';
 
 		wp_enqueue_script(
 			'aeon-seo',
