@@ -31,6 +31,7 @@ final class Seo {
 		if ( $this->settings->is_enabled( 'seo' ) ) {
 			add_filter( 'document_title_parts', array( $this, 'title_parts' ) );
 			add_action( 'wp_head', array( $this, 'head' ), 5 );
+			add_action( 'wp_head', array( $this, 'schema' ), 30 );
 		}
 	}
 
@@ -96,7 +97,11 @@ final class Seo {
 		return $parts;
 	}
 
-	/** Add one description and one set of platform-specific tags. */
+	/**
+	 * Output the page description and platform-specific sharing metadata.
+	 *
+	 * @return void
+	 */
 	public function head(): void {
 		$post = $this->context();
 		if ( ! $post ) {
@@ -105,6 +110,7 @@ final class Seo {
 		$title       = $this->plain_text( wp_get_document_title() );
 		$description = $this->description( $post );
 		$url         = is_home() ? get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false ) : wp_get_canonical_url( $post );
+		$url         = $url ? $url : get_permalink( $post );
 		$image       = $this->image( $post->ID );
 		if ( $description ) {
 			printf( '<meta name="description" content="%s">' . "\n", esc_attr( $description ) );
@@ -114,6 +120,7 @@ final class Seo {
 			'og:type'      => 'post' === $post->post_type ? 'article' : 'website',
 			'og:url'       => $url,
 			'og:site_name' => $this->plain_text( get_bloginfo( 'name' ) ),
+			'og:locale'    => str_replace( '-', '_', get_locale() ),
 		);
 		if ( $description ) {
 			$properties['og:description'] = $description;
@@ -122,7 +129,13 @@ final class Seo {
 			$properties['og:image']        = $image['url'];
 			$properties['og:image:width']  = (string) $image['width'];
 			$properties['og:image:height'] = (string) $image['height'];
-			$properties['og:image:alt']    = $image['alt'];
+			if ( $image['alt'] ) {
+				$properties['og:image:alt'] = $image['alt'];
+			}
+		}
+		if ( 'post' === $post->post_type ) {
+			$properties['article:published_time'] = get_post_time( DATE_W3C, false, $post );
+			$properties['article:modified_time']  = get_post_modified_time( DATE_W3C, false, $post );
 		}
 		foreach ( $properties as $property => $value ) {
 			printf( '<meta property="%s" content="%s">' . "\n", esc_attr( $property ), esc_attr( $value ) );
@@ -135,12 +148,36 @@ final class Seo {
 			$twitter['twitter:description'] = $description;
 		}
 		if ( $image ) {
-			$twitter['twitter:image']     = $image['url'];
-			$twitter['twitter:image:alt'] = $image['alt'];
+			$twitter['twitter:image'] = $image['url'];
+			if ( $image['alt'] ) {
+				$twitter['twitter:image:alt'] = $image['alt'];
+			}
 		}
 		foreach ( $twitter as $name => $value ) {
 			printf( '<meta name="%s" content="%s">' . "\n", esc_attr( $name ), esc_attr( $value ) );
 		}
+	}
+
+	/**
+	 * Output JSON-LD for the public person, website, page and article entities.
+	 *
+	 * @return void
+	 */
+	public function schema(): void {
+		$post = $this->context();
+		if ( ! $post ) {
+			return;
+		}
+
+		$json = wp_json_encode(
+			$this->schema_data( $post ),
+			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES
+		);
+		if ( ! is_string( $json ) ) {
+			return;
+		}
+
+		printf( "<script type=\"application/ld+json\">%s</script>\n", $json );
 	}
 
 	/**
@@ -192,6 +229,7 @@ final class Seo {
 			$source = wp_get_attachment_image_src( $id, 'full' );
 			if ( $source ) {
 				return array(
+					'id'     => $id,
 					'url'    => esc_url_raw( $source[0] ),
 					'width'  => $source[1],
 					'height' => $source[2],
@@ -200,6 +238,125 @@ final class Seo {
 			}
 		}
 		return array();
+	}
+
+	/**
+	 * Determine whether an attachment is the site's generic placeholder artwork.
+	 *
+	 * @param array $image Image metadata with an attachment ID.
+	 * @return bool Whether the source attachment is a placeholder.
+	 */
+	private function is_placeholder_image( array $image ): bool {
+		$file = get_attached_file( (int) ( $image['id'] ?? 0 ) );
+		return $file && 1 === preg_match( '/^placeholder(?:[-_].*)?\.[a-z0-9]+$/i', basename( $file ) );
+	}
+
+	/**
+	 * Build one connected schema graph for the current public page.
+	 *
+	 * The `aeon_seo_person_schema` filter lets the site add accurate person details,
+	 * such as job title, profile image and sameAs links, without hardcoding them in Aeon.
+	 *
+	 * @param \WP_Post $post Public page or post.
+	 * @return array Connected JSON-LD graph.
+	 */
+	private function schema_data( \WP_Post $post ): array {
+		$home_url   = home_url( '/' );
+		$person_id  = $home_url . '#person';
+		$website_id = $home_url . '#website';
+		$page_url   = is_home() ? get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false ) : wp_get_canonical_url( $post );
+		$page_url   = $page_url ? $page_url : get_permalink( $post );
+		$page_id    = $page_url . '#webpage';
+		$name       = $this->plain_text( get_bloginfo( 'name' ) );
+		$title      = $this->plain_text( wp_get_document_title() );
+		$person     = array(
+			'@type' => 'Person',
+			'@id'   => $person_id,
+			'name'  => $name,
+			'url'   => $home_url,
+		);
+		$person = apply_filters( 'aeon_seo_person_schema', $person, $post );
+		if ( ! is_array( $person ) ) {
+			$person = array();
+		}
+		$person = array_merge(
+			array(
+				'name' => $name,
+				'url'  => $home_url,
+			),
+			$person,
+			array(
+				'@type' => 'Person',
+				'@id'   => $person_id,
+			)
+		);
+
+		$website = array(
+			'@type'      => 'WebSite',
+			'@id'        => $website_id,
+			'url'        => $home_url,
+			'name'       => $name,
+			'inLanguage' => get_bloginfo( 'language' ),
+			'publisher'  => array( '@id' => $person_id ),
+		);
+		$page = array(
+			'@type'      => is_page( 'about' ) ? 'ProfilePage' : 'WebPage',
+			'@id'        => $page_id,
+			'url'        => $page_url,
+			'name'       => $title,
+			'isPartOf'   => array( '@id' => $website_id ),
+			'about'      => array( '@id' => $person_id ),
+			'inLanguage' => get_bloginfo( 'language' ),
+		);
+		$description = $this->description( $post );
+		$image       = $this->image( $post->ID );
+		$schema_image = $image && ! $this->is_placeholder_image( $image ) ? $image : array();
+		if ( $description ) {
+			$page['description'] = $description;
+		}
+		if ( $schema_image ) {
+			$page['primaryImageOfPage'] = array(
+				'@type'  => 'ImageObject',
+				'url'    => $schema_image['url'],
+				'width'  => $schema_image['width'],
+				'height' => $schema_image['height'],
+			);
+			if ( $schema_image['alt'] ) {
+				$page['primaryImageOfPage']['caption'] = $schema_image['alt'];
+			}
+		}
+		if ( 'ProfilePage' === $page['@type'] ) {
+			$page['mainEntity'] = array( '@id' => $person_id );
+		}
+
+		$graph = array( $person, $website, $page );
+		if ( 'post' === $post->post_type ) {
+			$headline = get_post_meta( $post->ID, self::TITLE, true );
+			$headline = $this->plain_text( $headline ? $headline : get_the_title( $post ) );
+			$article  = array(
+				'@type'            => 'BlogPosting',
+				'@id'              => $page_id . '#article',
+				'headline'         => $headline,
+				'mainEntityOfPage' => array( '@id' => $page_id ),
+				'author'           => array( '@id' => $person_id ),
+				'publisher'        => array( '@id' => $person_id ),
+				'datePublished'    => get_post_time( DATE_W3C, false, $post ),
+				'dateModified'     => get_post_modified_time( DATE_W3C, false, $post ),
+				'inLanguage'       => get_bloginfo( 'language' ),
+			);
+			if ( $description ) {
+				$article['description'] = $description;
+			}
+			if ( $schema_image ) {
+				$article['image'] = array( $schema_image['url'] );
+			}
+			$graph[] = $article;
+		}
+
+		return array(
+			'@context' => 'https://schema.org',
+			'@graph'   => $graph,
+		);
 	}
 
 	/**
