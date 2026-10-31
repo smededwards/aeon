@@ -12,6 +12,25 @@ $aeon_assert   = static function ( bool $condition, string $message ): void {
 	}
 };
 
+// An unset selection must retain the WordPress dashboard accent.
+$aeon_dashboard_option = get_option( \Aeon\Admin\DashboardColour::OPTION, null );
+try {
+	delete_option( \Aeon\Admin\DashboardColour::OPTION );
+	if ( ! defined( 'WP_ENV' ) ) {
+		define( 'WP_ENV', 'production' );
+	}
+	$aeon_dashboard_colour = new \Aeon\Admin\DashboardColour();
+	$aeon_dashboard_colour->enqueue_styles();
+	$aeon_assert( 'default' === \Aeon\Admin\DashboardColour::selection(), 'An unset dashboard colour must default to WordPress blue.' );
+	$aeon_assert( ! wp_style_is( 'aeon-dashboard-environment', 'enqueued' ), 'The default dashboard colour must not enqueue Aeon accents.' );
+} finally {
+	if ( null === $aeon_dashboard_option ) {
+		delete_option( \Aeon\Admin\DashboardColour::OPTION );
+	} else {
+		update_option( \Aeon\Admin\DashboardColour::OPTION, $aeon_dashboard_option );
+	}
+}
+
 $aeon_values = \Aeon\Settings::DEFAULTS;
 $aeon_assert( ! array_key_exists( 'navigation', $aeon_values ), 'Classic navigation must not be an Aeon feature setting.' );
 $aeon_assert(

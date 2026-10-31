@@ -62,14 +62,14 @@ final class Seo {
 
 		wp_enqueue_script(
 			'aeon-seo',
-			plugins_url( '../build/seo.js', __FILE__ ),
+			plugins_url( 'build/seo.js', dirname( __DIR__ ) . '/aeon.php' ),
 			array_merge( $asset['dependencies'], array( 'media-views' ) ),
 			(string) filemtime( $script_file ),
 			true
 		);
 		wp_enqueue_style(
 			'aeon-seo',
-			plugins_url( '../build/seo.css', __FILE__ ),
+			plugins_url( 'build/seo.css', dirname( __DIR__ ) . '/aeon.php' ),
 			array(),
 			(string) filemtime( $style_file )
 		);

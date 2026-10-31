@@ -13,6 +13,7 @@ jobs:
           tools: composer:2.8.12
       - run: composer validate --strict
       - run: composer install --no-interaction --prefer-dist
+      - run: php tests/environment.php priority && php tests/environment.php fallback && php tests/environment.php unsupported
       - run: find . -path ./vendor -prune -o -path ./node_modules -prune -o -name '*.php' -print0 | xargs -0 -n 1 php -l
       - run: composer lint
       - run: node --check src/js/admin/seo.js
@@ -41,11 +42,17 @@ jobs:
           --health-interval=5s --health-timeout=5s --health-retries=20
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+          cache: npm
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
           tools: composer:2.8.12, wp-cli:2.12.0
           extensions: mysqli
+      - run: npm ci
+      - run: npm run build
       - run: composer install --no-dev --no-interaction --prefer-dist
       - name: Prepare isolated WordPress
         run: |
@@ -62,4 +69,6 @@ jobs:
       - run: WP_PATH=/tmp/aeon-wordpress sh tests/seo.sh
       - run: WP_PATH=/tmp/aeon-wordpress sh tests/comments.sh
       - run: wp eval-file tests/contact.php --path=/tmp/aeon-wordpress
+      - run: wp eval-file tests/default-featured-image.php --path=/tmp/aeon-wordpress
+      - run: wp eval-file tests/media.php --path=/tmp/aeon-wordpress
       - run: WP_PATH=/tmp/aeon-wordpress sh tests/editor.sh
