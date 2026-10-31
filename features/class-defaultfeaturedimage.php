@@ -7,7 +7,7 @@
 
 namespace Aeon\Features;
 
-	// Supplies a configured image only when content has no featured image.
+/** Supplies a configured image only when content has no featured image. */
 final class DefaultFeaturedImage {
 	/** Option storing the fallback image attachment ID. */
 	public const OPTION = 'aeon_default_featured_image';
@@ -34,7 +34,7 @@ final class DefaultFeaturedImage {
 		}
 
 		$image_id = self::image_id();
-		return $image_id ?: $thumbnail_id;
+		return $image_id ? $image_id : $thumbnail_id;
 	}
 
 	/**
@@ -59,15 +59,9 @@ final class DefaultFeaturedImage {
 				'post_type'      => 'attachment',
 				'post_status'    => array( 'inherit', 'publish' ),
 				'post_mime_type' => 'image',
-				'posts_per_page' => -1,
+				'posts_per_page' => 1,
 				'fields'         => 'ids',
-				'meta_query'     => array(
-					array(
-						'key'     => '_wp_attached_file',
-						'value'   => 'placeholder.png',
-						'compare' => 'LIKE',
-					),
-				),
+				'name'           => 'placeholder',
 			)
 		);
 		foreach ( $attachments as $attachment_id ) {
@@ -87,9 +81,9 @@ final class DefaultFeaturedImage {
 	public static function image_id(): int {
 		static $configured_image_id = null;
 		if ( null === $configured_image_id ) {
-			$default_image_id = self::default_image_id();
-			$image_id         = absint( get_option( self::OPTION, $default_image_id ) );
-			$configured_image_id  = self::is_valid_image( $image_id ) ? $image_id : 0;
+			$default_image_id    = self::default_image_id();
+			$image_id            = absint( get_option( self::OPTION, $default_image_id ) );
+			$configured_image_id = self::is_valid_image( $image_id ) ? $image_id : 0;
 		}
 		return $configured_image_id;
 	}

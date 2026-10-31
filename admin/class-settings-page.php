@@ -238,10 +238,25 @@ final class SettingsPage {
 		?>
 		<div class="aeon-placeholder-image">
 			<input id="aeon-placeholder-image-id" type="hidden" name="<?php printf( '%s', esc_attr( DefaultFeaturedImage::OPTION ) ); ?>" value="<?php printf( '%s', esc_attr( (string) $image_id ) ); ?>">
-			<img class="aeon-placeholder-image__preview" id="aeon-placeholder-image-preview" <?php if ( $image_url ) : ?>src="<?php printf( '%s', esc_url( $image_url ) ); ?>"<?php else : ?>hidden<?php endif; ?> alt="">
+			<img
+				class="aeon-placeholder-image__preview"
+				id="aeon-placeholder-image-preview"
+				<?php if ( $image_url ) : ?>
+				src="<?php printf( '%s', esc_url( $image_url ) ); ?>"
+				<?php else : ?>
+				hidden
+				<?php endif; ?>
+				alt=""
+			>
 			<p>
 				<button class="button aeon-placeholder-image__choose" type="button"><?php esc_html_e( 'Choose image', 'aeon' ); ?></button>
-				<button class="button aeon-placeholder-image__clear" type="button" <?php if ( ! $image_id ) : ?>hidden<?php endif; ?>><?php esc_html_e( 'Clear', 'aeon' ); ?></button>
+				<button class="button aeon-placeholder-image__clear" type="button"
+					<?php if ( ! $image_id ) : ?>
+					hidden
+					<?php endif; ?>
+				>
+					<?php esc_html_e( 'Clear', 'aeon' ); ?>
+				</button>
 			</p>
 			<p class="description"><?php esc_html_e( 'Used as the featured image on Posts and Pages that do not have one. The Media Library’s placeholder.png is selected automatically when available. An image selected on an individual item takes precedence; Clear disables the fallback. A missing attachment is never applied.', 'aeon' ); ?></p>
 			<p class="aeon-placeholder-image__status screen-reader-text" aria-live="polite"></p>

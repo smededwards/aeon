@@ -7,9 +7,9 @@
 
 namespace Aeon\Features;
 
-// Enables WebP uploads and restricted SVG uploads for trusted administrators.
+/** Enables WebP uploads and restricted SVG uploads for trusted administrators. */
 final class MediaUploads {
-	// Register upload format filters.
+	/** Register upload format filters. */
 	public function register(): void {
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'check_filetype' ), 10, 5 );
@@ -63,7 +63,7 @@ final class MediaUploads {
 		return $data;
 	}
 
-	// Only administrators trusted to publish unfiltered markup can upload SVG.
+	/** Check whether the current user can upload unfiltered SVG markup. */
 	private function can_upload_svg(): bool {
 		return current_user_can( 'manage_options' ) && current_user_can( 'unfiltered_html' );
 	}
@@ -75,7 +75,16 @@ final class MediaUploads {
 	 * @return bool Whether the file is a valid SVG document.
 	 */
 	private function is_svg( string $file ): bool {
-		$contents = file_get_contents( $file );
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		global $wp_filesystem;
+		if ( ! WP_Filesystem() || ! $wp_filesystem instanceof \WP_Filesystem_Base ) {
+			return false;
+		}
+
+		$contents = $wp_filesystem->get_contents( $file );
 		if ( false === $contents || preg_match( '/<!DOCTYPE|<!ENTITY/i', $contents ) ) {
 			return false;
 		}

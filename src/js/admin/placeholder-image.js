@@ -47,9 +47,15 @@ import '../../scss/admin/_placeholder-image.scss';
 	function setPlaceholderImage() {
 		const image = picker.state().get( 'selection' ).first().toJSON();
 		const input = document.getElementById( 'aeon-placeholder-image-id' );
-		const preview = document.getElementById( 'aeon-placeholder-image-preview' );
-		const clearButton = document.querySelector( '.aeon-placeholder-image__clear' );
-		const status = document.querySelector( '.aeon-placeholder-image__status' );
+		const preview = document.getElementById(
+			'aeon-placeholder-image-preview'
+		);
+		const clearButton = document.querySelector(
+			'.aeon-placeholder-image__clear'
+		);
+		const status = document.querySelector(
+			'.aeon-placeholder-image__status'
+		);
 
 		input.value = image.id;
 		preview.src = image.sizes?.medium?.url || image.url;
@@ -68,10 +74,18 @@ import '../../scss/admin/_placeholder-image.scss';
 		event.preventDefault();
 
 		const input = document.getElementById( 'aeon-placeholder-image-id' );
-		const preview = document.getElementById( 'aeon-placeholder-image-preview' );
-		const chooseButton = document.querySelector( '.aeon-placeholder-image__choose' );
-		const clearButton = document.querySelector( '.aeon-placeholder-image__clear' );
-		const status = document.querySelector( '.aeon-placeholder-image__status' );
+		const preview = document.getElementById(
+			'aeon-placeholder-image-preview'
+		);
+		const chooseButton = document.querySelector(
+			'.aeon-placeholder-image__choose'
+		);
+		const clearButton = document.querySelector(
+			'.aeon-placeholder-image__clear'
+		);
+		const status = document.querySelector(
+			'.aeon-placeholder-image__status'
+		);
 
 		input.value = '0';
 		preview.removeAttribute( 'src' );
@@ -87,8 +101,12 @@ import '../../scss/admin/_placeholder-image.scss';
 	 * @return {void}
 	 */
 	function initialisePlaceholderImagePicker() {
-		const chooseButton = document.querySelector( '.aeon-placeholder-image__choose' );
-		const clearButton = document.querySelector( '.aeon-placeholder-image__clear' );
+		const chooseButton = document.querySelector(
+			'.aeon-placeholder-image__choose'
+		);
+		const clearButton = document.querySelector(
+			'.aeon-placeholder-image__clear'
+		);
 
 		if ( ! chooseButton || ! clearButton || ! window.wp?.media ) {
 			return;

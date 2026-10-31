@@ -16,6 +16,9 @@ module.exports = {
 	),
 	entry: {
 		'dashboard-colours': path.resolve( __dirname, 'src/index.js' ),
-		'placeholder-image': path.resolve( __dirname, 'src/js/admin/placeholder-image.js' ),
+		'placeholder-image': path.resolve(
+			__dirname,
+			'src/js/admin/placeholder-image.js'
+		),
 	},
 };
