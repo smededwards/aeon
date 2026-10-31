@@ -17,7 +17,7 @@ use WP_REST_Server;
  * Reuses WordPress's pattern manager without changing saved patterns.
  */
 final class Patterns {
-	/** Native pattern manager route; the core screen retains its permissions. */
+	// Native pattern manager route; the core screen retains its permissions.
 	public const MENU_SLUG = 'site-editor.php?p=/pattern';
 
 	/**

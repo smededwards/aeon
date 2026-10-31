@@ -24,7 +24,7 @@ use Aeon\Admin\Seo as SeoAdmin;
  * Wires the plugin's services without changing behaviour in constructors.
  */
 final class Plugin {
-	/** Plugin release version, also used for inline dashboard styles. */
+	// Plugin release version, also used for inline dashboard styles.
 	public const VERSION = '0.2.1';
 
 	/**

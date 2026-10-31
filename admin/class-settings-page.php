@@ -14,7 +14,7 @@ use Aeon\Settings;
  * Provides Settings → Aeon using the core Settings API.
  */
 final class SettingsPage {
-	/** Settings page and option group identifier. */
+	// Settings page and option group identifier.
 	private const PAGE = 'aeon';
 
 	/**
@@ -213,7 +213,11 @@ final class SettingsPage {
 		);
 	}
 
-	/** Render the dashboard colour selector. */
+	/**
+	 * Render the dashboard colour selector.
+	 *
+	 * @return void
+	 */
 	public function dashboard_environment_field(): void {
 		$selection = DashboardColour::selection();
 		?>

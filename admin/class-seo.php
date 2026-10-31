@@ -10,7 +10,9 @@ namespace Aeon\Admin;
 use Aeon\Features\Seo as Metadata;
 use Aeon\Settings;
 
-/** Uses native meta boxes and the WordPress media picker in both editors. */
+/**
+ * Uses native meta boxes and the WordPress media picker in both editors.
+ */
 final class Seo {
 	/**
 	 * Receive site preferences.
@@ -19,7 +21,11 @@ final class Seo {
 	 */
 	public function __construct( private readonly Settings $settings ) {}
 
-	/** Register only while Aeon manages SEO output. */
+	/**
+	 * Register only while Aeon manages SEO output.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		if ( ! $this->settings->is_enabled( 'seo' ) ) {
 			return;
@@ -30,7 +36,11 @@ final class Seo {
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 	}
 
-	/** Add a single native panel below the post/page editor. */
+	/**
+	 * Add a single native panel below the post/page editor.
+	 *
+	 * @return void
+	 */
 	public function add_box(): void {
 		add_meta_box( 'aeon-seo', __( 'SEO and sharing', 'aeon' ), array( $this, 'render' ), array( 'post', 'page' ), 'normal', 'default' );
 	}

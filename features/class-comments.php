@@ -9,7 +9,9 @@ namespace Aeon\Features;
 
 use Aeon\Settings;
 
-/** Closes discussion without altering saved comments or per-post preferences. */
+/**
+ * Closes discussion without altering saved comments or per-post preferences.
+ */
 final class Comments {
 	/**
 	 * Receive feature preferences.
@@ -18,7 +20,11 @@ final class Comments {
 	 */
 	public function __construct( private readonly Settings $settings ) {}
 
-	/** Register only while comment disabling is enabled. */
+	/**
+	 * Register only while comment disabling is enabled.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		if ( ! $this->settings->is_enabled( 'disable_comments' ) ) {
 			return;
@@ -37,7 +43,11 @@ final class Comments {
 		}
 	}
 
-	/** Remove native editor controls for these two post types only. */
+	/**
+	 * Remove native editor controls for these two post types only.
+	 *
+	 * @return void
+	 */
 	public function remove_support(): void {
 		foreach ( array( 'post', 'page' ) as $type ) {
 			remove_post_type_support( $type, 'comments' );
@@ -78,7 +88,11 @@ final class Comments {
 		return $this->applies_to( $post_id ) ? 0 : $count;
 	}
 
-	/** Hide the Comments menu; retain Settings → Discussion. */
+	/**
+	 * Hide the Comments menu; retain Settings → Discussion.
+	 *
+	 * @return void
+	 */
 	public function remove_menu(): void {
 		remove_menu_page( 'edit-comments.php' );
 	}

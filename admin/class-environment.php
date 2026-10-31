@@ -11,20 +11,24 @@ namespace Aeon\Admin;
  * Adds safe environment links to the admin toolbar and hides the redundant Bedrock notice.
  */
 final class Environment {
-	/** Environment URL option name. */
+	// Environment URL option name.
 	public const OPTION = 'aeon_environment_urls';
 
-	/** Available environment keys. */
+	// Available environment keys.
 	public const ENVIRONMENTS = array( 'local', 'development', 'production' );
 
-	/** Empty URLs keep destinations hidden until configured. */
+	// Empty URLs keep destinations hidden until configured.
 	public const DEFAULT_URLS = array(
 		'local'       => '',
 		'development' => '',
 		'production'  => '',
 	);
 
-	/** Register the environment tools. */
+	/**
+	 * Register the environment tools.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		add_filter( 'roots/bedrock/disallow_indexing_admin_notice', '__return_false' );
 		add_action( 'admin_bar_menu', array( $this, 'add_toolbar_switcher' ), 100 );
