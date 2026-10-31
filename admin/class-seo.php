@@ -99,7 +99,7 @@ final class Seo {
 					?>
 					hidden<?php endif; ?>><?php esc_html_e( 'Clear', 'aeon' ); ?></button>
 			</p>
-			<p class="description"><?php esc_html_e( 'The featured image is used unless you choose a different image here.', 'aeon' ); ?></p>
+			<p class="description"><?php esc_html_e( 'The featured image is used unless you choose a different image here. Use a page-specific image around 1200 × 630 px and add meaningful alt text in the Media Library for the best social previews.', 'aeon' ); ?></p>
 			<p class="aeon-seo__status screen-reader-text" aria-live="polite"></p>
 		</div>
 		<?php
