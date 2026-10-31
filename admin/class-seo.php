@@ -46,9 +46,28 @@ final class Seo {
 			return;
 		}
 		wp_enqueue_media();
-		$file = dirname( __DIR__ ) . '/assets/seo.js';
-		wp_enqueue_script( 'aeon-seo', plugins_url( 'assets/seo.js', dirname( __DIR__ ) . '/aeon.php' ), array( 'media-views' ), (string) filemtime( $file ), true );
-		wp_enqueue_style( 'aeon-seo', plugins_url( 'assets/seo.css', dirname( __DIR__ ) . '/aeon.php' ), array(), (string) filemtime( dirname( __DIR__ ) . '/assets/seo.css' ) );
+		$build_dir   = dirname( __DIR__ ) . '/build';
+		$asset_file  = $build_dir . '/seo.asset.php';
+		$asset       = file_exists( $asset_file ) ? require $asset_file : array(
+			'dependencies' => array(),
+			'version'      => '0.0.0',
+		);
+		$script_file = $build_dir . '/seo.js';
+		$style_file  = $build_dir . '/seo.css';
+
+		wp_enqueue_script(
+			'aeon-seo',
+			plugins_url( '../build/seo.js', __FILE__ ),
+			array_merge( $asset['dependencies'], array( 'media-views' ) ),
+			(string) filemtime( $script_file ),
+			true
+		);
+		wp_enqueue_style(
+			'aeon-seo',
+			plugins_url( '../build/seo.css', __FILE__ ),
+			array(),
+			(string) filemtime( $style_file )
+		);
 		wp_localize_script(
 			'aeon-seo',
 			'aeonSeo',

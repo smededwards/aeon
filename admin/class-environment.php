@@ -95,7 +95,7 @@ final class Environment {
 			return;
 		}
 
-		$environment = self::current_environment();
+		$environment = self::detected_environment();
 
 		if ( null === $environment ) {
 			return;
@@ -156,24 +156,36 @@ final class Environment {
 	 *
 	 * @return string|null
 	 */
-	private static function current_environment(): ?string {
+	public static function detected_environment(): ?string {
 		foreach ( array( 'WP_ENV', 'WP_ENVIRONMENT_TYPE' ) as $constant ) {
 			if ( ! defined( $constant ) ) {
 				continue;
 			}
 
-			$environment = strtolower( (string) constant( $constant ) );
-			$environment = array(
-				'prod' => 'production',
-				'dev'  => 'development',
-			)[ $environment ] ?? $environment;
+			$environment = self::normalise_environment( (string) constant( $constant ) );
 
-			if ( in_array( $environment, self::ENVIRONMENTS, true ) ) {
+			if ( $environment ) {
 				return $environment;
 			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Normalise supported environment aliases to the canonical environment key.
+	 *
+	 * @param string $environment Raw environment name.
+	 * @return string|null Canonical environment key, or null when unsupported.
+	 */
+	public static function normalise_environment( string $environment ): ?string {
+		$environment = strtolower( $environment );
+		$environment = array(
+			'prod' => 'production',
+			'dev'  => 'development',
+		)[ $environment ] ?? $environment;
+
+		return in_array( $environment, self::ENVIRONMENTS, true ) ? $environment : null;
 	}
 
 	/**

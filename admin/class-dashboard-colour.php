@@ -16,7 +16,7 @@ final class DashboardColour {
 	/** Settings API option name. */
 	public const OPTION = 'aeon_dashboard_environment';
 
-	/** Follow the detected Bedrock environment, falling back to WordPress blue. */
+	/** Use WordPress blue when no environment accent is selected. */
 	public const DEFAULT_SELECTION = 'default';
 
 	/** Environment accent colours. */
@@ -52,7 +52,7 @@ final class DashboardColour {
 	}
 
 	/**
-	 * Read the saved selection, preserving the environment-aware default.
+	 * Read the saved selection, defaulting to the WordPress blue accent.
 	 *
 	 * @return string
 	 */
@@ -66,23 +66,7 @@ final class DashboardColour {
 	 * @return string|null
 	 */
 	public static function detected_environment(): ?string {
-		foreach ( array( 'WP_ENV', 'WP_ENVIRONMENT_TYPE' ) as $constant ) {
-			if ( ! defined( $constant ) ) {
-				continue;
-			}
-
-			$environment = strtolower( (string) constant( $constant ) );
-			$environment = array(
-				'prod' => 'production',
-				'dev'  => 'development',
-			)[ $environment ] ?? $environment;
-
-			if ( array_key_exists( $environment, self::COLOURS ) ) {
-				return $environment;
-			}
-		}
-
-		return null;
+		return Environment::detected_environment();
 	}
 
 	/** Enqueue the dashboard accent stylesheet. */
@@ -135,13 +119,7 @@ final class DashboardColour {
 	private function active_environment(): ?string {
 		$selection = self::selection();
 
-		if ( 'default' === $selection ) {
-			return null;
-		}
-
-		return self::DEFAULT_SELECTION === $selection
-			? self::detected_environment()
-			: $selection;
+		return self::DEFAULT_SELECTION === $selection ? null : $selection;
 	}
 
 	/**
