@@ -55,7 +55,7 @@ final class Seo {
 		}
 
 		wp_enqueue_media();
-		$asset       = file_exists( $asset_file ) ? require $asset_file : array(
+		$asset = file_exists( $asset_file ) ? require $asset_file : array(
 			'dependencies' => array(),
 			'version'      => '0.0.0',
 		);
