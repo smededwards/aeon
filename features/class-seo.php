@@ -177,7 +177,7 @@ final class Seo {
 			return;
 		}
 
-		printf( "<script type=\"application/ld+json\">%s</script>\n", $json );
+		wp_print_inline_script_tag( $json, array( 'type' => 'application/ld+json' ) );
 	}
 
 	/**
@@ -275,7 +275,7 @@ final class Seo {
 			'name'  => $name,
 			'url'   => $home_url,
 		);
-		$person = apply_filters( 'aeon_seo_person_schema', $person, $post );
+		$person     = apply_filters( 'aeon_seo_person_schema', $person, $post );
 		if ( ! is_array( $person ) ) {
 			$person = array();
 		}
@@ -291,7 +291,7 @@ final class Seo {
 			)
 		);
 
-		$website = array(
+		$website      = array(
 			'@type'      => 'WebSite',
 			'@id'        => $website_id,
 			'url'        => $home_url,
@@ -299,7 +299,7 @@ final class Seo {
 			'inLanguage' => get_bloginfo( 'language' ),
 			'publisher'  => array( '@id' => $person_id ),
 		);
-		$page = array(
+		$page         = array(
 			'@type'      => is_page( 'about' ) ? 'ProfilePage' : 'WebPage',
 			'@id'        => $page_id,
 			'url'        => $page_url,
@@ -308,8 +308,8 @@ final class Seo {
 			'about'      => array( '@id' => $person_id ),
 			'inLanguage' => get_bloginfo( 'language' ),
 		);
-		$description = $this->description( $post );
-		$image       = $this->image( $post->ID );
+		$description  = $this->description( $post );
+		$image        = $this->image( $post->ID );
 		$schema_image = $image && ! $this->is_placeholder_image( $image ) ? $image : array();
 		if ( $description ) {
 			$page['description'] = $description;
