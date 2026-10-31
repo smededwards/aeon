@@ -20,5 +20,6 @@ module.exports = {
 			__dirname,
 			'src/js/admin/placeholder-image.js'
 		),
+		seo: path.resolve( __dirname, 'src/js/admin/seo.js' ),
 	},
 };

@@ -14,7 +14,7 @@ use Aeon\Settings;
  * Provides Settings → Aeon using the core Settings API.
  */
 final class SettingsPage {
-	/** Settings page and option group identifier. */
+	// Settings page and option group identifier.
 	private const PAGE = 'aeon';
 
 	/**
@@ -213,7 +213,11 @@ final class SettingsPage {
 		);
 	}
 
-	/** Render the dashboard colour selector. */
+	/**
+	 * Render the dashboard colour selector.
+	 *
+	 * @return void
+	 */
 	public function dashboard_environment_field(): void {
 		$selection = DashboardColour::selection();
 		?>
@@ -223,7 +227,7 @@ final class SettingsPage {
 			<option value="development" <?php selected( $selection, 'development' ); ?>><?php esc_html_e( 'Development', 'aeon' ); ?></option>
 			<option value="local" <?php selected( $selection, 'local' ); ?>><?php esc_html_e( 'Local', 'aeon' ); ?></option>
 		</select>
-		<p class="description"><?php esc_html_e( 'Default follows Bedrock WP_ENV, then WP_ENVIRONMENT_TYPE. Unsupported or unset environments use WordPress blue. Choose an environment to override detection.', 'aeon' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Default uses the WordPress blue accent. Choose an environment to apply its dashboard colour.', 'aeon' ); ?></p>
 		<?php
 	}
 

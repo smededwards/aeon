@@ -13,20 +13,24 @@ use Aeon\Plugin;
  * Applies an optional dashboard accent based on the Bedrock environment.
  */
 final class DashboardColour {
-	/** Settings API option name. */
+	// Settings API option name.
 	public const OPTION = 'aeon_dashboard_environment';
 
-	/** Follow the detected Bedrock environment, falling back to WordPress blue. */
+	// Use WordPress blue when no environment accent is selected.
 	public const DEFAULT_SELECTION = 'default';
 
-	/** Environment accent colours. */
+	// Environment accent colours.
 	private const COLOURS = array(
 		'production'  => '#E93845',
 		'local'       => '#269B50',
 		'development' => '#E98220',
 	);
 
-	/** Register dashboard and editor styles. */
+	/**
+	 * Register dashboard and editor styles.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_styles' ) );
@@ -52,7 +56,7 @@ final class DashboardColour {
 	}
 
 	/**
-	 * Read the saved selection, preserving the environment-aware default.
+	 * Read the saved selection, defaulting to the WordPress blue accent.
 	 *
 	 * @return string
 	 */
@@ -66,26 +70,14 @@ final class DashboardColour {
 	 * @return string|null
 	 */
 	public static function detected_environment(): ?string {
-		foreach ( array( 'WP_ENV', 'WP_ENVIRONMENT_TYPE' ) as $constant ) {
-			if ( ! defined( $constant ) ) {
-				continue;
-			}
-
-			$environment = strtolower( (string) constant( $constant ) );
-			$environment = array(
-				'prod' => 'production',
-				'dev'  => 'development',
-			)[ $environment ] ?? $environment;
-
-			if ( array_key_exists( $environment, self::COLOURS ) ) {
-				return $environment;
-			}
-		}
-
-		return null;
+		return Environment::detected_environment();
 	}
 
-	/** Enqueue the dashboard accent stylesheet. */
+	/**
+	 * Enqueue the dashboard accent stylesheet.
+	 *
+	 * @return void
+	 */
 	public function enqueue_styles(): void {
 		$environment = $this->active_environment();
 
@@ -96,7 +88,11 @@ final class DashboardColour {
 		$this->enqueue_accent_styles( $this->dashboard_variables_css( $environment ) );
 	}
 
-	/** Enqueue the environment palette in the block editor interface. */
+	/**
+	 * Enqueue the environment palette in the block editor interface.
+	 *
+	 * @return void
+	 */
 	public function enqueue_editor_styles(): void {
 		$environment = $this->active_environment();
 
@@ -112,7 +108,11 @@ final class DashboardColour {
 		}
 	}
 
-	/** Apply the environment palette to the block editor canvas without affecting the front end. */
+	/**
+	 * Apply the environment palette to the block editor canvas without affecting the front end.
+	 *
+	 * @return void
+	 */
 	public function enqueue_editor_canvas_styles(): void {
 		if ( ! is_admin() ) {
 			return;
@@ -135,13 +135,7 @@ final class DashboardColour {
 	private function active_environment(): ?string {
 		$selection = self::selection();
 
-		if ( 'default' === $selection ) {
-			return null;
-		}
-
-		return self::DEFAULT_SELECTION === $selection
-			? self::detected_environment()
-			: $selection;
+		return self::DEFAULT_SELECTION === $selection ? null : $selection;
 	}
 
 	/**

@@ -7,9 +7,15 @@
 
 namespace Aeon\Features;
 
-/** Enables WebP uploads and restricted SVG uploads for trusted administrators. */
+/**
+ * Enables WebP uploads and restricted SVG uploads for trusted administrators.
+ */
 final class MediaUploads {
-	/** Register upload format filters. */
+	/**
+	 * Register upload format filters.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'check_filetype' ), 10, 5 );
@@ -63,7 +69,11 @@ final class MediaUploads {
 		return $data;
 	}
 
-	/** Check whether the current user can upload unfiltered SVG markup. */
+	/**
+	 * Check whether the current user can upload unfiltered SVG markup.
+	 *
+	 * @return bool Whether the current user can upload SVG files.
+	 */
 	private function can_upload_svg(): bool {
 		return current_user_can( 'manage_options' ) && current_user_can( 'unfiltered_html' );
 	}

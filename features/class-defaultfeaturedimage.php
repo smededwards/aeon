@@ -7,9 +7,11 @@
 
 namespace Aeon\Features;
 
-/** Supplies a configured image only when content has no featured image. */
+/**
+ * Supplies a configured image only when content has no featured image.
+ */
 final class DefaultFeaturedImage {
-	/** Option storing the fallback image attachment ID. */
+	// Option storing the fallback image attachment ID.
 	public const OPTION = 'aeon_default_featured_image';
 
 	/**

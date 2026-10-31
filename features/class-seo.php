@@ -9,13 +9,15 @@ namespace Aeon\Features;
 
 use Aeon\Settings;
 
-/** Extends native document titles without replacing core canonical or sitemap output. */
+/**
+ * Extends native document titles without replacing core canonical or sitemap output.
+ */
 final class Seo {
-	/** Native post-meta key for the optional title. */
+	// Native post-meta key for the optional title.
 	public const TITLE = '_aeon_seo_title';
-	/** Native post-meta key for the optional description. */
+	// Native post-meta key for the optional description.
 	public const DESCRIPTION = '_aeon_seo_description';
-	/** Native post-meta key for the optional social attachment. */
+	// Native post-meta key for the optional social attachment.
 	public const IMAGE = '_aeon_social_image';
 
 	/**
@@ -25,7 +27,11 @@ final class Seo {
 	 */
 	public function __construct( private readonly Settings $settings ) {}
 
-	/** Register native metadata; output is optional and can be handed to another provider. */
+	/**
+	 * Register native metadata; output is optional and can be handed to another provider.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		add_action( 'init', array( $this, 'register_meta' ) );
 		if ( $this->settings->is_enabled( 'seo' ) ) {
@@ -35,7 +41,11 @@ final class Seo {
 		}
 	}
 
-	/** Register only the three post/page fields, with native REST and revision support. */
+	/**
+	 * Register only the three post/page fields, with native REST and revision support.
+	 *
+	 * @return void
+	 */
 	public function register_meta(): void {
 		foreach ( array( 'post', 'page' ) as $type ) {
 			foreach ( array( self::TITLE, self::DESCRIPTION, self::IMAGE ) as $key ) {

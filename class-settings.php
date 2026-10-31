@@ -11,10 +11,10 @@ namespace Aeon;
  * Reads and sanitises the site's Aeon settings.
  */
 final class Settings {
-	/** Option key shared with the WordPress Settings API. */
+	// Option key shared with the WordPress Settings API.
 	public const OPTION = 'aeon_core_features';
 
-	/** Default behaviour for known controls; absent new settings stay enabled. */
+	// Default behaviour for known controls; absent new settings stay enabled.
 	public const DEFAULTS = array(
 		'seo'               => true,
 		'disable_comments'  => true,

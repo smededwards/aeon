@@ -10,7 +10,9 @@ namespace Aeon\Admin;
 use Aeon\Features\Seo as Metadata;
 use Aeon\Settings;
 
-/** Uses native meta boxes and the WordPress media picker in both editors. */
+/**
+ * Uses native meta boxes and the WordPress media picker in both editors.
+ */
 final class Seo {
 	/**
 	 * Receive site preferences.
@@ -19,7 +21,11 @@ final class Seo {
 	 */
 	public function __construct( private readonly Settings $settings ) {}
 
-	/** Register only while Aeon manages SEO output. */
+	/**
+	 * Register only while Aeon manages SEO output.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		if ( ! $this->settings->is_enabled( 'seo' ) ) {
 			return;
@@ -30,7 +36,11 @@ final class Seo {
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 	}
 
-	/** Add a single native panel below the post/page editor. */
+	/**
+	 * Add a single native panel below the post/page editor.
+	 *
+	 * @return void
+	 */
 	public function add_box(): void {
 		add_meta_box( 'aeon-seo', __( 'SEO and sharing', 'aeon' ), array( $this, 'render' ), array( 'post', 'page' ), 'normal', 'default' );
 	}
@@ -45,10 +55,34 @@ final class Seo {
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) || ! $screen || ! in_array( $screen->post_type, array( 'post', 'page' ), true ) ) {
 			return;
 		}
+		$build_dir   = dirname( __DIR__ ) . '/build';
+		$asset_file  = $build_dir . '/seo.asset.php';
+		$script_file = $build_dir . '/seo.js';
+		$style_file  = $build_dir . '/seo.css';
+
+		if ( ! is_file( $script_file ) || ! is_file( $style_file ) ) {
+			return;
+		}
+
 		wp_enqueue_media();
-		$file = dirname( __DIR__ ) . '/assets/seo.js';
-		wp_enqueue_script( 'aeon-seo', plugins_url( 'assets/seo.js', dirname( __DIR__ ) . '/aeon.php' ), array( 'media-views' ), (string) filemtime( $file ), true );
-		wp_enqueue_style( 'aeon-seo', plugins_url( 'assets/seo.css', dirname( __DIR__ ) . '/aeon.php' ), array(), (string) filemtime( dirname( __DIR__ ) . '/assets/seo.css' ) );
+		$asset = file_exists( $asset_file ) ? require $asset_file : array(
+			'dependencies' => array(),
+			'version'      => '0.0.0',
+		);
+
+		wp_enqueue_script(
+			'aeon-seo',
+			plugins_url( 'build/seo.js', dirname( __DIR__ ) . '/aeon.php' ),
+			array_merge( $asset['dependencies'], array( 'media-views' ) ),
+			(string) filemtime( $script_file ),
+			true
+		);
+		wp_enqueue_style(
+			'aeon-seo',
+			plugins_url( 'build/seo.css', dirname( __DIR__ ) . '/aeon.php' ),
+			array(),
+			(string) filemtime( $style_file )
+		);
 		wp_localize_script(
 			'aeon-seo',
 			'aeonSeo',
