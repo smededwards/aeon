@@ -7,6 +7,7 @@
 
 namespace Aeon\Admin;
 
+use Aeon\Features\DefaultFeaturedImage;
 use Aeon\Settings;
 
 /**
@@ -31,6 +32,7 @@ final class SettingsPage {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 	}
 
 	/**
@@ -75,6 +77,16 @@ final class SettingsPage {
 				'type'              => 'array',
 				'default'           => Environment::DEFAULT_URLS,
 				'sanitize_callback' => array( Environment::class, 'sanitise_urls' ),
+				'show_in_rest'      => false,
+			)
+		);
+		register_setting(
+			self::PAGE,
+			DefaultFeaturedImage::OPTION,
+			array(
+				'type'              => 'integer',
+				'default'           => DefaultFeaturedImage::default_image_id(),
+				'sanitize_callback' => array( DefaultFeaturedImage::class, 'sanitise_image' ),
 				'show_in_rest'      => false,
 			)
 		);
@@ -150,8 +162,55 @@ final class SettingsPage {
 			),
 		);
 		foreach ( $fields as $field ) {
+			if ( 'seo' === $field['key'] ) {
+				add_settings_field( 'aeon_placeholder_image', __( 'Default featured image', 'aeon' ), array( $this, 'placeholder_image_field' ), self::PAGE, 'aeon_content' );
+			}
 			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'feature_field' ), self::PAGE, $field['section'], $field );
 		}
+	}
+
+	/**
+	 * Load the media picker only on Settings → Aeon.
+	 *
+	 * @param string $hook Current administration screen hook.
+	 * @return void
+	 */
+	public function assets( string $hook ): void {
+		if ( 'settings_page_' . self::PAGE !== $hook ) {
+			return;
+		}
+
+		$script = dirname( __DIR__ ) . '/build/placeholder-image.js';
+		$style  = dirname( __DIR__ ) . '/build/placeholder-image.css';
+
+		if ( ! is_file( $script ) || ! is_file( $style ) ) {
+			return;
+		}
+
+		wp_enqueue_media();
+		wp_enqueue_script(
+			'aeon-placeholder-image',
+			plugins_url( 'build/placeholder-image.js', dirname( __DIR__ ) . '/aeon.php' ),
+			array( 'media-views' ),
+			(string) filemtime( $script ),
+			true
+		);
+		wp_enqueue_style(
+			'aeon-placeholder-image',
+			plugins_url( 'build/placeholder-image.css', dirname( __DIR__ ) . '/aeon.php' ),
+			array(),
+			(string) filemtime( $style )
+		);
+		wp_localize_script(
+			'aeon-placeholder-image',
+			'aeonPlaceholderImage',
+			array(
+				'title'    => __( 'Choose the default featured image', 'aeon' ),
+				'button'   => __( 'Use as default featured image', 'aeon' ),
+				'selected' => __( 'Default featured image selected.', 'aeon' ),
+				'removed'  => __( 'Default featured image cleared.', 'aeon' ),
+			)
+		);
 	}
 
 	/** Render the dashboard colour selector. */
@@ -165,6 +224,43 @@ final class SettingsPage {
 			<option value="local" <?php selected( $selection, 'local' ); ?>><?php esc_html_e( 'Local', 'aeon' ); ?></option>
 		</select>
 		<p class="description"><?php esc_html_e( 'Default follows Bedrock WP_ENV, then WP_ENVIRONMENT_TYPE. Unsupported or unset environments use WordPress blue. Choose an environment to override detection.', 'aeon' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Render the fallback featured image selector.
+	 *
+	 * @return void
+	 */
+	public function placeholder_image_field(): void {
+		$image_id  = DefaultFeaturedImage::image_id();
+		$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'medium' ) : false;
+		?>
+		<div class="aeon-placeholder-image">
+			<input id="aeon-placeholder-image-id" type="hidden" name="<?php printf( '%s', esc_attr( DefaultFeaturedImage::OPTION ) ); ?>" value="<?php printf( '%s', esc_attr( (string) $image_id ) ); ?>">
+			<img
+				class="aeon-placeholder-image__preview"
+				id="aeon-placeholder-image-preview"
+				<?php if ( $image_url ) : ?>
+				src="<?php printf( '%s', esc_url( $image_url ) ); ?>"
+				<?php else : ?>
+				hidden
+				<?php endif; ?>
+				alt=""
+			>
+			<p>
+				<button class="button aeon-placeholder-image__choose" type="button"><?php esc_html_e( 'Choose image', 'aeon' ); ?></button>
+				<button class="button aeon-placeholder-image__clear" type="button"
+					<?php if ( ! $image_id ) : ?>
+					hidden
+					<?php endif; ?>
+				>
+					<?php esc_html_e( 'Clear', 'aeon' ); ?>
+				</button>
+			</p>
+			<p class="description"><?php esc_html_e( 'Used as the featured image on Posts and Pages that do not have one. The Media Library’s placeholder.png is selected automatically when available. An image selected on an individual item takes precedence; Clear disables the fallback. A missing attachment is never applied.', 'aeon' ); ?></p>
+			<p class="aeon-placeholder-image__status screen-reader-text" aria-live="polite"></p>
+		</div>
 		<?php
 	}
 

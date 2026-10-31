@@ -1,0 +1,9 @@
+.aeon-placeholder-image__preview {
+	height: auto;
+	max-width: 240px;
+}
+
+.aeon-placeholder-image__preview[hidden],
+.aeon-placeholder-image__clear[hidden] {
+	display: none;
+}
