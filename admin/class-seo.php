@@ -83,16 +83,6 @@ final class Seo {
 			array(),
 			(string) filemtime( $style_file )
 		);
-		wp_localize_script(
-			'aeon-seo',
-			'aeonSeo',
-			array(
-				'title'    => __( 'Choose a social image', 'aeon' ),
-				'button'   => __( 'Use this image', 'aeon' ),
-				'selected' => __( 'Social image selected.', 'aeon' ),
-				'removed'  => __( 'Using the featured image.', 'aeon' ),
-			)
-		);
 	}
 
 	/**
@@ -103,7 +93,13 @@ final class Seo {
 	public function render( \WP_Post $post ): void {
 		wp_nonce_field( 'aeon_seo_' . $post->ID, '_aeon_seo_nonce' );
 		?>
-		<div class="aeon-seo">
+		<div
+			class="aeon-seo"
+			data-image-title="<?php printf( '%s', esc_attr__( 'Choose a social image', 'aeon' ) ); ?>"
+			data-image-button="<?php printf( '%s', esc_attr__( 'Use this image', 'aeon' ) ); ?>"
+			data-image-selected="<?php printf( '%s', esc_attr__( 'Social image selected.', 'aeon' ) ); ?>"
+			data-image-removed="<?php printf( '%s', esc_attr__( 'Using the featured image.', 'aeon' ) ); ?>"
+		>
 			<p><label for="aeon-seo-title-input"><?php esc_html_e( 'SEO title', 'aeon' ); ?></label></p>
 			<input class="widefat" id="aeon-seo-title-input" name="_aeon_seo_title" type="text" value="<?php printf( '%s', esc_attr( get_post_meta( $post->ID, Metadata::TITLE, true ) ) ); ?>" aria-describedby="aeon-seo-title-help">
 			<p class="description" id="aeon-seo-title-help"><?php esc_html_e( 'Optional. Leave blank for the WordPress title. Site name/tagline and pagination remain managed by WordPress.', 'aeon' ); ?></p>

@@ -85,7 +85,6 @@ final class SettingsPage {
 			DefaultFeaturedImage::OPTION,
 			array(
 				'type'              => 'integer',
-				'default'           => DefaultFeaturedImage::default_image_id(),
 				'sanitize_callback' => array( DefaultFeaturedImage::class, 'sanitise_image' ),
 				'show_in_rest'      => false,
 			)
@@ -201,16 +200,6 @@ final class SettingsPage {
 			array(),
 			(string) filemtime( $style )
 		);
-		wp_localize_script(
-			'aeon-placeholder-image',
-			'aeonPlaceholderImage',
-			array(
-				'title'    => __( 'Choose the default featured image', 'aeon' ),
-				'button'   => __( 'Use as default featured image', 'aeon' ),
-				'selected' => __( 'Default featured image selected.', 'aeon' ),
-				'removed'  => __( 'Default featured image cleared.', 'aeon' ),
-			)
-		);
 	}
 
 	/**
@@ -240,7 +229,13 @@ final class SettingsPage {
 		$image_id  = DefaultFeaturedImage::image_id();
 		$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'medium' ) : false;
 		?>
-		<div class="aeon-placeholder-image">
+		<div
+			class="aeon-placeholder-image"
+			data-image-title="<?php printf( '%s', esc_attr__( 'Choose the default featured image', 'aeon' ) ); ?>"
+			data-image-button="<?php printf( '%s', esc_attr__( 'Use as default featured image', 'aeon' ) ); ?>"
+			data-image-selected="<?php printf( '%s', esc_attr__( 'Default featured image selected.', 'aeon' ) ); ?>"
+			data-image-removed="<?php printf( '%s', esc_attr__( 'Default featured image cleared.', 'aeon' ) ); ?>"
+		>
 			<input id="aeon-placeholder-image-id" type="hidden" name="<?php printf( '%s', esc_attr( DefaultFeaturedImage::OPTION ) ); ?>" value="<?php printf( '%s', esc_attr( (string) $image_id ) ); ?>">
 			<img
 				class="aeon-placeholder-image__preview"
