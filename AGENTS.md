@@ -25,6 +25,8 @@ Apply these principles while planning, implementing and reviewing every change a
 - Create focused feature branches from the latest `dev`; target feature PRs at `dev` and squash-merge using their Conventional Commit titles.
 - Release connected batches through a `dev` to `main` PR using a merge commit with a Conventional Commit subject. Preserve feature history and fast-forward `dev` to released `main` before new work.
 - Version each repository independently. Tag only the approved release commit on `main`; published tags are immutable. Releases and deployments require explicit agreement.
+- Track the work merged into each repository's `dev` branch and proactively recommend a semantic version bump when a substantive release batch has accumulated. Base the recommendation on the changes' impact, not a fixed PR or feature count, and explain the proposed bump before preparing release metadata.
+- Keep reviewable changes in their corresponding local repository or GitHub PR. When an isolated worktree is useful, place it under the shared portfolio workspace's `.worktrees/<repo>-<purpose>` directory; do not leave review copies in generic temporary folders.
 - Keep `main` as the GitHub default branch. Avoid stacked PRs unless agreed; merge dependencies into `dev` first.
 - The local approval requirement above applies before publishing new changes.
 
