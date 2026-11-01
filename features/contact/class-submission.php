@@ -7,7 +7,9 @@
 
 namespace Aeon\Features\Contact;
 
-/** Keeps raw input out of delivery code, even when validation fails. */
+/**
+ * Keeps raw input out of delivery code, even when validation fails.
+ */
 final class Submission {
 
 	/**

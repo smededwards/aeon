@@ -9,10 +9,12 @@ namespace Aeon\Features;
 
 use Aeon\Settings;
 
-/** Limits editor choices without unregistering blocks or altering saved content. */
+/**
+ * Limits editor choices without unregistering blocks or altering saved content.
+ */
 final class Editor {
 
-	/** Content, layout and nested blocks used by the portfolio. */
+	// Content, layout and nested blocks used by the portfolio.
 	private const BLOCKS = array(
 		'rune/contact-form',
 		'core/paragraph',
@@ -68,7 +70,11 @@ final class Editor {
 	 */
 	public function __construct( private readonly Settings $settings ) {}
 
-	/** Register the optional native inserter filter. */
+	/**
+	 * Register the optional native inserter filter.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		add_filter( 'block_editor_settings_all', array( $this, 'media_settings' ), 100 );
 		if ( $this->settings->is_enabled( 'simplify_blocks' ) ) {

@@ -9,7 +9,9 @@ namespace Aeon\Features;
 
 use Aeon\Features\Contact\Submission;
 
-/** Validates public submissions and delivers plain-text email. */
+/**
+ * Validates public submissions and delivers plain-text email.
+ */
 final class Contact {
 
 	/**
@@ -22,7 +24,11 @@ final class Contact {
 		'errors' => array(),
 	);
 
-	/** Register the public page handler and block state contract. */
+	/**
+	 * Register the public page handler and block state contract.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 		add_action( 'template_redirect', array( $this, 'handle' ) );
 		add_filter( 'rune_contact_state', array( $this, 'state' ) );
@@ -37,7 +43,11 @@ final class Contact {
 		return $this->state;
 	}
 
-	/** Handle the public form and its page-bound success receipt. */
+	/**
+	 * Handle the public form and its page-bound success receipt.
+	 *
+	 * @return void
+	 */
 	public function handle(): void {
 		if ( ! is_singular( 'page' ) || ! has_block( 'rune/contact-form', get_queried_object_id() ) ) {
 			return;

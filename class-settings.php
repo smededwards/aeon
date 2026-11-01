@@ -11,12 +11,11 @@ namespace Aeon;
  * Reads and sanitises the site's Aeon settings.
  */
 final class Settings {
-	/** Option key shared with the WordPress Settings API. */
+	// Option key shared with the WordPress Settings API.
 	public const OPTION = 'aeon_core_features';
 
-	/** Default behaviour for known controls; absent new settings stay enabled. */
+	// Default behaviour for known controls; absent new settings stay enabled.
 	public const DEFAULTS = array(
-		'navigation'        => true,
 		'seo'               => true,
 		'disable_comments'  => true,
 		'simplify_blocks'   => true,
@@ -25,15 +24,6 @@ final class Settings {
 		'core_patterns'     => true,
 		'remote_patterns'   => true,
 	);
-
-	/**
-	 * Determine whether Aeon should enable classic menu support.
-	 *
-	 * @return bool
-	 */
-	public function navigation_enabled(): bool {
-		return $this->is_enabled( 'navigation' );
-	}
 
 	/**
 	 * Read a known setting without enabling unrecognised features.

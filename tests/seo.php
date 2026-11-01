@@ -7,16 +7,19 @@
 
 use Aeon\Features\Seo;
 
-$aeon_assert     = static function ( bool $condition, string $message ): void {
+$aeon_assert          = static function ( bool $condition, string $message ): void {
 	if ( ! $condition ) {
 		throw new RuntimeException( esc_html( $message ) );
 	}
 };
-$aeon_query_vars = $GLOBALS['wp_query']->query_vars;
-$aeon_user       = get_current_user_id();
-$aeon_ids        = array();
-$aeon_images     = array();
-$aeon_seo        = new Seo( new \Aeon\Settings() );
+$aeon_query_vars      = $GLOBALS['wp_query']->query_vars;
+$aeon_user            = get_current_user_id();
+$aeon_previous_screen = null;
+$aeon_page_id         = 0;
+$aeon_posts_page      = get_option( 'page_for_posts', null );
+$aeon_ids             = array();
+$aeon_images          = array();
+$aeon_seo             = new Seo( new \Aeon\Settings() );
 require_once ABSPATH . 'wp-admin/includes/image.php';
 try {
 	$aeon_id    = wp_insert_post(
@@ -58,11 +61,49 @@ try {
 		$aeon_seo->head();
 		return ob_get_clean();
 	};
+	/**
+	 * Capture and decode the schema graph emitted by Aeon.
+	 *
+	 * @return array Decoded JSON-LD document.
+	 */
+	$aeon_schema_data = static function () use ( $aeon_seo ): array {
+		ob_start();
+		$aeon_seo->schema();
+		$aeon_schema_markup = ob_get_clean();
+		if ( ! preg_match( '/<script[^>]*>(.*?)<\/script>/s', $aeon_schema_markup, $aeon_matches ) ) {
+			return array();
+		}
+		$aeon_schema = json_decode( $aeon_matches[1], true );
+		return is_array( $aeon_schema ) ? $aeon_schema : array();
+	};
 	$aeon_view( $aeon_id );
 	$aeon_head = $aeon_markup();
 	$aeon_assert( str_contains( $aeon_head, 'Native excerpt fallback.' ) && str_contains( $aeon_head, wp_get_attachment_url( $aeon_images[0] ) ), 'Default excerpt or featured-image fallback failed.' );
 	$aeon_assert( ! str_contains( $aeon_head, '<title>' ) && ! str_contains( $aeon_head, 'rel="canonical"' ), 'Aeon must not duplicate core title/canonical output.' );
 	$aeon_assert( false !== has_action( 'wp_head', 'rel_canonical' ), 'Core canonical output was removed.' );
+	$aeon_graph = $aeon_schema_data()['@graph'] ?? array();
+	$aeon_types = array_column( $aeon_graph, '@type' );
+	$aeon_assert( in_array( 'BlogPosting', $aeon_types, true ) && in_array( 'Person', $aeon_types, true ) && in_array( 'WebSite', $aeon_types, true ), 'A public post must emit a valid article, person and website schema graph.' );
+	$aeon_page_id = wp_insert_post(
+		array(
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_title'  => 'SEO page fixture',
+		)
+	);
+	$aeon_ids[]   = $aeon_page_id;
+	$aeon_view( $aeon_page_id );
+	$aeon_page_types = array_column( $aeon_schema_data()['@graph'] ?? array(), '@type' );
+	$aeon_assert( in_array( 'WebPage', $aeon_page_types, true ) && ! in_array( 'BlogPosting', $aeon_page_types, true ), 'A public page must emit page schema without article schema.' );
+	update_option( 'page_for_posts', $aeon_page_id );
+	$GLOBALS['wp_query']->is_home           = true;
+	$GLOBALS['wp_query']->is_page           = false;
+	$GLOBALS['wp_query']->is_singular       = false;
+	$GLOBALS['wp_query']->queried_object    = get_post( $aeon_page_id );
+	$GLOBALS['wp_query']->queried_object_id = $aeon_page_id;
+	$aeon_index_types                       = array_column( $aeon_schema_data()['@graph'] ?? array(), '@type' );
+	$aeon_assert( in_array( 'WebPage', $aeon_index_types, true ) && ! in_array( 'BlogPosting', $aeon_index_types, true ), 'The Posts index must emit page schema without a duplicate article entity.' );
+	$aeon_view( $aeon_id );
 	update_post_meta( $aeon_id, Seo::TITLE, '<b>SEO override</b>' );
 	update_post_meta( $aeon_id, Seo::DESCRIPTION, 'Description "quoted" & safe.' );
 	update_post_meta( $aeon_id, Seo::IMAGE, $aeon_images[1] );
@@ -144,15 +185,29 @@ try {
 	$aeon_editor->render( get_post( $aeon_id ) );
 	$aeon_form = ob_get_clean();
 	$aeon_assert( str_contains( $aeon_form, '_aeon_seo_nonce' ) && str_contains( $aeon_form, 'aeon-seo__choose' ), 'Native SEO editor fields or media picker are missing.' );
+	require_once ABSPATH . 'wp-admin/includes/screen.php';
+	$aeon_previous_screen = get_current_screen();
+	set_current_screen( 'post' );
+	$aeon_editor->assets( 'post.php' );
+	$aeon_script = wp_scripts()->registered['aeon-seo'] ?? null;
+	$aeon_style  = wp_styles()->registered['aeon-seo'] ?? null;
+	$aeon_assert( $aeon_script && str_ends_with( $aeon_script->src, '/plugins/aeon/build/seo.js' ), 'The SEO editor script must be enqueued from the built plugin asset.' );
+	$aeon_assert( $aeon_style && str_ends_with( $aeon_style->src, '/plugins/aeon/build/seo.css' ), 'The SEO editor stylesheet must be enqueued from the built plugin asset.' );
 	WP_CLI::success( 'SEO fallbacks, overrides, escaping, image validation, protected content, REST permissions and native editor persistence passed.' );
 } finally {
 	$_POST = array();
+	set_current_screen( $aeon_previous_screen ? $aeon_previous_screen->id : '' );
 	wp_set_current_user( $aeon_user );
 	foreach ( $aeon_images as $aeon_image ) {
 		wp_delete_attachment( $aeon_image, true );
 	}
 	foreach ( $aeon_ids as $aeon_id ) {
 		wp_delete_post( $aeon_id, true );
+	}
+	if ( null === $aeon_posts_page ) {
+		delete_option( 'page_for_posts' );
+	} else {
+		update_option( 'page_for_posts', $aeon_posts_page );
 	}
 	wp( $aeon_query_vars );
 }
