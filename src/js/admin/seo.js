@@ -26,26 +26,27 @@ function handleSeoImageAction( event ) {
 	const preview = box.querySelector( '#aeon-social-preview' );
 	const reset = box.querySelector( '.aeon-seo__remove' );
 	const status = box.querySelector( '.aeon-seo__status' );
+	const messages = box.dataset;
 
 	if ( remove ) {
 		input.value = '0';
 		preview.hidden = true;
 		preview.removeAttribute( 'src' );
 		reset.hidden = true;
-		status.textContent = window.aeonSeo.removed;
+		status.textContent = messages.imageRemoved;
 		box.querySelector( '.aeon-seo__choose' ).focus();
 		input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 		return;
 	}
 
 	const picker = window.wp.media( {
-		title: window.aeonSeo.title,
-		button: { text: window.aeonSeo.button },
+		title: messages.imageTitle,
+		button: { text: messages.imageButton },
 		library: { type: 'image' },
 		multiple: false,
 	} );
 	picker.on( 'select', () =>
-		updateSocialImage( picker, input, preview, reset, status )
+		updateSocialImage( picker, input, preview, reset, status, messages )
 	);
 	picker.open();
 }
@@ -53,20 +54,21 @@ function handleSeoImageAction( event ) {
 /**
  * Update the selected attachment preview and announce the result.
  *
- * @param {Object}            picker  WordPress media frame.
- * @param {HTMLInputElement}  input   Social attachment input.
- * @param {HTMLImageElement}  preview Social attachment preview.
- * @param {HTMLButtonElement} reset   Clear image button.
- * @param {HTMLElement}       status  Live status message.
+ * @param {Object}            picker   WordPress media frame.
+ * @param {HTMLInputElement}  input    Social attachment input.
+ * @param {HTMLImageElement}  preview  Social attachment preview.
+ * @param {HTMLButtonElement} reset    Clear image button.
+ * @param {HTMLElement}       status   Live status message.
+ * @param {DOMStringMap}      messages Localised image picker messages.
  * @return {void}
  */
-function updateSocialImage( picker, input, preview, reset, status ) {
+function updateSocialImage( picker, input, preview, reset, status, messages ) {
 	const image = picker.state().get( 'selection' ).first().toJSON();
 	input.value = String( image.id );
 	preview.src = image.sizes?.medium?.url || image.url;
 	preview.hidden = false;
 	reset.hidden = false;
-	status.textContent = window.aeonSeo.selected;
+	status.textContent = messages.imageSelected;
 	input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 }
 
