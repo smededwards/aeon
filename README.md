@@ -70,9 +70,9 @@ Run the command from the site directory. The tests create a temporary saved patt
 
 Review code changes locally and get approval before committing, pushing or opening or updating a PR. After checks pass, publish a semantic version tag and update the site’s production Composer lock in a separate change. Local development uses linked working copies; production uses tagged releases.
 
-## Frontend emoji styles
+## Emoji assets
 
-After WordPress enqueues `wp-emoji-styles`, Aeon dequeues it. This removes `wp-emoji-styles-inline-css` from frontend pages. Emoji scripts and admin styles remain enabled.
+Aeon removes WordPress’s emoji detection scripts, inline styles and image conversion hooks. Emoji characters remain text and use the operating system’s native rendering.
 
 ## Contribution conventions
 
