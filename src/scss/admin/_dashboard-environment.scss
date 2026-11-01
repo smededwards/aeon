@@ -1,0 +1,22 @@
+@mixin palette($accent, $accent-rgb, $darker-10, $darker-10-rgb, $darker-20, $darker-20-rgb, $focus, $menu, $mix-dark-10) {
+	:root,
+	body,
+	.interface-interface-skeleton,
+	.editor-styles-wrapper {
+		--wp-admin-theme-color: #{$accent} !important;
+		--wp-admin-theme-color--rgb: #{$accent-rgb} !important;
+		--wp-admin-theme-color-darker-10: #{$darker-10} !important;
+		--wp-admin-theme-color-darker-10--rgb: #{$darker-10-rgb} !important;
+		--wp-admin-theme-color-darker-20: #{$darker-20} !important;
+		--wp-admin-theme-color-darker-20--rgb: #{$darker-20-rgb} !important;
+		--aeon-dashboard-accent: #{$accent};
+		--aeon-dashboard-accent-focus: #{$focus};
+		--aeon-dashboard-accent-hover: #{$darker-20};
+		--aeon-dashboard-accent-mix-dark-10: #{$mix-dark-10};
+		--aeon-dashboard-accent-menu: #{$menu};
+		--wp-components-color-accent: #{$accent} !important;
+		--wp-components-color-accent--rgb: #{$accent-rgb} !important;
+		--wp-components-color-accent-darker-10: #{$darker-10} !important;
+		--wp-components-color-accent-darker-20: #{$darker-20} !important;
+	}
+}
