@@ -25,7 +25,7 @@ use Aeon\Admin\Seo as SeoAdmin;
  */
 final class Plugin {
 	// Plugin release version, also used for inline dashboard styles.
-	public const VERSION = '0.2.1';
+	public const VERSION = '0.3.0';
 
 	/**
 	 * Register the plugin's features and administration hooks.
