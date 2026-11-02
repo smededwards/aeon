@@ -9,6 +9,7 @@ namespace Aeon;
 
 use Aeon\Admin\DashboardColour;
 use Aeon\Admin\Environment;
+use Aeon\Admin\Seo as SeoAdmin;
 use Aeon\Admin\SettingsPage;
 use Aeon\Features\Comments;
 use Aeon\Features\Contact;
@@ -18,7 +19,6 @@ use Aeon\Features\Emoji;
 use Aeon\Features\MediaUploads;
 use Aeon\Features\Patterns;
 use Aeon\Features\Seo;
-use Aeon\Admin\Seo as SeoAdmin;
 
 /**
  * Wires the plugin's services without changing behaviour in constructors.

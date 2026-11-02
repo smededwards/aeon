@@ -8,7 +8,7 @@ Aeon comes from Greek *aiōn*, meaning an age or extended passage of time. The n
 
 Settings are grouped under **Dashboard**, **Content** and **Editor**. The site menu is managed through the active block theme's native Navigation editor.
 
-## Pattern controls
+## Pattern Controls
 
 **Settings → Aeon** has three independent settings, enabled by default:
 
@@ -18,11 +18,11 @@ Settings are grouped under **Dashboard**, **Content** and **Editor**. The site m
 
 The core and remote settings work independently. WordPress uses `core-block-patterns` theme support for both sources, so Aeon leaves that flag in place and filters each source separately. Existing inserted layouts and synced patterns continue to render. Obel supplies the portfolio’s theme patterns.
 
-## Contact submissions
+## Contact Submissions
 
 `features/contact/class-submission.php` creates the validated contact-submission value used for delivery. Its private constructor and readonly properties keep construction inside the factory. The factory checks raw input lengths and email line breaks before sanitising; retained invalid values are length-limited for form feedback. `functions-contact.php` exposes `aeon_sanitise_contact_submission()` as a global adapter for the WordPress coding-standard sanitisation rule. PHPCS registers that adapter directly.
 
-Rune’s Contact form block posts to its published Page without frontend JavaScript. Aeon checks the page-bound nonce, honeypot, field types, required values, email syntax, header safety and length limits: 100 characters for names, 254 for email addresses and 5,000 for messages. It sanitises text before sending plain-text mail. The recipient is the administration email in Settings → General. The sender uses `wordpress@` followed by the site hostname; the validated visitor address is used for Reply-To.
+Rune’s Contact Form block posts to its published Page without frontend JavaScript. Aeon checks the page-bound nonce, honeypot, field types, required values, email syntax, header safety and length limits: 100 characters for names, 254 for email addresses and 5,000 for messages. It sanitises text before sending plain-text mail. The recipient is the administration email in Settings → General. The sender uses `wordpress@` followed by the site hostname; the validated visitor address is used for Reply-To.
 
 Validation errors appear on the same page with HTTP 422, and entered values are retained for that request. Successful submissions redirect with HTTP 303 and a page-bound nonce receipt, preventing a refresh from resubmitting the form. Aeon passes verified success state to the block. Submission content is not stored in WordPress. Rate limiting stores a salted hash of the peer address and an attempt counter for up to 15 minutes, allowing five attempts in each window. Forwarded headers are ignored. Contact pages send no-cache headers to keep nonces fresh; exclude them from production page and CDN caches as well.
 
@@ -38,21 +38,21 @@ From the site directory, run `docker compose run --rm tools wp eval-file /worksp
 
 Classes use the `Aeon` namespace and responsibility-based directories at the plugin root. PHP filenames are lowercase and hyphenated, with no `src/` directory. Constructors receive their dependencies and register hooks explicitly. Add new core controls as separate feature classes when needed.
 
-## SEO and sharing
+## SEO and Sharing
 
-Posts and Pages have a native **Meta boxes → SEO and sharing** panel below the block editor (also available in the classic editor):
+Posts and Pages have a native **Meta Boxes → SEO and Sharing** panel below the block editor (also available in the classic editor):
 
-- **SEO title** replaces the content portion of WordPress’s document title while keeping the site name, tagline and pagination. The post or page title stays unchanged.
-- **Meta description** replaces the default excerpt or short summary. Core block-excerpt extraction skips Query Loop and no-results content. Aeon omits the description when no useful text is available.
-- **Social image** uses the Media Library picker. Aeon falls back to the featured image when the field is empty or its saved image is unavailable. It stores an attachment ID and uses the full-size image without generating extra sizes.
+- **SEO Title** replaces the content portion of WordPress’s document title while keeping the site name, tagline and pagination. The post or page title stays unchanged.
+- **Meta Description** replaces the default excerpt or short summary. Core block-excerpt extraction skips Query Loop and no-results content. Aeon omits the description when no useful text is available.
+- **Social Image** uses the Media Library picker. Aeon falls back to the featured image when the field is empty or its saved image is unavailable. It stores an attachment ID and uses the full-size image without generating extra sizes.
 
 Aeon outputs a meta description, Open Graph tags and Twitter Card tags for public Posts and Pages, including the static homepage and configured Posts index. Drafts, previews, password-protected posts and private content are skipped. Values are sanitised when saved and escaped on output. Fields use native post meta, post-level edit permissions, edit-context REST schemas and revision support.
 
-WordPress core supplies the document title, canonical links, robots directives and XML sitemaps. **Settings → Aeon → SEO and sharing** disables Aeon’s metadata hooks and editor panel while keeping saved fields. Disable Aeon before enabling another SEO provider to prevent duplicate metadata.
+WordPress core supplies the document title, canonical links, robots directives and XML sitemaps. **Settings → Aeon → SEO and Sharing** disables Aeon’s metadata hooks and editor panel while keeping saved fields. Disable Aeon before enabling another SEO provider to prevent duplicate metadata.
 
 From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/seo.sh`. The tests restore settings, remove temporary posts and images, and check fallbacks, overrides, escaping, image IDs, protected content, REST/editor persistence, permissions and disabling Aeon’s metadata. Browser checks cover choosing or removing a social image and saving the post in the block editor.
 
-## Development and checks
+## Development and Checks
 
 Develop alongside `portfolio`, `obel` and `rune` using the site containers. Run `composer install` here to create the development autoloader. In production, the site Composer autoloader loads Aeon’s classes. If no autoloader is available, Aeon displays an administrator notice. The `vendor` directory is not committed. After adding or moving classes, run `composer dump-autoload` in this directory and refresh the site Composer metadata when updating the site dependency.
 
@@ -70,15 +70,15 @@ Run the command from the site directory. The tests create a temporary saved patt
 
 Review code changes locally and get approval before committing, pushing or opening or updating a PR. After checks pass, publish a semantic version tag and update the site’s production Composer lock in a separate change. Local development uses linked working copies; production uses tagged releases.
 
-## Emoji assets
+## Emoji Assets
 
 Aeon removes WordPress’s emoji detection scripts, inline styles and image conversion hooks. Emoji characters remain text and use the operating system’s native rendering.
 
-## Contribution conventions
+## Contribution Conventions
 
 Use Conventional Commit subjects and PR titles. Name the first commit `Initial Commit`. See `AGENTS.md` for the repository conventions.
 
-## Comment controls
+## Comment Controls
 
 By default, **Settings → Aeon → Comments** disables comments and pingbacks on Posts and Pages. Aeon removes their editor controls and comment columns, hides the Comments menu and toolbar shortcut, and suppresses classic comments, counts and discussion blocks. Settings → Discussion remains available. Existing comments and per-post discussion settings are retained. Turning the control off restores WordPress behaviour on the next request. Other post types are unaffected.
 
@@ -86,22 +86,22 @@ This setting does not delete comments, change moderation status or restrict acce
 
 From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/comments.sh` to check both settings. The runner restores the original option and removes its temporary posts and comments.
 
-## Editor controls
+## Editor Controls
 
-**Settings → Aeon → Block editor → Simplify available blocks** is enabled by default. For Posts, Pages and saved patterns, the inserter offers essential WordPress content and layout blocks, including Code, Table, Page List, synced patterns and the Query Loop blocks used by the portfolio. Other editor contexts and existing block restrictions are preserved.
+**Settings → Aeon → Block Editor → Simplify Available Blocks** is enabled by default. For Posts, Pages and saved patterns, the inserter offers essential WordPress content and layout blocks, including Code, Table, Page List, synced patterns and the Query Loop blocks used by the portfolio. Other editor contexts and existing block restrictions are preserved.
 
 Turn it off to restore the full inserter on the next request. Aeon does not unregister blocks or rewrite saved content. Obel controls visual options such as gradients and duotone through `theme.json`.
 
 From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/editor.sh` to check both modes. The runner restores the original settings.
 
-**Settings → Aeon → Openverse → Hide Openverse in the editor** is enabled by default and works independently of block simplification. It removes Openverse as a media source from block editors. Uploads, the Media Library and existing images remain available. Turn it off to restore Openverse.
+**Settings → Aeon → Openverse → Hide Openverse in the Editor** is enabled by default and works independently of block simplification. It removes Openverse as a media source from block editors. Uploads, the Media Library and existing images remain available. Turn it off to restore Openverse.
 
-## Dashboard environment and media defaults
+## Dashboard Environment and Media Defaults
 
 Under **Settings → Aeon → Dashboard**, select WordPress blue, Production red, Development orange or Local green. Aeon applies the chosen accent to the dashboard and block editor, including component colours and hover and focus states. Bedrock continues to determine the active site environment.
 
 The Dashboard section also stores optional base URLs for Local, Development and Production. The admin toolbar shows the detected environment and links to configured sites, preserving the current path and query where possible. Aeon hides Bedrock’s search-indexing notice. Bedrock’s indexing settings continue to control indexing.
 
-Under **Settings → Aeon → Content → Default featured image**, choose an optional Media Library image for Posts and Pages that have no featured image. Clearing the setting or deleting the attachment removes the fallback. Aeon selects `placeholder.png` initially if it exists in the Media Library.
+Under **Settings → Aeon → Content → Default Featured Image**, choose an optional Media Library image for Posts and Pages that have no featured image. Clearing the setting or deleting the attachment removes the fallback. Aeon selects `placeholder.png` initially if it exists in the Media Library.
 
 WebP uploads are enabled. SVG uploads require administrator access and the `unfiltered_html` capability. Aeon validates the SVG document and rejects doctype and entity declarations. Upload SVGs only from trusted sources; this check does not sanitise SVG markup.

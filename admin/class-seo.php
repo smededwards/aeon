@@ -42,7 +42,7 @@ final class Seo {
 	 * @return void
 	 */
 	public function add_box(): void {
-		add_meta_box( 'aeon-seo', __( 'SEO and sharing', 'aeon' ), array( $this, 'render' ), array( 'post', 'page' ), 'normal', 'default' );
+		add_meta_box( 'aeon-seo', __( 'SEO and Sharing', 'aeon' ), array( $this, 'render' ), array( 'post', 'page' ), 'normal', 'default' );
 	}
 
 	/**
@@ -95,18 +95,18 @@ final class Seo {
 		?>
 		<div
 			class="aeon-seo"
-			data-image-title="<?php printf( '%s', esc_attr__( 'Choose a social image', 'aeon' ) ); ?>"
-			data-image-button="<?php printf( '%s', esc_attr__( 'Use this image', 'aeon' ) ); ?>"
+			data-image-title="<?php printf( '%s', esc_attr__( 'Choose a Social Image', 'aeon' ) ); ?>"
+			data-image-button="<?php printf( '%s', esc_attr__( 'Use This Image', 'aeon' ) ); ?>"
 			data-image-selected="<?php printf( '%s', esc_attr__( 'Social image selected.', 'aeon' ) ); ?>"
 			data-image-removed="<?php printf( '%s', esc_attr__( 'Using the featured image.', 'aeon' ) ); ?>"
 		>
-			<p><label for="aeon-seo-title-input"><?php esc_html_e( 'SEO title', 'aeon' ); ?></label></p>
+			<p><label for="aeon-seo-title-input"><?php esc_html_e( 'SEO Title', 'aeon' ); ?></label></p>
 			<input class="widefat" id="aeon-seo-title-input" name="_aeon_seo_title" type="text" value="<?php printf( '%s', esc_attr( get_post_meta( $post->ID, Metadata::TITLE, true ) ) ); ?>" aria-describedby="aeon-seo-title-help">
 			<p class="description" id="aeon-seo-title-help"><?php esc_html_e( 'Optional. Leave blank for the WordPress title. Site name/tagline and pagination remain managed by WordPress.', 'aeon' ); ?></p>
-			<p><label for="aeon-seo-description"><?php esc_html_e( 'Meta description', 'aeon' ); ?></label></p>
+			<p><label for="aeon-seo-description"><?php esc_html_e( 'Meta Description', 'aeon' ); ?></label></p>
 			<textarea class="widefat" id="aeon-seo-description" name="_aeon_seo_description" rows="3" aria-describedby="aeon-seo-description-help"><?php printf( '%s', esc_textarea( get_post_meta( $post->ID, Metadata::DESCRIPTION, true ) ) ); ?></textarea>
 			<p class="description" id="aeon-seo-description-help"><?php esc_html_e( 'Optional. Leave blank for a short excerpt or text summary. Aim for a concise description of this page.', 'aeon' ); ?></p>
-			<p><strong><?php esc_html_e( 'Social image', 'aeon' ); ?></strong></p>
+			<p><strong><?php esc_html_e( 'Social Image', 'aeon' ); ?></strong></p>
 			<?php
 			$image_id = (int) get_post_meta( $post->ID, Metadata::IMAGE, true );
 			$image    = $image_id ? wp_get_attachment_image_url( $image_id, 'medium' ) : '';
@@ -122,7 +122,7 @@ final class Seo {
 					?>
 					hidden<?php endif; ?>></p>
 			<p>
-				<button class="button aeon-seo__choose" type="button"><?php esc_html_e( 'Choose social image', 'aeon' ); ?></button>
+				<button class="button aeon-seo__choose" type="button"><?php esc_html_e( 'Choose Social Image', 'aeon' ); ?></button>
 				<button class="button aeon-seo__remove" type="button" 
 				<?php
 				if ( ! $image_id ) :

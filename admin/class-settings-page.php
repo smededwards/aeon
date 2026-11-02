@@ -92,7 +92,7 @@ final class SettingsPage {
 		add_settings_section( 'aeon_dashboard', __( 'Dashboard', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_section( 'aeon_content', __( 'Content', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_section( 'aeon_editor', __( 'Editor', 'aeon' ), '__return_null', self::PAGE );
-		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_dashboard' );
+		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard Colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_dashboard' );
 		$environments = Environment::ENVIRONMENTS;
 		sort( $environments, SORT_STRING );
 		foreach ( $environments as $environment ) {
@@ -100,7 +100,7 @@ final class SettingsPage {
 				'aeon_environment_url_' . $environment,
 				sprintf(
 					/* Translators: %s is an environment label. */
-					__( '%s site URL', 'aeon' ),
+					__( '%s Site URL', 'aeon' ),
 					Environment::environment_label( $environment )
 				),
 				array( $this, 'environment_url_field' ),
@@ -120,14 +120,14 @@ final class SettingsPage {
 			array(
 				'section'     => 'aeon_content',
 				'key'         => 'seo',
-				'title'       => __( 'SEO and sharing', 'aeon' ),
+				'title'       => __( 'SEO and Sharing', 'aeon' ),
 				'label'       => __( 'Manage SEO and sharing metadata with Aeon', 'aeon' ),
 				'description' => __( 'Adds optional post/page fields and sharing tags. Turn this off before enabling another SEO metadata provider; saved overrides are retained.', 'aeon' ),
 			),
 			array(
 				'section'     => 'aeon_editor',
 				'key'         => 'simplify_blocks',
-				'title'       => __( 'Block editor', 'aeon' ),
+				'title'       => __( 'Block Editor', 'aeon' ),
 				'label'       => __( 'Simplify available blocks', 'aeon' ),
 				'description' => __( 'Limits the Posts, Pages and saved patterns inserter to essential content and layout blocks. Turning this off restores the full selection.', 'aeon' ),
 			),
@@ -141,28 +141,28 @@ final class SettingsPage {
 			array(
 				'section'     => 'aeon_editor',
 				'key'         => 'core_patterns',
-				'title'       => __( 'Bundled core patterns', 'aeon' ),
+				'title'       => __( 'Bundled Core Patterns', 'aeon' ),
 				'label'       => __( 'Show WordPress’s bundled patterns', 'aeon' ),
 				'description' => __( 'Controls built-in core layouts. Theme, plugin, remote and saved user patterns are preserved.', 'aeon' ),
 			),
 			array(
 				'section'     => 'aeon_editor',
 				'key'         => 'patterns_shortcut',
-				'title'       => __( 'Patterns shortcut', 'aeon' ),
+				'title'       => __( 'Patterns Shortcut', 'aeon' ),
 				'label'       => __( 'Show Appearance → Patterns', 'aeon' ),
 				'description' => __( 'Adds a direct link to the native pattern manager. Turning it off hides only Aeon’s shortcut; patterns remain available through WordPress.', 'aeon' ),
 			),
 			array(
 				'section'     => 'aeon_editor',
 				'key'         => 'remote_patterns',
-				'title'       => __( 'Remote patterns', 'aeon' ),
+				'title'       => __( 'Remote Patterns', 'aeon' ),
 				'label'       => __( 'Allow patterns from WordPress.org', 'aeon' ),
 				'description' => __( 'Controls automatic remote patterns and directory queries. Patterns already saved or inserted into content are preserved.', 'aeon' ),
 			),
 		);
 		foreach ( $fields as $field ) {
 			if ( 'seo' === $field['key'] ) {
-				add_settings_field( 'aeon_placeholder_image', __( 'Default featured image', 'aeon' ), array( $this, 'placeholder_image_field' ), self::PAGE, 'aeon_content' );
+				add_settings_field( 'aeon_placeholder_image', __( 'Default Featured Image', 'aeon' ), array( $this, 'placeholder_image_field' ), self::PAGE, 'aeon_content' );
 			}
 			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'feature_field' ), self::PAGE, $field['section'], $field );
 		}
@@ -231,8 +231,8 @@ final class SettingsPage {
 		?>
 		<div
 			class="aeon-placeholder-image"
-			data-image-title="<?php printf( '%s', esc_attr__( 'Choose the default featured image', 'aeon' ) ); ?>"
-			data-image-button="<?php printf( '%s', esc_attr__( 'Use as default featured image', 'aeon' ) ); ?>"
+			data-image-title="<?php printf( '%s', esc_attr__( 'Choose the Default Featured Image', 'aeon' ) ); ?>"
+			data-image-button="<?php printf( '%s', esc_attr__( 'Use as Default Featured Image', 'aeon' ) ); ?>"
 			data-image-selected="<?php printf( '%s', esc_attr__( 'Default featured image selected.', 'aeon' ) ); ?>"
 			data-image-removed="<?php printf( '%s', esc_attr__( 'Default featured image cleared.', 'aeon' ) ); ?>"
 		>
@@ -248,7 +248,7 @@ final class SettingsPage {
 				alt=""
 			>
 			<p>
-				<button class="button aeon-placeholder-image__choose" type="button"><?php esc_html_e( 'Choose image', 'aeon' ); ?></button>
+				<button class="button aeon-placeholder-image__choose" type="button"><?php esc_html_e( 'Choose Image', 'aeon' ); ?></button>
 				<button class="button aeon-placeholder-image__clear" type="button"
 					<?php if ( ! $image_id ) : ?>
 					hidden

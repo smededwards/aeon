@@ -1,3 +1,4 @@
+// Internal dependencies.
 import '../../scss/admin/_placeholder-image.scss';
 
 /**
