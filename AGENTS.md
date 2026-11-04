@@ -1,6 +1,6 @@
 # Repository conventions
 
-- Make and test changes locally. Wait for explicit code approval before committing, pushing or opening/updating a PR.
+- Implement changes locally and avoid running the full review/check suite during ordinary iteration. Defer final review and checks until the user asks to open a PR; run them earlier only when the user asks for verification. Wait for explicit code approval before committing, pushing or opening/updating a PR.
 - Use lowercase, hyphenated WordPress-style PHP filenames. Organise PHP classes in responsibility-based directories directly under the project root, without a PHP `src/` wrapper. Use namespaces and separate classes for new custom PHP functionality, with Composer classmap autoloading where needed.
 - Use sentence case for package names: Aeon, Obel and Rune. Keep lowercase code identifiers and package slugs unchanged.
 - Use Title Case for user-facing names, titles and headings, keeping short articles and conjunctions such as “a”, “and”, “in” and “the” lowercase. Use sentence case for user-facing descriptions and explanatory text.
@@ -19,7 +19,7 @@ Apply these principles while planning, implementing and reviewing every change a
 - **SOLID:** Keep responsibilities focused, dependencies clear and interfaces small. Use extension points and abstractions where they improve maintainability, not as a goal in themselves.
 - **YAGNI:** Build for current requirements and agreed plans. Avoid speculative features, configuration and generalisation.
 
-- After a feature has been agreed and implemented, run the Ponytail `/ponytail-review` review on the completed changes before treating the feature as complete or opening a PR. Address actionable findings and report any deferred findings. Keep this review separate from automated lint and build checks.
+- When the user asks to open a PR, run Ponytail `/ponytail-review` once on the final changes. Address actionable findings and report deferred findings. Do not repeat the full review during implementation; after review fixes, rerun only the affected checks.
 
 ## Branch and release workflow
 
@@ -29,13 +29,14 @@ Apply these principles while planning, implementing and reviewing every change a
 - Track the work merged into each repository's `dev` branch and proactively recommend a semantic version bump when a substantive release batch has accumulated. Base the recommendation on the changes' impact, not a fixed PR or feature count, and explain the proposed bump before preparing release metadata.
 - Keep reviewable changes in their corresponding local repository or GitHub PR. When an isolated worktree is useful, place it under the shared portfolio workspace's `.worktrees/<repo>-<purpose>` directory; do not leave review copies in generic temporary folders.
 - Keep `main` as the GitHub default branch. Avoid stacked PRs unless agreed; merge dependencies into `dev` first.
+- After a feature PR is merged, confirm no open PR depends on its branch and its local working tree is clean, then remove the local and remote feature branches. GitHub may delete the remote branch automatically; squash merges require verifying the merged PR before `git branch -D`. Run `git fetch --prune` to clear stale remote refs. Never delete `dev`, `main` or branches with unmerged work.
 - The local approval requirement above applies before publishing new changes.
 
 - Prefer returned markup built with `sprintf()` in PHP helpers. Use escaped `printf()` only at template or WordPress callback output boundaries, and `fwrite(STDOUT, ...)` in standalone CLI scripts; avoid direct `echo` statements. Escape dynamic values for their actual HTML, attribute or URL context. Formatting and returning values do not replace validation, capability checks or escaping.
 
 - Document each PHP and JavaScript function/method with an adequate DocBlock/JSDoc: a concise purpose, descriptions for each parameter, and a return description/type when applicable. Add documentation to callbacks when their purpose or contract is not self-evident. Use `//` for ordinary single-line comments; reserve DocBlocks/JSDoc blocks for function documentation and multiline block comments for longer notes or required WordPress translator comments.
 - Group JavaScript imports with comments: WordPress or external dependencies first, then internal dependencies, separated by a blank line. Keep PHP `use` declarations directly after the namespace and alphabetised within their logical groups.
-- Before review, run a custom-code consistency pass: check import and comment conventions, user-facing casing, unused imports and assets, and the repository's PHP, JavaScript, SCSS, build and test checks. Exclude WordPress core, vendor, generated, backup and third-party plugin files.
+- At final PR preparation, run one custom-code consistency pass and the relevant PHP, JavaScript, SCSS, build and test checks. Check import and comment conventions, user-facing casing, and unused imports and assets. Exclude WordPress core, vendor, generated, backup and third-party plugin files. After fixing findings, rerun only affected checks.
 
 - Use BEM for custom HTML and SCSS classes: `block`, `block__element`, `block--modifier` or `block__element--modifier`. Preserve WordPress-owned classes and keep block metadata, saved markup and selectors aligned when renaming classes.
 

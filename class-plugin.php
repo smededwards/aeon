@@ -14,10 +14,8 @@ use Aeon\Admin\SettingsPage;
 use Aeon\Features\Comments;
 use Aeon\Features\Contact;
 use Aeon\Features\DefaultFeaturedImage;
-use Aeon\Features\Editor;
 use Aeon\Features\Emoji;
 use Aeon\Features\MediaUploads;
-use Aeon\Features\Patterns;
 use Aeon\Features\Seo;
 
 /**
@@ -40,8 +38,6 @@ final class Plugin {
 		( new Seo( $settings ) )->register();
 		( new SeoAdmin( $settings ) )->register();
 		( new DefaultFeaturedImage() )->register();
-		( new Patterns( $settings ) )->register();
-		( new Editor( $settings ) )->register();
 		( new MediaUploads() )->register();
 		( new SettingsPage( $settings ) )->register();
 		( new DashboardColour() )->register();

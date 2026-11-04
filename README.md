@@ -6,17 +6,7 @@ Aeon adds portfolio features to WordPress through namespaced PHP services loaded
 
 Aeon comes from Greek *aiōn*, meaning an age or extended passage of time. The name reflects functionality that can remain useful as a site changes and the plugin evolves; it does not limit Aeon to time-based features.
 
-Settings are grouped under **Dashboard**, **Content** and **Editor**. The site menu is managed through the active block theme's native Navigation editor.
-
-## Pattern Controls
-
-**Settings → Aeon** has three independent settings, enabled by default:
-
-- **Patterns shortcut** adds **Appearance → Patterns** as a link to WordPress’s pattern manager. Turning it off removes Aeon’s link; the manager and saved patterns remain available through WordPress.
-- **Bundled core patterns** controls WordPress’s supplied layouts. Turning it off unregisters patterns with the `core` source. Theme and plugin patterns, categories and remote patterns remain available.
-- **Remote patterns** controls WordPress.org pattern loading and directory REST queries. When disabled, the directory endpoint returns HTTP 403. Saved patterns and existing content remain available.
-
-The core and remote settings work independently. WordPress uses `core-block-patterns` theme support for both sources, so Aeon leaves that flag in place and filters each source separately. Existing inserted layouts and synced patterns continue to render. Obel supplies the portfolio’s theme patterns.
+Settings are grouped under **Dashboard** and **Content**. Rune manages editor controls and pattern settings under **Settings → Rune**. The site menu is managed through the active block theme's native Navigation editor.
 
 ## Contact Submissions
 
@@ -34,7 +24,6 @@ From the site directory, run `docker compose run --rm tools wp eval-file /worksp
 - `class-plugin.php`: composes and registers services.
 - `class-settings.php`: reads and sanitises known preferences.
 - `admin/class-settings-page.php`: native Settings API form, restricted to administrators.
-- `features/class-patterns.php`: the native manager shortcut and pattern-source controls.
 
 Classes use the `Aeon` namespace and responsibility-based directories at the plugin root. PHP filenames are lowercase and hyphenated, with no `src/` directory. Constructors receive their dependencies and register hooks explicitly. Add new core controls as separate feature classes when needed.
 
@@ -60,13 +49,13 @@ Dashboard colours and the featured-image picker are in `src/`. `@wordpress/scrip
 
 Run `composer validate --strict`, `composer lint` and the PHP syntax checks. WordPress filename checks are enabled; the class-to-filename check is exempted for `admin/class-settings-page.php` to retain the `SettingsPage` class name.
 
-Behavioural tests use WordPress to check settings registration, sanitisation and pattern controls. CI runs them with an isolated database and a minimal theme. Locally, activate Aeon and select Obel, then run:
+Behavioural tests use WordPress to check settings registration and sanitisation. CI runs them with an isolated database and a minimal theme. Locally, activate Aeon and select Obel, then run:
 
 ```sh
 docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/integration.sh
 ```
 
-Run the command from the site directory. The tests create a temporary saved pattern, check all eight combinations of pattern settings, then restore the previous setting and remove the fixture. Directory-disabled behaviour is checked without external requests. The tests leave theme files and site content unchanged.
+Run the command from the site directory. The test restores the previous settings and leaves theme files and site content unchanged.
 
 Review code changes locally and get approval before committing, pushing or opening or updating a PR. After checks pass, publish a semantic version tag and update the site’s production Composer lock in a separate change. Local development uses linked working copies; production uses tagged releases.
 
@@ -85,16 +74,6 @@ By default, **Settings → Aeon → Comments** disables comments and pingbacks o
 This setting does not delete comments, change moderation status or restrict access through administrative APIs. WordPress rejects new standard and REST comment submissions when discussion is closed.
 
 From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/comments.sh` to check both settings. The runner restores the original option and removes its temporary posts and comments.
-
-## Editor Controls
-
-**Settings → Aeon → Block Editor → Simplify Available Blocks** is enabled by default. For Posts, Pages and saved patterns, the inserter offers essential WordPress content and layout blocks, including Code, Table, Page List, synced patterns and the Query Loop blocks used by the portfolio. Other editor contexts and existing block restrictions are preserved.
-
-Turn it off to restore the full inserter on the next request. Aeon does not unregister blocks or rewrite saved content. Obel controls visual options such as gradients and duotone through `theme.json`.
-
-From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/editor.sh` to check both modes. The runner restores the original settings.
-
-**Settings → Aeon → Openverse → Hide Openverse in the Editor** is enabled by default and works independently of block simplification. It removes Openverse as a media source from block editors. Uploads, the Media Library and existing images remain available. Turn it off to restore Openverse.
 
 ## Dashboard Environment and Media Defaults
 

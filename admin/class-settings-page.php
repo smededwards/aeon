@@ -91,7 +91,6 @@ final class SettingsPage {
 		);
 		add_settings_section( 'aeon_dashboard', __( 'Dashboard', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_section( 'aeon_content', __( 'Content', 'aeon' ), '__return_null', self::PAGE );
-		add_settings_section( 'aeon_editor', __( 'Editor', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard Colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_dashboard' );
 		$environments = Environment::ENVIRONMENTS;
 		sort( $environments, SORT_STRING );
@@ -123,41 +122,6 @@ final class SettingsPage {
 				'title'       => __( 'SEO and Sharing', 'aeon' ),
 				'label'       => __( 'Manage SEO and sharing metadata with Aeon', 'aeon' ),
 				'description' => __( 'Adds optional post/page fields and sharing tags. Turn this off before enabling another SEO metadata provider; saved overrides are retained.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'simplify_blocks',
-				'title'       => __( 'Block Editor', 'aeon' ),
-				'label'       => __( 'Simplify available blocks', 'aeon' ),
-				'description' => __( 'Limits the Posts, Pages and saved patterns inserter to essential content and layout blocks. Turning this off restores the full selection.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'hide_openverse',
-				'title'       => __( 'Openverse', 'aeon' ),
-				'label'       => __( 'Hide Openverse in the editor', 'aeon' ),
-				'description' => __( 'Removes Openverse from editor media sources. Uploads and the Media Library remain available.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'core_patterns',
-				'title'       => __( 'Bundled Core Patterns', 'aeon' ),
-				'label'       => __( 'Show WordPress’s bundled patterns', 'aeon' ),
-				'description' => __( 'Controls built-in core layouts. Theme, plugin, remote and saved user patterns are preserved.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'patterns_shortcut',
-				'title'       => __( 'Patterns Shortcut', 'aeon' ),
-				'label'       => __( 'Show Appearance → Patterns', 'aeon' ),
-				'description' => __( 'Adds a direct link to the native pattern manager. Turning it off hides only Aeon’s shortcut; patterns remain available through WordPress.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'remote_patterns',
-				'title'       => __( 'Remote Patterns', 'aeon' ),
-				'label'       => __( 'Allow patterns from WordPress.org', 'aeon' ),
-				'description' => __( 'Controls automatic remote patterns and directory queries. Patterns already saved or inserted into content are preserved.', 'aeon' ),
 			),
 		);
 		foreach ( $fields as $field ) {

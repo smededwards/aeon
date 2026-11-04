@@ -16,13 +16,8 @@ final class Settings {
 
 	// Default behaviour for known controls; absent new settings stay enabled.
 	public const DEFAULTS = array(
-		'seo'               => true,
-		'disable_comments'  => true,
-		'simplify_blocks'   => true,
-		'hide_openverse'    => true,
-		'patterns_shortcut' => true,
-		'core_patterns'     => true,
-		'remote_patterns'   => true,
+		'seo'              => true,
+		'disable_comments' => true,
 	);
 
 	/**
