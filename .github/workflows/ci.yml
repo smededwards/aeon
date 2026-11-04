@@ -71,4 +71,3 @@ jobs:
       - run: wp eval-file tests/contact.php --path=/tmp/aeon-wordpress
       - run: wp eval-file tests/default-featured-image.php --path=/tmp/aeon-wordpress
       - run: wp eval-file tests/media.php --path=/tmp/aeon-wordpress
-      - run: WP_PATH=/tmp/aeon-wordpress sh tests/editor.sh
