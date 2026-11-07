@@ -15,6 +15,10 @@ module.exports = {
 			: plugin
 	),
 	entry: {
+		'admin-bar-scroll': path.resolve(
+			__dirname,
+			'src/js/admin-bar-scroll.js'
+		),
 		'dashboard-colours': path.resolve( __dirname, 'src/index.js' ),
 		'dashboard-colours-development': path.resolve(
 			__dirname,

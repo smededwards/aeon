@@ -11,6 +11,7 @@ use Aeon\Admin\DashboardColour;
 use Aeon\Admin\Environment;
 use Aeon\Admin\Seo as SeoAdmin;
 use Aeon\Admin\SettingsPage;
+use Aeon\Features\AdminBar;
 use Aeon\Features\Comments;
 use Aeon\Features\Contact;
 use Aeon\Features\DefaultFeaturedImage;
@@ -34,6 +35,7 @@ final class Plugin {
 		$settings = new Settings();
 		( new Contact() )->register();
 		( new Emoji() )->register();
+		( new AdminBar() )->register();
 		( new Comments( $settings ) )->register();
 		( new Seo( $settings ) )->register();
 		( new SeoAdmin( $settings ) )->register();
