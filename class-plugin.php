@@ -15,6 +15,7 @@ use Aeon\Features\AdminBar;
 use Aeon\Features\Comments;
 use Aeon\Features\Contact;
 use Aeon\Features\DefaultFeaturedImage;
+use Aeon\Features\DuplicateContent;
 use Aeon\Features\Emoji;
 use Aeon\Features\MediaUploads;
 use Aeon\Features\Seo;
@@ -40,6 +41,7 @@ final class Plugin {
 		( new Seo( $settings ) )->register();
 		( new SeoAdmin( $settings ) )->register();
 		( new DefaultFeaturedImage() )->register();
+		( new DuplicateContent() )->register();
 		( new MediaUploads() )->register();
 		( new SettingsPage( $settings ) )->register();
 		( new DashboardColour() )->register();

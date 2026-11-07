@@ -75,6 +75,12 @@ This setting does not delete comments, change moderation status or restrict acce
 
 From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/comments.sh` to check both settings. The runner restores the original option and removes its temporary posts and comments.
 
+## Content Duplication
+
+Posts and Pages have a native **Duplicate** row action. Aeon creates a Draft copy with the editor content, excerpt, taxonomies, custom metadata and actual featured image, while leaving media files shared and excluding editor locks and old-slug metadata.
+
+From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/duplicate.sh` to verify the Post and Page actions and copied data.
+
 ## Dashboard Environment and Media Defaults
 
 Under **Settings → Aeon → Dashboard**, select WordPress blue, Production red, Development orange or Local green. Aeon applies the chosen accent to the dashboard and block editor, including component colours and hover and focus states. Bedrock continues to determine the active site environment.
