@@ -6,17 +6,18 @@ All notable changes to Aeon are documented here.
 
 ### Added
 
-- Duplicate content from the WordPress admin.
+- Duplicate Posts and Pages from the WordPress admin.
+- Hide the front-end admin bar while scrolling, with keyboard and scroll-direction behaviour.
 
 ### Changed
 
-- Refined admin settings, dashboard palettes, editor ownership and front-end component styling.
-- Standardised readable markup and repository release guidance.
+- Improve contact delivery metadata and the success receipt URL.
+- Refine admin settings and dashboard palettes, and move editor controls to Rune.
 
 ### Fixed
 
 - Removed emoji assets from the front-end.
 
-## [0.3.0]
+### Documentation
 
-- Existing release. Historical pull-request detail will be backfilled from GitHub metadata without rewriting published commits.
+- Standardise PHP filenames, readable markup and release guidance.
