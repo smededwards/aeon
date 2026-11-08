@@ -2,6 +2,18 @@
 
 Aeon adds portfolio features to WordPress through namespaced PHP services loaded by Composer.
 
+## Features
+
+- SEO titles, meta descriptions and social images for Posts and Pages.
+- Native duplicate actions for Posts and Pages.
+- Contact-form validation, honeypot protection, rate limiting and email delivery.
+- Dashboard environment colours and links to local, development and production sites.
+- Default featured images, SVG upload validation and WebP uploads.
+- Comment and pingback controls for Posts and Pages.
+- Automatic front-end admin-bar hiding while scrolling.
+
+Detailed feature notes are available in the [Aeon Wiki](https://github.com/smededwards/aeon/wiki/Features), with development guidance in the [Development page](https://github.com/smededwards/aeon/wiki/Development).
+
 ## Name
 
 Aeon comes from Greek *aiōn*, meaning an age or extended passage of time. The name reflects functionality that can remain useful as a site changes and the plugin evolves; it does not limit Aeon to time-based features.
