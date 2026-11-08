@@ -1,6 +1,6 @@
 <?php
 /**
- * Frontend admin-bar visibility controls.
+ * Front-end admin-bar visibility controls.
  *
  * @package Aeon
  */
@@ -8,11 +8,11 @@
 namespace Aeon\Features;
 
 /**
- * Hides the frontend toolbar while scrolling down and restores it on upward scroll.
+ * Hides the front-end toolbar while scrolling down and restores it on upward scroll.
  */
 final class AdminBar {
 	/**
-	 * Register the frontend asset hook.
+	 * Register the front-end asset hook.
 	 *
 	 * @return void
 	 */

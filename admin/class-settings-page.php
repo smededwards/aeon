@@ -221,7 +221,7 @@ final class SettingsPage {
 					<?php esc_html_e( 'Clear', 'aeon' ); ?>
 				</button>
 			</p>
-			<p class="description"><?php esc_html_e( 'Used as the featured image on Posts and Pages that do not have one. The Media Library’s placeholder.png is selected automatically when available. An image selected on an individual item takes precedence; Clear disables the fallback. A missing attachment is never applied.', 'aeon' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Used as the featured image on Posts and Pages that do not have one. The Media Library\'s placeholder.png is selected automatically when available. An image selected on an individual item takes precedence; Clear disables the fallback. A missing attachment is never applied.', 'aeon' ); ?></p>
 			<p class="aeon-placeholder-image__status screen-reader-text" aria-live="polite"></p>
 		</div>
 		<?php
