@@ -13,6 +13,11 @@
 		<exclude-pattern>*/admin/class-settings-page.php</exclude-pattern>
 		<!-- Use the preferred hyphenated WordPress filename for DashboardColour. -->
 		<exclude-pattern>*/admin/class-dashboard-colour.php</exclude-pattern>
+		<!-- Use the preferred kebab-case filenames for multi-word feature classes. -->
+		<exclude-pattern>*/features/class-admin-bar.php</exclude-pattern>
+		<exclude-pattern>*/features/class-default-featured-image.php</exclude-pattern>
+		<exclude-pattern>*/features/class-duplicate-content.php</exclude-pattern>
+		<exclude-pattern>*/features/class-media-uploads.php</exclude-pattern>
 	</rule>
 
 	<!-- This adapter returns only the tested, immutable sanitised submission. -->
