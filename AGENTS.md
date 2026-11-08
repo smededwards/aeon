@@ -8,6 +8,8 @@
 - Use Title Case for user-facing names, titles and headings, keeping short articles and conjunctions such as “a”, “and”, “in” and “the” lowercase. Use sentence case for user-facing descriptions and explanatory text.
 - Use Title Case for user-facing selectable options and button labels as well as names, titles and headings; keep short articles and conjunctions such as “a”, “and”, “in” and “the” lowercase. Use sentence case for user-facing descriptions and explanatory text.
 - Use `FrontEnd`, `BackEnd` and `FullStack` in compound code identifiers when needed. Use `front-end`, `back-end` and `full-stack` in prose, and `Front-End`, `Back-End` and `Full-Stack` in title case. Preserve established technical identifiers and paths unless a deliberate rename is part of the task.
+- Format HTML with visible nesting and consistent indentation. Keep short, simple elements such as `<input>` on one line; wrap longer attribute lists only when it improves readability.
+- Prefer full ternary and null coalescing (`??`) expressions for simple value selection and defaults. Use shorthand ternary (`?:`) only where the repository's coding standard permits it. Use explicit conditionals for side effects, multiple branches, nested conditions or lower readability.
 - Use Conventional Commits for every new commit and PR title: `type(scope): description`, with an optional scope and optional `!` for breaking changes.
 - Accepted types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 - The sole exception is the repository's first commit, whose subject is exactly `Initial Commit`.
@@ -29,6 +31,11 @@ Apply these principles while planning, implementing and reviewing every change a
 - Release connected batches through a `dev` to `main` PR using a merge commit with a Conventional Commit subject. Preserve feature history and fast-forward `dev` to released `main` before new work.
 - Version each repository independently. Tag only the approved release commit on `main`; published tags are immutable. Releases and deployments require explicit agreement.
 - Track the work merged into each repository's `dev` branch and proactively recommend a semantic version bump when a substantive release batch has accumulated. Base the recommendation on the changes' impact, not a fixed PR or feature count, and explain the proposed bump before preparing release metadata.
+- Follow SemVer independently for this repository. The next planned release is `0.4.0`; recommend `1.0.0` when the public plugin API, hooks, settings and production workflow are stable enough to support compatibility guarantees.
+- Require every PR to have one `type:*` label, one or more `area:*` labels, one `semver:*` impact label and a release milestone before merge. Use `semver:major`, `semver:minor`, `semver:patch` or `semver:none`; the highest applicable impact determines the eventual release bump.
+- Name release milestones `Release: vX.Y.Z`; name larger non-release targets `Initiative: <Name>` and maintenance targets `Maintenance: <Name>`.
+- Maintain a `CHANGELOG.md` with an `Unreleased` section. Move it into a dated version section during release preparation, and update the README release link and version information at the same time.
+- Backfill labels, milestones and changelog history for merged PRs without rewriting commits, merged PR titles or published tags.
 - Keep reviewable changes in this repository or its GitHub PR. Use the repository directly by default; create a worktree only when explicitly requested or genuinely required for parallel isolation, and place it under the shared portfolio workspace's `.worktrees/<repo>-<purpose>` directory.
 - Keep `main` as the GitHub default branch. Avoid stacked PRs unless agreed; merge dependencies into `dev` first.
 - Clean up merged feature branches during a release or housekeeping pass. Before deletion, confirm no open PR depends on the branch and that it contains no unmerged work; never delete `dev` or `main`. Use `git fetch --prune` during that pass.
