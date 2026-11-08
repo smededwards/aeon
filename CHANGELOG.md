@@ -4,6 +4,10 @@ All notable changes to Aeon are documented here.
 
 ## [Unreleased]
 
+Future changes go here.
+
+## [0.4.0] - 2026-11-08
+
 ### Added
 
 - Duplicate Posts and Pages from the WordPress admin.

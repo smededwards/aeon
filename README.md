@@ -2,6 +2,8 @@
 
 Aeon adds portfolio features to WordPress through namespaced PHP services loaded by Composer.
 
+Current release: **0.4.0**.
+
 ## Features
 
 - SEO titles, meta descriptions and social images for Posts and Pages.

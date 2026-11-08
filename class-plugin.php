@@ -25,7 +25,7 @@ use Aeon\Features\Seo;
  */
 final class Plugin {
 	// Plugin release version, also used to version built assets.
-	public const VERSION = '0.3.0';
+	public const VERSION = '0.4.0';
 
 	/**
 	 * Register the plugin's features and administration hooks.
