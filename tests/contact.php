@@ -41,6 +41,7 @@ try {
 		'_aeon_nonce' => wp_create_nonce( 'aeon_contact_' . $aeon_page ),
 		'name'        => '<b>Visitor</b>',
 		'email'       => 'visitor@example.test',
+		'subject'     => 'employment',
 		'message'     => "Hello <script>bad()</script>\nSecond line",
 		'website'     => '',
 	);
@@ -54,7 +55,7 @@ try {
 		)
 	);
 	$aeon_assert( isset( $aeon_submission->errors['name'] ) && 101 === mb_strlen( $aeon_submission->values['name'] ), 'Invalid input must be rejected and retained text bounded.' );
-	$aeon_assert( array( 'name', 'email', 'message' ) === array_keys( $aeon_submission->values ), 'Unknown fields must not escape the input boundary.' );
+	$aeon_assert( array( 'name', 'email', 'message', 'subject' ) === array_keys( $aeon_submission->values ), 'Unknown fields must not escape the input boundary.' );
 	$aeon_immutable = false;
 	try {
 		$aeon_submission->values['name'] = '<script>unsafe</script>';
@@ -68,7 +69,7 @@ try {
 	$aeon_assert( isset( $aeon_result['errors']['general'] ) && ! $aeon_mail, 'Invalid nonces must not send mail.' );
 	$aeon_result = $aeon_process( array_replace( $aeon_input, array( 'website' => 'https://spam.test' ) ), $aeon_page, $aeon_address() );
 	$aeon_assert( isset( $aeon_result['errors']['general'] ) && ! $aeon_mail, 'Honeypot submissions must not send mail.' );
-	foreach ( array( array( 'name' => '' ), array( 'email' => array( 'invalid' ) ), array( 'message' => '' ), array( 'name' => str_repeat( 'a', 101 ) ), array( 'message' => str_repeat( 'a', 5001 ) ), array( 'name' => str_repeat( '<b>', 40 ) . 'Visitor' ), array( 'email' => "visitor@example.test\n" ), array( 'email' => "visitor@example.test\r\nBcc: other@example.test" ) ) as $aeon_invalid ) {
+	foreach ( array( array( 'name' => '' ), array( 'email' => array( 'invalid' ) ), array( 'subject' => 'not-allowed' ), array( 'message' => '' ), array( 'name' => str_repeat( 'a', 101 ) ), array( 'message' => str_repeat( 'a', 5001 ) ), array( 'name' => str_repeat( '<b>', 40 ) . 'Visitor' ), array( 'email' => "visitor@example.test\n" ), array( 'email' => "visitor@example.test\r\nBcc: other@example.test" ) ) as $aeon_invalid ) {
 		$aeon_field  = array_key_first( $aeon_invalid );
 		$aeon_result = $aeon_process( array_replace( $aeon_input, $aeon_invalid ), $aeon_page, $aeon_address() );
 		$aeon_assert( isset( $aeon_result['errors'][ $aeon_field ] ) && ! $aeon_mail, 'Invalid field accepted: ' . $aeon_field );
@@ -76,6 +77,8 @@ try {
 	$aeon_result = $aeon_process( $aeon_input, $aeon_page, $aeon_address() );
 	$aeon_assert( ! $aeon_result['errors'] && 1 === count( $aeon_mail ), 'Valid submission must send once.' );
 	$aeon_assert( get_option( 'admin_email' ) === $aeon_mail[0]['to'], 'Recipient must remain server-side.' );
+	$aeon_assert( 'Contact - Employment Opportunity' === $aeon_mail[0]['subject'], 'Subject must use the selected title-cased category.' );
+	$aeon_assert( in_array( 'From: Portfolio <wordpress@' . wp_parse_url( home_url(), PHP_URL_HOST ) . '>', $aeon_mail[0]['headers'], true ), 'Sender must use the verified portfolio address.' );
 	$aeon_assert( ! str_contains( $aeon_mail[0]['message'], '<script>' ) && str_contains( $aeon_mail[0]['message'], 'Name: Visitor' ), 'Mail content was not sanitised.' );
 	$aeon_assert( in_array( 'Reply-To: visitor@example.test', $aeon_mail[0]['headers'], true ), 'Reply-To must use the validated address.' );
 	$aeon_fail   = true;

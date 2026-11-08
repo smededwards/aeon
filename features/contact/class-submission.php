@@ -13,6 +13,19 @@ namespace Aeon\Features\Contact;
 final class Submission {
 
 	/**
+	 * Allowed contact subjects and their email labels.
+	 *
+	 * @var array<string, string>
+	 */
+	public const SUBJECTS = array(
+		'employment'  => 'Employment Opportunity',
+		'project'     => 'Project Enquiry',
+		'consultancy' => 'WordPress Consultancy',
+		'general'     => 'General Enquiry',
+		'other'       => 'Other',
+	);
+
+	/**
 	 * Only the sanitising factory can construct a submission.
 	 *
 	 * @param array<string, string> $values Sanitised, bounded field values.
@@ -51,6 +64,12 @@ final class Submission {
 				/* translators: %d: maximum number of characters. */
 				$errors[ $field ] = sprintf( __( 'Use %d characters or fewer.', 'aeon' ), $limit );
 			}
+		}
+		$subject = is_string( $input['subject'] ?? null ) ? sanitize_key( $input['subject'] ) : '';
+		if ( '' !== $subject && ! isset( self::SUBJECTS[ $subject ] ) ) {
+			$errors['subject'] = __( 'Choose a valid subject.', 'aeon' );
+		} else {
+			$values['subject'] = $subject;
 		}
 		$raw_email = is_string( $input['email'] ?? null ) ? $input['email'] : '';
 		$email     = trim( $raw_email );

@@ -6,6 +6,7 @@
 - Use sentence case for package names: Aeon, Obel and Rune. Keep lowercase code identifiers and package slugs unchanged.
 - Use Title Case for website content headings and SEO title overrides, including brand names such as WordPress.
 - Use Title Case for user-facing names, titles and headings, keeping short articles and conjunctions such as “a”, “and”, “in” and “the” lowercase. Use sentence case for user-facing descriptions and explanatory text.
+- Use Title Case for user-facing selectable options and button labels as well as names, titles and headings; keep short articles and conjunctions such as “a”, “and”, “in” and “the” lowercase. Use sentence case for user-facing descriptions and explanatory text.
 - Use `FrontEnd`, `BackEnd` and `FullStack` in compound code identifiers when needed. Use `front-end`, `back-end` and `full-stack` in prose, and `Front-End`, `Back-End` and `Full-Stack` in title case. Preserve established technical identifiers and paths unless a deliberate rename is part of the task.
 - Use Conventional Commits for every new commit and PR title: `type(scope): description`, with an optional scope and optional `!` for breaking changes.
 - Accepted types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
