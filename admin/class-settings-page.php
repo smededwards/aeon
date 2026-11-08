@@ -172,13 +172,18 @@ final class SettingsPage {
 	 * @return void
 	 */
 	public function dashboard_environment_field(): void {
-		$selection = DashboardColour::selection();
+		$selection    = DashboardColour::selection();
+		$environments = array(
+			'default'     => __( 'Default', 'aeon' ),
+			'production'  => __( 'Production', 'aeon' ),
+			'development' => __( 'Development', 'aeon' ),
+			'local'       => __( 'Local', 'aeon' ),
+		);
 		?>
 		<select id="aeon-dashboard-environment" name="<?php printf( '%s', esc_attr( DashboardColour::OPTION ) ); ?>">
-			<option value="default" <?php selected( $selection, 'default' ); ?>><?php esc_html_e( 'Default', 'aeon' ); ?></option>
-			<option value="production" <?php selected( $selection, 'production' ); ?>><?php esc_html_e( 'Production', 'aeon' ); ?></option>
-			<option value="development" <?php selected( $selection, 'development' ); ?>><?php esc_html_e( 'Development', 'aeon' ); ?></option>
-			<option value="local" <?php selected( $selection, 'local' ); ?>><?php esc_html_e( 'Local', 'aeon' ); ?></option>
+			<?php foreach ( $environments as $environment => $label ) : ?>
+				<option value="<?php printf( '%s', esc_attr( $environment ) ); ?>" <?php selected( $selection, $environment ); ?>><?php printf( '%s', esc_html( $label ) ); ?></option>
+			<?php endforeach; ?>
 		</select>
 		<p class="description"><?php esc_html_e( 'Default uses the WordPress blue accent. Choose an environment to apply its dashboard colour.', 'aeon' ); ?></p>
 		<?php
