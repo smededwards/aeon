@@ -44,7 +44,7 @@ final class Contact {
 	}
 
 	/**
-	 * Handle the public form and its page-bound success receipt.
+	 * Handle the public form and its success receipt.
 	 *
 	 * @return void
 	 */
@@ -55,7 +55,7 @@ final class Contact {
 		nocache_headers();
 		$page_id = get_queried_object_id();
 		if ( 'POST' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
-			$this->state['sent'] = isset( $_GET['contact-sent'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['contact-sent'] ) ), 'aeon_contact_sent_' . $page_id );
+			$this->state['sent'] = isset( $_GET['sent'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['sent'] ) );
 			return;
 		}
 		if ( ! isset( $_POST['_aeon_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_aeon_nonce'] ) ), 'aeon_contact_' . $page_id ) ) {
@@ -72,7 +72,7 @@ final class Contact {
 			status_header( 422 );
 			return;
 		}
-		wp_safe_redirect( add_query_arg( 'contact-sent', wp_create_nonce( 'aeon_contact_sent_' . $page_id ), get_permalink() ) . '#contact-form', 303 );
+		wp_safe_redirect( add_query_arg( 'sent', '1', get_permalink() ) . '#contact-form', 303 );
 		exit;
 	}
 
@@ -103,11 +103,15 @@ final class Contact {
 		}
 		$recipient = get_option( 'admin_email' );
 		$domain    = wp_parse_url( home_url(), PHP_URL_HOST );
-		$sent      = is_email( $recipient ) && is_email( 'wordpress@' . $domain ) && wp_mail(
+		$subject   = __( 'Contact', 'aeon' );
+		if ( isset( Submission::SUBJECTS[ $values['subject'] ?? '' ] ) ) {
+			$subject .= ' - ' . Submission::SUBJECTS[ $values['subject'] ];
+		}
+		$sent = is_email( $recipient ) && is_email( 'wordpress@' . $domain ) && wp_mail(
 			$recipient,
-			__( 'Portfolio contact message', 'aeon' ),
+			$subject,
 			sprintf( "Name: %s\nEmail: %s\n\n%s", $values['name'], $values['email'], $values['message'] ),
-			array( 'Content-Type: text/plain; charset=UTF-8', 'From: wordpress@' . $domain, 'Reply-To: ' . $values['email'] )
+			array( 'Content-Type: text/plain; charset=UTF-8', 'From: Portfolio <wordpress@' . $domain . '>', 'Reply-To: ' . $values['email'] )
 		);
 		if ( ! $sent ) {
 			$errors['general'] = __( 'Your message could not be sent. Please try again later.', 'aeon' );
