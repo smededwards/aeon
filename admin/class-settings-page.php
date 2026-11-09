@@ -85,15 +85,13 @@ final class SettingsPage {
 			DefaultFeaturedImage::OPTION,
 			array(
 				'type'              => 'integer',
-				'default'           => DefaultFeaturedImage::default_image_id(),
 				'sanitize_callback' => array( DefaultFeaturedImage::class, 'sanitise_image' ),
 				'show_in_rest'      => false,
 			)
 		);
 		add_settings_section( 'aeon_dashboard', __( 'Dashboard', 'aeon' ), '__return_null', self::PAGE );
 		add_settings_section( 'aeon_content', __( 'Content', 'aeon' ), '__return_null', self::PAGE );
-		add_settings_section( 'aeon_editor', __( 'Editor', 'aeon' ), '__return_null', self::PAGE );
-		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_dashboard' );
+		add_settings_field( 'aeon_dashboard_environment', __( 'Dashboard Colour', 'aeon' ), array( $this, 'dashboard_environment_field' ), self::PAGE, 'aeon_dashboard' );
 		$environments = Environment::ENVIRONMENTS;
 		sort( $environments, SORT_STRING );
 		foreach ( $environments as $environment ) {
@@ -101,7 +99,7 @@ final class SettingsPage {
 				'aeon_environment_url_' . $environment,
 				sprintf(
 					/* Translators: %s is an environment label. */
-					__( '%s site URL', 'aeon' ),
+					__( '%s Site URL', 'aeon' ),
 					Environment::environment_label( $environment )
 				),
 				array( $this, 'environment_url_field' ),
@@ -121,49 +119,14 @@ final class SettingsPage {
 			array(
 				'section'     => 'aeon_content',
 				'key'         => 'seo',
-				'title'       => __( 'SEO and sharing', 'aeon' ),
+				'title'       => __( 'SEO and Sharing', 'aeon' ),
 				'label'       => __( 'Manage SEO and sharing metadata with Aeon', 'aeon' ),
 				'description' => __( 'Adds optional post/page fields and sharing tags. Turn this off before enabling another SEO metadata provider; saved overrides are retained.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'simplify_blocks',
-				'title'       => __( 'Block editor', 'aeon' ),
-				'label'       => __( 'Simplify available blocks', 'aeon' ),
-				'description' => __( 'Limits the Posts, Pages and saved patterns inserter to essential content and layout blocks. Turning this off restores the full selection.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'hide_openverse',
-				'title'       => __( 'Openverse', 'aeon' ),
-				'label'       => __( 'Hide Openverse in the editor', 'aeon' ),
-				'description' => __( 'Removes Openverse from editor media sources. Uploads and the Media Library remain available.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'core_patterns',
-				'title'       => __( 'Bundled core patterns', 'aeon' ),
-				'label'       => __( 'Show WordPress’s bundled patterns', 'aeon' ),
-				'description' => __( 'Controls built-in core layouts. Theme, plugin, remote and saved user patterns are preserved.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'patterns_shortcut',
-				'title'       => __( 'Patterns shortcut', 'aeon' ),
-				'label'       => __( 'Show Appearance → Patterns', 'aeon' ),
-				'description' => __( 'Adds a direct link to the native pattern manager. Turning it off hides only Aeon’s shortcut; patterns remain available through WordPress.', 'aeon' ),
-			),
-			array(
-				'section'     => 'aeon_editor',
-				'key'         => 'remote_patterns',
-				'title'       => __( 'Remote patterns', 'aeon' ),
-				'label'       => __( 'Allow patterns from WordPress.org', 'aeon' ),
-				'description' => __( 'Controls automatic remote patterns and directory queries. Patterns already saved or inserted into content are preserved.', 'aeon' ),
 			),
 		);
 		foreach ( $fields as $field ) {
 			if ( 'seo' === $field['key'] ) {
-				add_settings_field( 'aeon_placeholder_image', __( 'Default featured image', 'aeon' ), array( $this, 'placeholder_image_field' ), self::PAGE, 'aeon_content' );
+				add_settings_field( 'aeon_placeholder_image', __( 'Default Featured Image', 'aeon' ), array( $this, 'placeholder_image_field' ), self::PAGE, 'aeon_content' );
 			}
 			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'feature_field' ), self::PAGE, $field['section'], $field );
 		}
@@ -201,16 +164,6 @@ final class SettingsPage {
 			array(),
 			(string) filemtime( $style )
 		);
-		wp_localize_script(
-			'aeon-placeholder-image',
-			'aeonPlaceholderImage',
-			array(
-				'title'    => __( 'Choose the default featured image', 'aeon' ),
-				'button'   => __( 'Use as default featured image', 'aeon' ),
-				'selected' => __( 'Default featured image selected.', 'aeon' ),
-				'removed'  => __( 'Default featured image cleared.', 'aeon' ),
-			)
-		);
 	}
 
 	/**
@@ -219,13 +172,18 @@ final class SettingsPage {
 	 * @return void
 	 */
 	public function dashboard_environment_field(): void {
-		$selection = DashboardColour::selection();
+		$selection    = DashboardColour::selection();
+		$environments = array(
+			'default'     => __( 'Default', 'aeon' ),
+			'production'  => __( 'Production', 'aeon' ),
+			'development' => __( 'Development', 'aeon' ),
+			'local'       => __( 'Local', 'aeon' ),
+		);
 		?>
 		<select id="aeon-dashboard-environment" name="<?php printf( '%s', esc_attr( DashboardColour::OPTION ) ); ?>">
-			<option value="default" <?php selected( $selection, 'default' ); ?>><?php esc_html_e( 'Default', 'aeon' ); ?></option>
-			<option value="production" <?php selected( $selection, 'production' ); ?>><?php esc_html_e( 'Production', 'aeon' ); ?></option>
-			<option value="development" <?php selected( $selection, 'development' ); ?>><?php esc_html_e( 'Development', 'aeon' ); ?></option>
-			<option value="local" <?php selected( $selection, 'local' ); ?>><?php esc_html_e( 'Local', 'aeon' ); ?></option>
+			<?php foreach ( $environments as $environment => $label ) : ?>
+				<option value="<?php printf( '%s', esc_attr( $environment ) ); ?>" <?php selected( $selection, $environment ); ?>><?php printf( '%s', esc_html( $label ) ); ?></option>
+			<?php endforeach; ?>
 		</select>
 		<p class="description"><?php esc_html_e( 'Default uses the WordPress blue accent. Choose an environment to apply its dashboard colour.', 'aeon' ); ?></p>
 		<?php
@@ -240,7 +198,13 @@ final class SettingsPage {
 		$image_id  = DefaultFeaturedImage::image_id();
 		$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'medium' ) : false;
 		?>
-		<div class="aeon-placeholder-image">
+		<div
+			class="aeon-placeholder-image"
+			data-image-title="<?php printf( '%s', esc_attr__( 'Choose the Default Featured Image', 'aeon' ) ); ?>"
+			data-image-button="<?php printf( '%s', esc_attr__( 'Use as Default Featured Image', 'aeon' ) ); ?>"
+			data-image-selected="<?php printf( '%s', esc_attr__( 'Default featured image selected.', 'aeon' ) ); ?>"
+			data-image-removed="<?php printf( '%s', esc_attr__( 'Default featured image cleared.', 'aeon' ) ); ?>"
+		>
 			<input id="aeon-placeholder-image-id" type="hidden" name="<?php printf( '%s', esc_attr( DefaultFeaturedImage::OPTION ) ); ?>" value="<?php printf( '%s', esc_attr( (string) $image_id ) ); ?>">
 			<img
 				class="aeon-placeholder-image__preview"
@@ -253,7 +217,7 @@ final class SettingsPage {
 				alt=""
 			>
 			<p>
-				<button class="button aeon-placeholder-image__choose" type="button"><?php esc_html_e( 'Choose image', 'aeon' ); ?></button>
+				<button class="button aeon-placeholder-image__choose" type="button"><?php esc_html_e( 'Choose Image', 'aeon' ); ?></button>
 				<button class="button aeon-placeholder-image__clear" type="button"
 					<?php if ( ! $image_id ) : ?>
 					hidden
@@ -262,7 +226,7 @@ final class SettingsPage {
 					<?php esc_html_e( 'Clear', 'aeon' ); ?>
 				</button>
 			</p>
-			<p class="description"><?php esc_html_e( 'Used as the featured image on Posts and Pages that do not have one. The Media Library’s placeholder.png is selected automatically when available. An image selected on an individual item takes precedence; Clear disables the fallback. A missing attachment is never applied.', 'aeon' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Used as the featured image on Posts and Pages that do not have one. The Media Library\'s placeholder.png is selected automatically when available. An image selected on an individual item takes precedence; Clear disables the fallback. A missing attachment is never applied.', 'aeon' ); ?></p>
 			<p class="aeon-placeholder-image__status screen-reader-text" aria-live="polite"></p>
 		</div>
 		<?php

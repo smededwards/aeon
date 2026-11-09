@@ -1,0 +1,12 @@
+@use "dashboard-environment" as environment;
+@include environment.palette(
+	#E98220,
+	(233, 130, 32),
+	#DA7516,
+	(218, 117, 22),
+	#C36913,
+	(195, 105, 19),
+	#EE9C4E,
+	#FFB263,
+	(210, 117, 29)
+);

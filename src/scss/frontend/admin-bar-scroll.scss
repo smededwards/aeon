@@ -1,0 +1,19 @@
+.aeon-admin-bar {
+	&--hidden {
+		margin-top: 0 !important;
+	}
+
+	&--hidden #wpadminbar {
+		transform: translateY(-100%);
+	}
+}
+
+#wpadminbar {
+	transition: transform 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#wpadminbar {
+		transition: none;
+	}
+}

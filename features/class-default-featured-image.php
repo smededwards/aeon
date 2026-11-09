@@ -62,14 +62,17 @@ final class DefaultFeaturedImage {
 				'post_status'    => array( 'inherit', 'publish' ),
 				'post_mime_type' => 'image',
 				'posts_per_page' => 1,
-				'fields'         => 'ids',
 				'name'           => 'placeholder',
 			)
 		);
-		foreach ( $attachments as $attachment_id ) {
-			$file = get_attached_file( $attachment_id );
-			if ( $file && 'placeholder.png' === strtolower( basename( $file ) ) && self::is_valid_image( $attachment_id ) ) {
-				return (int) $attachment_id;
+		foreach ( $attachments as $attachment ) {
+			if ( ! $attachment instanceof \WP_Post ) {
+				continue;
+			}
+
+			$file = get_attached_file( $attachment->ID );
+			if ( $file && 'placeholder.png' === strtolower( basename( $file ) ) && self::is_valid_image( $attachment->ID ) ) {
+				return (int) $attachment->ID;
 			}
 		}
 		return 0;
@@ -83,9 +86,13 @@ final class DefaultFeaturedImage {
 	public static function image_id(): int {
 		static $configured_image_id = null;
 		if ( null === $configured_image_id ) {
-			$default_image_id    = self::default_image_id();
-			$image_id            = absint( get_option( self::OPTION, $default_image_id ) );
-			$configured_image_id = self::is_valid_image( $image_id ) ? $image_id : 0;
+			$image_id = get_option( self::OPTION, false );
+			if ( false === $image_id ) {
+				$configured_image_id = self::default_image_id();
+			} else {
+				$image_id            = absint( $image_id );
+				$configured_image_id = self::is_valid_image( $image_id ) ? $image_id : 0;
+			}
 		}
 		return $configured_image_id;
 	}
