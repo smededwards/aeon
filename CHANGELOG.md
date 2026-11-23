@@ -6,6 +6,12 @@ All notable changes to Aeon are documented here.
 
 Future changes go here.
 
+## [0.4.1] - 2026-11-23
+
+### Security
+
+- Update the WordPress build tooling and override the vulnerable serialize-javascript transitive dependency.
+
 ## [0.4.0] - 2026-11-08
 
 ### Added
