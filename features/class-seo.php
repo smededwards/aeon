@@ -36,8 +36,25 @@ final class Seo {
 		add_action( 'init', array( $this, 'register_meta' ) );
 		if ( $this->settings->is_enabled( 'seo' ) ) {
 			add_filter( 'document_title_parts', array( $this, 'title_parts' ) );
+			add_action( 'wp_head', array( $this, 'canonical' ), 1 );
 			add_action( 'wp_head', array( $this, 'head' ), 5 );
 			add_action( 'wp_head', array( $this, 'schema' ), 30 );
+		}
+	}
+
+	/**
+	 * Output a canonical URL for the Posts archive, which core limits to singular queries.
+	 *
+	 * @return void
+	 */
+	public function canonical(): void {
+		if ( ! is_home() ) {
+			return;
+		}
+
+		$url = get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false );
+		if ( $url ) {
+			printf( '<link rel="canonical" href="%s" />' . "\n", esc_url( $url ) );
 		}
 	}
 
