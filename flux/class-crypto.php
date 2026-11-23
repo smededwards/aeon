@@ -27,7 +27,7 @@ final class Crypto {
 		$tag   = '';
 		$value = openssl_encrypt( $value, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv, $tag );
 
-		if ( false === $value ) {
+		if ( $value === false ) {
 			return '';
 		}
 
@@ -43,7 +43,7 @@ final class Crypto {
 	public static function decrypt( string $value ): string {
 		$decoded = base64_decode( $value, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
-		if ( false === $decoded || strlen( $decoded ) < 28 ) {
+		if ( $decoded === false || strlen( $decoded ) < 28 ) {
 			return '';
 		}
 
@@ -56,7 +56,7 @@ final class Crypto {
 			substr( $decoded, 12, 16 )
 		);
 
-		return false === $plain ? '' : $plain;
+		return $plain === false ? '' : $plain;
 	}
 
 	/**

@@ -54,8 +54,8 @@ final class Contact {
 		}
 		nocache_headers();
 		$page_id = get_queried_object_id();
-		if ( 'POST' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
-			$this->state['sent'] = isset( $_GET['sent'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['sent'] ) );
+		if ( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) !== 'POST' ) {
+			$this->state['sent'] = isset( $_GET['sent'] ) && sanitize_text_field( wp_unslash( $_GET['sent'] ) ) === '1';
 			return;
 		}
 		if ( ! isset( $_POST['_aeon_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_aeon_nonce'] ) ), 'aeon_contact_' . $page_id ) ) {
@@ -87,7 +87,7 @@ final class Contact {
 	public function process( Submission $submission, int $page_id, string $address ): array {
 		$values = $submission->values;
 		$errors = $submission->errors;
-		if ( ! wp_verify_nonce( $submission->nonce, 'aeon_contact_' . $page_id ) || 'publish' !== get_post_status( $page_id ) || ! has_block( 'rune/contact-form', $page_id ) ) {
+		if ( ! wp_verify_nonce( $submission->nonce, 'aeon_contact_' . $page_id ) || get_post_status( $page_id ) !== 'publish' || ! has_block( 'rune/contact-form', $page_id ) ) {
 			$errors['general'] = __( 'The form has expired. Reload the page and try again.', 'aeon' );
 			return compact( 'values', 'errors' );
 		}

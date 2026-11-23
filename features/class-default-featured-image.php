@@ -71,7 +71,7 @@ final class DefaultFeaturedImage {
 			}
 
 			$file = get_attached_file( $attachment->ID );
-			if ( $file && 'placeholder.png' === strtolower( basename( $file ) ) && self::is_valid_image( $attachment->ID ) ) {
+			if ( $file && strtolower( basename( $file ) ) === 'placeholder.png' && self::is_valid_image( $attachment->ID ) ) {
 				return (int) $attachment->ID;
 			}
 		}
@@ -85,9 +85,9 @@ final class DefaultFeaturedImage {
 	 */
 	public static function image_id(): int {
 		static $configured_image_id = null;
-		if ( null === $configured_image_id ) {
+		if ( $configured_image_id === null ) {
 			$image_id = get_option( self::OPTION, false );
-			if ( false === $image_id ) {
+			if ( $image_id === false ) {
 				$configured_image_id = self::default_image_id();
 			} else {
 				$image_id            = absint( $image_id );
@@ -110,7 +110,7 @@ final class DefaultFeaturedImage {
 
 		$attachment = get_post( $image_id );
 		return $attachment instanceof \WP_Post
-			&& 'attachment' === $attachment->post_type
+			&& $attachment->post_type === 'attachment'
 			&& in_array( $attachment->post_status, array( 'inherit', 'publish' ), true )
 			&& wp_attachment_is_image( $image_id )
 			&& (bool) wp_get_attachment_url( $image_id );

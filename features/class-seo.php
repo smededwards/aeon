@@ -66,7 +66,7 @@ final class Seo {
 	public function register_meta(): void {
 		foreach ( array( 'post', 'page' ) as $type ) {
 			foreach ( array( self::TITLE, self::DESCRIPTION, self::IMAGE ) as $key ) {
-				$is_image = self::IMAGE === $key;
+				$is_image = $key === self::IMAGE;
 				register_post_meta(
 					$type,
 					$key,
@@ -117,7 +117,7 @@ final class Seo {
 		$post = $this->context();
 		if ( $post ) {
 			$title = get_post_meta( $post->ID, self::TITLE, true );
-			if ( '' !== trim( $title ) ) {
+			if ( trim( $title ) !== '' ) {
 				$parts['title'] = sanitize_text_field( $title );
 			}
 		}
@@ -144,7 +144,7 @@ final class Seo {
 		}
 		$properties = array(
 			'og:title'     => $title,
-			'og:type'      => 'post' === $post->post_type ? 'article' : 'website',
+			'og:type'      => $post->post_type === 'post' ? 'article' : 'website',
 			'og:url'       => $url,
 			'og:site_name' => $this->plain_text( get_bloginfo( 'name' ) ),
 			'og:locale'    => str_replace( '-', '_', get_locale() ),
@@ -160,7 +160,7 @@ final class Seo {
 				$properties['og:image:alt'] = $image['alt'];
 			}
 		}
-		if ( 'post' === $post->post_type ) {
+		if ( $post->post_type === 'post' ) {
 			$properties['article:published_time'] = get_post_time( DATE_W3C, false, $post );
 			$properties['article:modified_time']  = get_post_modified_time( DATE_W3C, false, $post );
 		}
@@ -275,7 +275,7 @@ final class Seo {
 	 */
 	private function is_placeholder_image( array $image ): bool {
 		$file = get_attached_file( (int) ( $image['id'] ?? 0 ) );
-		return $file && 1 === preg_match( '/^placeholder(?:[-_].*)?\.[a-z0-9]+$/i', basename( $file ) );
+		return $file && preg_match( '/^placeholder(?:[-_].*)?\.[a-z0-9]+$/i', basename( $file ) ) === 1;
 	}
 
 	/**
@@ -352,12 +352,12 @@ final class Seo {
 				$page['primaryImageOfPage']['caption'] = $schema_image['alt'];
 			}
 		}
-		if ( 'ProfilePage' === $page['@type'] ) {
+		if ( $page['@type'] === 'ProfilePage' ) {
 			$page['mainEntity'] = array( '@id' => $person_id );
 		}
 
 		$graph = array( $person, $website, $page );
-		if ( 'post' === $post->post_type ) {
+		if ( $post->post_type === 'post' ) {
 			$headline = get_post_meta( $post->ID, self::TITLE, true );
 			$headline = $this->plain_text( $headline ? $headline : get_the_title( $post ) );
 			$article  = array(

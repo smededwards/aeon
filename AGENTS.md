@@ -11,6 +11,7 @@
 - Format HTML with visible nesting and consistent indentation. Keep short, simple elements such as `<input>` on one line; wrap longer attribute lists only when it improves readability.
 - Prefer full ternary and null coalescing (`??`) expressions for simple value selection and defaults. Use shorthand ternary (`?:`) only where the repository's coding standard permits it. Use explicit conditionals for side effects, multiple branches, nested conditions or lower readability.
 - Use Conventional Commits for every new commit and PR title: `type(scope): description`, with an optional scope and optional `!` for breaking changes.
+- Keep comparisons readable with the variable or expression on the left and literal on the right; avoid Yoda conditions. Prefer guard clauses and early returns to reduce nesting.
 - Accepted types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 - The sole exception is the repository's first commit, whose subject is exactly `Initial Commit`.
 - Keep PR descriptions focused on the core premise and features, using one short paragraph or a few brief bullets. Omit implementation inventories, validation commands and work logs unless necessary for review. Use British English in documentation.

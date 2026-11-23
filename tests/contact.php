@@ -54,7 +54,7 @@ try {
 			)
 		)
 	);
-	$aeon_assert( isset( $aeon_submission->errors['name'] ) && 101 === mb_strlen( $aeon_submission->values['name'] ), 'Invalid input must be rejected and retained text bounded.' );
+	$aeon_assert( isset( $aeon_submission->errors['name'] ) && mb_strlen( $aeon_submission->values['name'] ) === 101, 'Invalid input must be rejected and retained text bounded.' );
 	$aeon_assert( array( 'name', 'email', 'message', 'subject' ) === array_keys( $aeon_submission->values ), 'Unknown fields must not escape the input boundary.' );
 	$aeon_immutable = false;
 	try {
@@ -64,7 +64,7 @@ try {
 	}
 	$aeon_assert( $aeon_immutable, 'Sanitised submissions must remain immutable.' );
 	$aeon_submission = aeon_sanitise_contact_submission( array( 'invalid' ) );
-	$aeon_assert( 3 === count( $aeon_submission->errors ), 'Malformed submissions must fail validation.' );
+	$aeon_assert( count( $aeon_submission->errors ) === 3, 'Malformed submissions must fail validation.' );
 	$aeon_result = $aeon_process( array_replace( $aeon_input, array( '_aeon_nonce' => 'invalid' ) ), $aeon_page, $aeon_address() );
 	$aeon_assert( isset( $aeon_result['errors']['general'] ) && ! $aeon_mail, 'Invalid nonces must not send mail.' );
 	$aeon_result = $aeon_process( array_replace( $aeon_input, array( 'website' => 'https://spam.test' ) ), $aeon_page, $aeon_address() );
@@ -75,7 +75,7 @@ try {
 		$aeon_assert( isset( $aeon_result['errors'][ $aeon_field ] ) && ! $aeon_mail, 'Invalid field accepted: ' . $aeon_field );
 	}
 	$aeon_result = $aeon_process( $aeon_input, $aeon_page, $aeon_address() );
-	$aeon_assert( ! $aeon_result['errors'] && 1 === count( $aeon_mail ), 'Valid submission must send once.' );
+	$aeon_assert( ! $aeon_result['errors'] && count( $aeon_mail ) === 1, 'Valid submission must send once.' );
 	$aeon_assert( get_option( 'admin_email' ) === $aeon_mail[0]['to'], 'Recipient must remain server-side.' );
 	$aeon_assert( 'Contact - Employment Opportunity' === $aeon_mail[0]['subject'], 'Subject must use the selected title-cased category.' );
 	$aeon_assert( in_array( 'From: Portfolio <wordpress@' . wp_parse_url( home_url(), PHP_URL_HOST ) . '>', $aeon_mail[0]['headers'], true ), 'Sender must use the verified portfolio address.' );
@@ -92,7 +92,7 @@ try {
 	$aeon_count  = count( $aeon_mail );
 	$aeon_result = $aeon_process( $aeon_input, $aeon_page, $aeon_peer );
 	$aeon_assert( isset( $aeon_result['errors']['general'] ) && count( $aeon_mail ) === $aeon_count, 'Rate-limited attempts must not send mail.' );
-	$aeon_assert( '<!-- wp:rune/contact-form /-->' === get_post_field( 'post_content', $aeon_page ), 'Submissions must not alter page content.' );
+	$aeon_assert( get_post_field( 'post_content', $aeon_page ) === '<!-- wp:rune/contact-form /-->', 'Submissions must not alter page content.' );
 	WP_CLI::success( 'Contact validation, sanitisation, honeypot, rate limiting and delivery failure checks passed.' );
 } finally {
 	remove_filter( 'pre_wp_mail', $aeon_intercept );

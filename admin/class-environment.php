@@ -54,7 +54,7 @@ final class Environment {
 
 			$url = trim( esc_url_raw( $submitted[ $environment ], array( 'http', 'https' ) ) );
 
-			if ( '' === $url ) {
+			if ( $url === '' ) {
 				continue;
 			}
 
@@ -101,7 +101,7 @@ final class Environment {
 
 		$environment = self::detected_environment();
 
-		if ( null === $environment ) {
+		if ( $environment === null ) {
 			return;
 		}
 
@@ -116,7 +116,7 @@ final class Environment {
 					esc_html( self::environment_label( $environment ) )
 				),
 				'href'  => self::contextual_url(
-					'' !== $urls[ $environment ] ? $urls[ $environment ] : $current_url
+					$urls[ $environment ] !== '' ? $urls[ $environment ] : $current_url
 				),
 			)
 		);
@@ -125,11 +125,11 @@ final class Environment {
 			$label    = self::environment_label( $target_environment );
 			$base_url = $urls[ $target_environment ];
 
-			if ( '' === $base_url && $target_environment === $environment ) {
+			if ( $base_url === '' && $target_environment === $environment ) {
 				$base_url = $current_url;
 			}
 
-			if ( '' === $base_url ) {
+			if ( $base_url === '' ) {
 				continue;
 			}
 
@@ -230,9 +230,9 @@ final class Environment {
 		$home_path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
 		$home_path = is_string( $home_path ) ? untrailingslashit( $home_path ) : '';
 
-		if ( '' !== $home_path && ( $path === $home_path || str_starts_with( $path, trailingslashit( $home_path ) ) ) ) {
+		if ( $home_path !== '' && ( $path === $home_path || str_starts_with( $path, trailingslashit( $home_path ) ) ) ) {
 			$path = substr( $path, strlen( $home_path ) );
-			$path = '' === $path ? '/' : $path;
+			$path = $path === '' ? '/' : $path;
 		}
 
 		$query_args = array();
@@ -251,7 +251,7 @@ final class Environment {
 			$safe_query_args[ $key ] = sanitize_text_field( (string) $query_args[ $key ] );
 		}
 
-		if ( 'post.php' === basename( $path ) ) {
+		if ( basename( $path ) === 'post.php' ) {
 			$path = wp_parse_url( admin_url( 'edit.php' ), PHP_URL_PATH );
 			$post = isset( $query_args['post'] ) && is_scalar( $query_args['post'] )
 				? get_post( absint( $query_args['post'] ) )
@@ -262,7 +262,7 @@ final class Environment {
 			}
 		}
 
-		if ( 'term.php' === basename( $path ) ) {
+		if ( basename( $path ) === 'term.php' ) {
 			$path = wp_parse_url( admin_url( 'edit-tags.php' ), PHP_URL_PATH );
 		}
 
@@ -270,9 +270,9 @@ final class Environment {
 			$path = '/';
 		}
 
-		if ( '' !== $home_path && ( $path === $home_path || str_starts_with( $path, trailingslashit( $home_path ) ) ) ) {
+		if ( $home_path !== '' && ( $path === $home_path || str_starts_with( $path, trailingslashit( $home_path ) ) ) ) {
 			$path = substr( $path, strlen( $home_path ) );
-			$path = '' === $path ? '/' : $path;
+			$path = $path === '' ? '/' : $path;
 		}
 
 		$url = trailingslashit( $base_url ) . ltrim( $path, '/' );

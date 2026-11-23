@@ -44,7 +44,7 @@ final class DashboardColour {
 	 * @return string Sanitised selection or the default WordPress palette.
 	 */
 	public static function sanitise_selection( mixed $selection ): string {
-		if ( 'environment' === $selection ) {
+		if ( $selection === 'environment' ) {
 			return self::DEFAULT_SELECTION;
 		}
 
@@ -109,7 +109,7 @@ final class DashboardColour {
 	 */
 	private function enqueue_accent_styles(): void {
 		$environment = self::selection();
-		if ( self::DEFAULT_SELECTION === $environment ) {
+		if ( $environment === self::DEFAULT_SELECTION ) {
 			return;
 		}
 

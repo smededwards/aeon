@@ -114,7 +114,7 @@ final class Comments {
 	 * @return array Remaining columns.
 	 */
 	public function remove_column( array $columns, string $post_type ): array {
-		if ( 'post' === $post_type ) {
+		if ( $post_type === 'post' ) {
 			unset( $columns['comments'] );
 		}
 		return $columns;

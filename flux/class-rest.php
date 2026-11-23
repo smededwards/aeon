@@ -106,7 +106,7 @@ final class Rest {
 			return new WP_Error( 'flux_record_not_found', __( 'The requested record was not found.', 'aeon' ), array( 'status' => 404 ) );
 		}
 
-		if ( 'POST' === $request->get_method() ) {
+		if ( $request->get_method() === 'POST' ) {
 			$connection = $this->settings->connection();
 			if ( empty( $connection['allow_push'] ) ) {
 				return new WP_Error( 'flux_push_disabled', __( 'Remote writes are disabled in Flux settings.', 'aeon' ), array( 'status' => 403 ) );
