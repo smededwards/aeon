@@ -47,7 +47,7 @@ try {
 		wp_update_attachment_metadata( $aeon_image, wp_generate_attachment_metadata( $aeon_image, $aeon_upload['file'] ) );
 	}
 	set_post_thumbnail( $aeon_id, $aeon_images[0] );
-	$aeon_view   = static function ( int $post_id ): void {
+	$aeon_view      = static function ( int $post_id ): void {
 		wp(
 			array(
 				'p'           => $post_id,
@@ -56,9 +56,14 @@ try {
 			)
 		);
 	};
-	$aeon_markup = static function () use ( $aeon_seo ): string {
+	$aeon_markup    = static function () use ( $aeon_seo ): string {
 		ob_start();
 		$aeon_seo->head();
+		return ob_get_clean();
+	};
+	$aeon_canonical = static function () use ( $aeon_seo ): string {
+		ob_start();
+		$aeon_seo->canonical();
 		return ob_get_clean();
 	};
 	/**
@@ -101,7 +106,13 @@ try {
 	$GLOBALS['wp_query']->is_singular       = false;
 	$GLOBALS['wp_query']->queried_object    = get_post( $aeon_page_id );
 	$GLOBALS['wp_query']->queried_object_id = $aeon_page_id;
-	$aeon_index_types                       = array_column( $aeon_schema_data()['@graph'] ?? array(), '@type' );
+	$aeon_index_canonical                   = $aeon_canonical();
+	$aeon_assert(
+		str_contains( $aeon_index_canonical, 'rel="canonical"' )
+		&& str_contains( $aeon_index_canonical, get_pagenum_link( 1, false ) ),
+		'The Posts index must emit a canonical URL.'
+	);
+	$aeon_index_types = array_column( $aeon_schema_data()['@graph'] ?? array(), '@type' );
 	$aeon_assert( in_array( 'WebPage', $aeon_index_types, true ) && ! in_array( 'BlogPosting', $aeon_index_types, true ), 'The Posts index must emit page schema without a duplicate article entity.' );
 	$aeon_view( $aeon_id );
 	update_post_meta( $aeon_id, Seo::TITLE, '<b>SEO override</b>' );
