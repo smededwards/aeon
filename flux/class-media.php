@@ -11,6 +11,12 @@ namespace Aeon\Flux;
  * Matches media by content hash and imports missing attachments.
  */
 final class Media {
+	/**
+	 * Attachment IDs indexed by content hash for this request.
+	 *
+	 * @var array<string,int>|null
+	 */
+	private static ?array $attachment_hashes = null;
 
 	/**
 	 * Find or import an attachment reference.
@@ -21,18 +27,9 @@ final class Media {
 	public static function import( array $reference ): int {
 		$remote_hash = sanitize_text_field( $reference['hash'] ?? '' );
 		if ( $remote_hash ) {
-			foreach ( get_posts(
-				array(
-					'post_type'      => 'attachment',
-					'post_status'    => 'inherit',
-					'posts_per_page' => -1,
-					'fields'         => 'ids',
-				)
-			) as $attachment_id ) {
-				$file = get_attached_file( $attachment_id );
-				if ( $file && is_readable( $file ) && hash_equals( $remote_hash, hash_file( 'sha256', $file ) ) ) {
-					return (int) $attachment_id;
-				}
+			$existing_id = self::find_by_hash( $remote_hash );
+			if ( $existing_id ) {
+				return $existing_id;
 			}
 		}
 
@@ -59,6 +56,39 @@ final class Media {
 			return 0;
 		}
 
-		return (int) $attachment_id;
+		$attachment_id = (int) $attachment_id;
+		if ( $remote_hash ) {
+			self::$attachment_hashes[ $remote_hash ] = $attachment_id;
+		}
+
+		return $attachment_id;
+	}
+
+	/**
+	 * Find a local attachment by content hash, scanning the library once.
+	 *
+	 * @param string $remote_hash Remote attachment hash.
+	 * @return int Matching attachment ID, or zero when none exists.
+	 */
+	private static function find_by_hash( string $remote_hash ): int {
+		if ( null === self::$attachment_hashes ) {
+			self::$attachment_hashes = array();
+			$attachments             = get_posts(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'inherit',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+				)
+			);
+			foreach ( $attachments as $attachment_id ) {
+				$file = get_attached_file( $attachment_id );
+				if ( $file && is_readable( $file ) ) {
+					self::$attachment_hashes[ hash_file( 'sha256', $file ) ] = (int) $attachment_id;
+				}
+			}
+		}
+
+		return self::$attachment_hashes[ $remote_hash ] ?? 0;
 	}
 }

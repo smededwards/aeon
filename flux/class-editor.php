@@ -147,11 +147,19 @@ final class Editor {
 			printf( '<p>%s</p></div>', esc_html__( 'No field changes were found.', 'aeon' ) );
 			return;
 		}
-		printf( '<table class="widefat striped"><thead><tr><th>%1$s</th><th>%2$s</th><th>%3$s</th></tr></thead><tbody>', esc_html__( 'Field', 'aeon' ), esc_html__( 'Local', 'aeon' ), esc_html__( 'Remote', 'aeon' ) );
+		printf( '<form method="post" action="%s">', esc_url( admin_url( 'admin-post.php' ) ) );
+		wp_nonce_field( 'aeon_flux_apply_' . $token, '_wpnonce' );
+		printf(
+			'<input type="hidden" name="action" value="aeon_flux_apply" /><input type="hidden" name="token" value="%1$s" /><table class="widefat striped"><thead><tr><th>%2$s</th><th>%3$s</th><th>%4$s</th></tr></thead><tbody>',
+			esc_attr( $token ),
+			esc_html__( 'Field', 'aeon' ),
+			esc_html__( 'Local', 'aeon' ),
+			esc_html__( 'Remote', 'aeon' )
+		);
 		foreach ( $diff as $field => $values ) {
 			printf( '<tr><td><label><input type="checkbox" name="fields[]" value="%1$s" checked /> <code>%1$s</code></label></td><td><pre>%2$s</pre></td><td><pre>%3$s</pre></td></tr>', esc_attr( $field ), esc_html( wp_json_encode( $values['local'], JSON_PRETTY_PRINT ) ), esc_html( wp_json_encode( $values['remote'], JSON_PRETTY_PRINT ) ) );
 		}
-		printf( '</tbody></table><form method="post" action="%1$s">%2$s<input type="hidden" name="action" value="aeon_flux_apply" /><input type="hidden" name="token" value="%3$s" /><p><button type="submit" class="button button-primary">%4$s</button></p></form></div>', esc_url( admin_url( 'admin-post.php' ) ), wp_nonce_field( 'aeon_flux_apply_' . $token, '_wpnonce', true, false ), esc_attr( $token ), esc_html__( 'Apply Selected Changes', 'aeon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		printf( '</tbody></table><p><button type="submit" class="button button-primary">%s</button></p></form></div>', esc_html__( 'Apply Selected Changes', 'aeon' ) );
 	}
 
 	/**

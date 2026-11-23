@@ -81,7 +81,10 @@ final class Applier {
 
 		$media_ids  = array();
 		$media_urls = array();
-		foreach ( (array) ( $payload['media'] ?? array() ) as $reference ) {
+		foreach ( (array) ( $payload['media'] ?? array() ) as $index => $reference ) {
+			if ( ! $use_field( 'media', (string) $index ) ) {
+				continue;
+			}
 			$local_media_id = Media::import( (array) $reference );
 			if ( $local_media_id ) {
 				$media_ids[ (int) ( $reference['id'] ?? 0 ) ]  = $local_media_id;
