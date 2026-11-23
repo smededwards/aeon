@@ -116,16 +116,17 @@ final class DashboardColour {
 		$palette_file = sprintf( 'dashboard-colours-%s.css', $environment );
 		$palette_path = dirname( __DIR__ ) . '/build/' . $palette_file;
 		$base_path    = dirname( __DIR__ ) . '/build/dashboard-colours.css';
+		$plugin_file  = dirname( __DIR__ ) . '/aeon.php';
 
 		wp_enqueue_style(
 			'aeon-dashboard-environment',
-			plugins_url( '../build/' . $palette_file, __FILE__ ),
+			plugins_url( 'build/' . $palette_file, $plugin_file ),
 			array( 'colors' ),
 			is_file( $palette_path ) ? (string) filemtime( $palette_path ) : Plugin::VERSION
 		);
 		wp_enqueue_style(
 			'aeon-dashboard-colours',
-			plugins_url( '../build/dashboard-colours.css', __FILE__ ),
+			plugins_url( 'build/dashboard-colours.css', $plugin_file ),
 			array( 'aeon-dashboard-environment' ),
 			is_file( $base_path ) ? (string) filemtime( $base_path ) : Plugin::VERSION
 		);

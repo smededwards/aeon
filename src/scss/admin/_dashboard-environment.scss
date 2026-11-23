@@ -1,8 +1,9 @@
 @mixin palette($accent, $accent-rgb, $darker-10, $darker-10-rgb, $darker-20, $darker-20-rgb, $focus, $menu, $mix-dark-10) {
-	:root,
-	body,
-	.interface-interface-skeleton,
-	.editor-styles-wrapper {
+	html:root,
+	html body,
+	html body .interface-interface-skeleton,
+	html body.editor-styles-wrapper,
+	html body .editor-styles-wrapper {
 		--wp-admin-theme-color: #{$accent} !important;
 		--wp-admin-theme-color--rgb: #{$accent-rgb} !important;
 		--wp-admin-theme-color-darker-10: #{$darker-10} !important;

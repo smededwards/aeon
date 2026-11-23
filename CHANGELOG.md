@@ -4,7 +4,11 @@ All notable changes to Aeon are documented here.
 
 ## [Unreleased]
 
-Future changes go here.
+### Added
+
+- Add Flux environment synchronisation for signed Post and Page payloads, field-level previews, local revisions and guarded remote writes.
+- Add Flux to the Aeon settings page as a dedicated tab.
+- Use the existing Aeon environment URLs for Flux connections instead of duplicating them.
 
 ## [0.4.1] - 2026-11-23
 
