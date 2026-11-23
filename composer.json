@@ -24,7 +24,8 @@
       "class-plugin.php",
       "class-settings.php",
       "admin/",
-      "features/"
+      "features/",
+      "flux/"
     ]
   },
   "authors": [

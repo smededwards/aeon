@@ -8,6 +8,7 @@
 namespace Aeon\Admin;
 
 use Aeon\Features\DefaultFeaturedImage;
+use Aeon\Flux\Settings as FluxSettings;
 use Aeon\Settings;
 
 /**
@@ -20,9 +21,10 @@ final class SettingsPage {
 	/**
 	 * Receive the shared settings service.
 	 *
-	 * @param Settings $settings Site settings.
+	 * @param Settings          $settings      Site settings.
+	 * @param FluxSettings|null $flux_settings Flux settings.
 	 */
-	public function __construct( private readonly Settings $settings ) {}
+	public function __construct( private readonly Settings $settings, private readonly ?FluxSettings $flux_settings = null ) {}
 
 	/**
 	 * Register administration hooks.
@@ -281,17 +283,123 @@ final class SettingsPage {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have permission to manage Aeon settings.', 'aeon' ), '', array( 'response' => 403 ) );
 		}
+		$tab  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab  = in_array( $tab, array( 'dashboard', 'content', 'flux' ), true ) ? $tab : 'dashboard';
+		$tabs = array(
+			'dashboard' => __( 'Dashboard', 'aeon' ),
+			'content'   => __( 'Content', 'aeon' ),
+			'flux'      => __( 'Flux', 'aeon' ),
+		);
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Aeon', 'aeon' ); ?></h1>
+			<nav class="nav-tab-wrapper" aria-label="<?php esc_attr_e( 'Aeon Settings', 'aeon' ); ?>">
+				<?php foreach ( $tabs as $key => $label ) : ?>
+					<a class="nav-tab <?php echo $tab === $key ? 'nav-tab-active' : ''; ?>" href="
+					<?php
+					echo esc_url(
+						add_query_arg(
+							array(
+								'page' => self::PAGE,
+								'tab'  => $key,
+							),
+							admin_url( 'options-general.php' )
+						)
+					);
+					?>
+										"><?php echo esc_html( $label ); ?></a>
+				<?php endforeach; ?>
+			</nav>
 			<form action="options.php" method="post">
 				<?php
-				settings_fields( self::PAGE );
-				do_settings_sections( self::PAGE );
+				if ( 'flux' === $tab && $this->flux_settings ) {
+					printf( '%s', $this->flux_settings->fields() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$this->flux_settings->render();
+				} else {
+					settings_fields( self::PAGE );
+					$this->render_section( 'aeon_' . $tab );
+					$this->preserve_inactive_settings( $tab );
+				}
 				submit_button();
 				?>
 			</form>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render one section of the registered Aeon settings.
+	 *
+	 * @param string $section_id Settings section identifier.
+	 * @return void
+	 */
+	private function render_section( string $section_id ): void {
+		global $wp_settings_sections, $wp_settings_fields;
+
+		if ( empty( $wp_settings_sections[ self::PAGE ][ $section_id ] ) ) {
+			return;
+		}
+
+		$section = $wp_settings_sections[ self::PAGE ][ $section_id ];
+		if ( $section['title'] || $section['callback'] ) {
+			printf( '<h2>%s</h2>', esc_html( $section['title'] ) );
+			if ( $section['callback'] ) {
+				call_user_func( $section['callback'], $section );
+			}
+		}
+
+		if ( empty( $wp_settings_fields[ self::PAGE ][ $section_id ] ) ) {
+			return;
+		}
+
+		printf( '<table class="form-table" role="presentation"><tbody>' );
+		foreach ( (array) $wp_settings_fields[ self::PAGE ][ $section_id ] as $field ) {
+			printf( '<tr><th scope="row">%s</th><td>', esc_html( $field['title'] ) );
+			call_user_func( $field['callback'], $field['args'] );
+			printf( '</td></tr>' );
+		}
+		printf( '</tbody></table>' );
+	}
+
+	/**
+	 * Keep values from the other Aeon tab when options.php processes this form.
+	 *
+	 * @param string $tab Active settings tab.
+	 * @return void
+	 */
+	private function preserve_inactive_settings( string $tab ): void {
+		if ( 'dashboard' === $tab ) {
+			$features = get_option( Settings::OPTION, Settings::DEFAULTS );
+			$features = wp_parse_args( is_array( $features ) ? $features : array(), Settings::DEFAULTS );
+			foreach ( array_keys( Settings::DEFAULTS ) as $feature ) {
+				printf(
+					'<input type="hidden" name="%1$s[%2$s]" value="%3$s">',
+					esc_attr( Settings::OPTION ),
+					esc_attr( $feature ),
+					! empty( $features[ $feature ] ) ? '1' : '0'
+				);
+			}
+			printf(
+				'<input type="hidden" name="%1$s" value="%2$s">',
+				esc_attr( DefaultFeaturedImage::OPTION ),
+				esc_attr( (string) get_option( DefaultFeaturedImage::OPTION, 0 ) )
+			);
+			return;
+		}
+
+		printf(
+			'<input type="hidden" name="%1$s" value="%2$s">',
+			esc_attr( DashboardColour::OPTION ),
+			esc_attr( DashboardColour::selection() )
+		);
+		$urls = Environment::urls();
+		foreach ( Environment::ENVIRONMENTS as $environment ) {
+			printf(
+				'<input type="hidden" name="%1$s[%2$s]" value="%3$s">',
+				esc_attr( Environment::OPTION ),
+				esc_attr( $environment ),
+				esc_attr( $urls[ $environment ] )
+			);
+		}
 	}
 }

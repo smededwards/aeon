@@ -40,6 +40,15 @@ if ( ! class_exists( \Aeon\Plugin::class ) ) {
 	return;
 }
 
+// Load new Flux classes when a site's Composer classmap has not been refreshed yet.
+if ( ! class_exists( \Aeon\Flux\Settings::class ) ) {
+	foreach ( glob( __DIR__ . '/flux/*.php' ) as $flux_file ) {
+		require_once $flux_file;
+	}
+}
+
+register_activation_hook( __FILE__, array( \Aeon\Flux\Database::class, 'activate' ) );
+
 require_once __DIR__ . '/functions-contact.php';
 
 ( new \Aeon\Plugin() )->register();
