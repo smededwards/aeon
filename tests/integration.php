@@ -21,10 +21,10 @@ try {
 	}
 	$aeon_dashboard_colour = new \Aeon\Admin\DashboardColour();
 	$aeon_dashboard_colour->enqueue_styles();
-	$aeon_assert( 'default' === \Aeon\Admin\DashboardColour::selection(), 'An unset dashboard colour must default to WordPress blue.' );
+	$aeon_assert( \Aeon\Admin\DashboardColour::selection() === 'default', 'An unset dashboard colour must default to WordPress blue.' );
 	$aeon_assert( ! wp_style_is( 'aeon-dashboard-environment', 'enqueued' ), 'The default dashboard colour must not enqueue Aeon accents.' );
 } finally {
-	if ( null === $aeon_dashboard_option ) {
+	if ( $aeon_dashboard_option === null ) {
 		delete_option( \Aeon\Admin\DashboardColour::OPTION );
 	} else {
 		update_option( \Aeon\Admin\DashboardColour::OPTION, $aeon_dashboard_option );

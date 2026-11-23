@@ -71,7 +71,7 @@ final class Media {
 	 * @return int Matching attachment ID, or zero when none exists.
 	 */
 	private static function find_by_hash( string $remote_hash ): int {
-		if ( null === self::$attachment_hashes ) {
+		if ( self::$attachment_hashes === null ) {
 			self::$attachment_hashes = array();
 			$attachments             = get_posts(
 				array(

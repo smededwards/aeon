@@ -41,9 +41,9 @@ if ( $aeon_scenario['expected'] !== $aeon_detected ) {
 }
 
 if (
-	'development' !== $aeon_environment::normalise_environment( 'DEV' ) ||
-	'production' !== $aeon_environment::normalise_environment( 'prod' ) ||
-	null !== $aeon_environment::normalise_environment( 'preview' )
+	$aeon_environment::normalise_environment( 'DEV' ) !== 'development' ||
+	$aeon_environment::normalise_environment( 'prod' ) !== 'production' ||
+	$aeon_environment::normalise_environment( 'preview' ) !== null
 ) {
 	exit( 1 );
 }

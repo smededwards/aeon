@@ -53,7 +53,7 @@ try {
 	WP_CLI::success( 'Default featured-image fallback passed.' );
 } finally {
 	wp_set_current_user( $aeon_user );
-	if ( null === $aeon_previous ) {
+	if ( $aeon_previous === null ) {
 		delete_option( \Aeon\Features\DefaultFeaturedImage::OPTION );
 	} else {
 		update_option( \Aeon\Features\DefaultFeaturedImage::OPTION, $aeon_previous );

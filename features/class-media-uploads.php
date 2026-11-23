@@ -50,7 +50,7 @@ final class MediaUploads {
 	public function check_filetype( array $data, string $file, string $filename, ?array $mimes, string|false $real_mime ): array {
 		$extension = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
 
-		if ( 'webp' === $extension && 'image/webp' === $real_mime ) {
+		if ( $extension === 'webp' && $real_mime === 'image/webp' ) {
 			return array(
 				'ext'             => 'webp',
 				'type'            => 'image/webp',
@@ -58,7 +58,7 @@ final class MediaUploads {
 			);
 		}
 
-		if ( 'svg' === $extension && $this->can_upload_svg() && $this->is_svg( $file ) ) {
+		if ( $extension === 'svg' && $this->can_upload_svg() && $this->is_svg( $file ) ) {
 			return array(
 				'ext'             => 'svg',
 				'type'            => 'image/svg+xml',
@@ -95,7 +95,7 @@ final class MediaUploads {
 		}
 
 		$contents = $wp_filesystem->get_contents( $file );
-		if ( false === $contents || preg_match( '/<!DOCTYPE|<!ENTITY/i', $contents ) ) {
+		if ( $contents === false || preg_match( '/<!DOCTYPE|<!ENTITY/i', $contents ) ) {
 			return false;
 		}
 
@@ -104,7 +104,7 @@ final class MediaUploads {
 		libxml_clear_errors();
 		libxml_use_internal_errors( $previous );
 
-		return false !== $document && 'svg' === $document->getName()
+		return $document !== false && $document->getName() === 'svg'
 			&& in_array( 'http://www.w3.org/2000/svg', $document->getDocNamespaces(), true );
 	}
 }

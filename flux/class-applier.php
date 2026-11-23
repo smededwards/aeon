@@ -43,7 +43,7 @@ final class Applier {
 			'author'   => 'post_author',
 		) as $key => $post_key ) {
 			if ( $use_field( 'fields', $key ) && isset( $fields[ $key ] ) ) {
-				$post_values[ $post_key ] = 'author' === $key ? absint( $fields[ $key ] ) : ( in_array( $key, array( 'content', 'excerpt' ), true ) ? wp_kses_post( $fields[ $key ] ) : sanitize_text_field( $fields[ $key ] ) );
+				$post_values[ $post_key ] = $key === 'author' ? absint( $fields[ $key ] ) : ( in_array( $key, array( 'content', 'excerpt' ), true ) ? wp_kses_post( $fields[ $key ] ) : sanitize_text_field( $fields[ $key ] ) );
 			}
 		}
 		$updated = wp_update_post( $post_values );
@@ -52,7 +52,7 @@ final class Applier {
 			return $updated;
 		}
 
-		if ( 'page' === $post->post_type && isset( $fields['template'] ) && $use_field( 'fields', 'template' ) ) {
+		if ( $post->post_type === 'page' && isset( $fields['template'] ) && $use_field( 'fields', 'template' ) ) {
 			$template = sanitize_text_field( $fields['template'] );
 			update_post_meta( $local_id, '_wp_page_template', $template ? $template : 'default' );
 		}

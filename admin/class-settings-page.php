@@ -127,7 +127,7 @@ final class SettingsPage {
 			),
 		);
 		foreach ( $fields as $field ) {
-			if ( 'seo' === $field['key'] ) {
+			if ( $field['key'] === 'seo' ) {
 				add_settings_field( 'aeon_placeholder_image', __( 'Default Featured Image', 'aeon' ), array( $this, 'placeholder_image_field' ), self::PAGE, 'aeon_content' );
 			}
 			add_settings_field( 'aeon_' . $field['key'], $field['title'], array( $this, 'feature_field' ), self::PAGE, $field['section'], $field );
@@ -141,7 +141,7 @@ final class SettingsPage {
 	 * @return void
 	 */
 	public function assets( string $hook ): void {
-		if ( 'settings_page_' . self::PAGE !== $hook ) {
+		if ( $hook !== 'settings_page_' . self::PAGE ) {
 			return;
 		}
 
@@ -247,7 +247,7 @@ final class SettingsPage {
 		$id          = 'aeon-environment-url-' . $environment;
 		$value       = $urls[ $environment ];
 
-		if ( '' === $value && DashboardColour::detected_environment() === $environment ) {
+		if ( $value === '' && DashboardColour::detected_environment() === $environment ) {
 			$value = home_url( '/' );
 		}
 		?>
@@ -312,7 +312,7 @@ final class SettingsPage {
 			</nav>
 			<form action="options.php" method="post">
 				<?php
-				if ( 'flux' === $tab && $this->flux_settings ) {
+				if ( $tab === 'flux' && $this->flux_settings ) {
 					printf( '%s', $this->flux_settings->fields() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					$this->flux_settings->render();
 				} else {
@@ -368,7 +368,7 @@ final class SettingsPage {
 	 * @return void
 	 */
 	private function preserve_inactive_settings( string $tab ): void {
-		if ( 'dashboard' === $tab ) {
+		if ( $tab === 'dashboard' ) {
 			$features = get_option( Settings::OPTION, Settings::DEFAULTS );
 			$features = wp_parse_args( is_array( $features ) ? $features : array(), Settings::DEFAULTS );
 			foreach ( array_keys( Settings::DEFAULTS ) as $feature ) {
