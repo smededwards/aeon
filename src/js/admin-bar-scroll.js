@@ -1,5 +1,5 @@
 // Internal dependencies.
-import '../scss/frontend/admin-bar-scroll.scss';
+import '../scss/front-end/admin-bar-scroll.scss';
 
 const adminBar = document.getElementById( 'wpadminbar' );
 
