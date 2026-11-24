@@ -7,6 +7,8 @@
 
 namespace Aeon\Flux;
 
+use Aeon\Admin\Environment;
+
 /**
  * Matches media by content hash and imports missing attachments.
  */
@@ -34,7 +36,7 @@ final class Media {
 		}
 
 		$url = esc_url_raw( $reference['url'] ?? '' );
-		if ( ! $url ) {
+		if ( ! $url || ! self::is_allowed_url( $url ) ) {
 			return 0;
 		}
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -59,13 +61,14 @@ final class Media {
 		$attachment_id = (int) $attachment_id;
 		if ( $remote_hash ) {
 			self::$attachment_hashes[ $remote_hash ] = $attachment_id;
+			update_post_meta( $attachment_id, '_aeon_flux_hash', $remote_hash );
 		}
 
 		return $attachment_id;
 	}
 
 	/**
-	 * Find a local attachment by content hash, scanning the library once.
+	 * Find a local attachment by its indexed content hash.
 	 *
 	 * @param string $remote_hash Remote attachment hash.
 	 * @return int Matching attachment ID, or zero when none exists.
@@ -73,22 +76,49 @@ final class Media {
 	private static function find_by_hash( string $remote_hash ): int {
 		if ( self::$attachment_hashes === null ) {
 			self::$attachment_hashes = array();
-			$attachments             = get_posts(
-				array(
-					'post_type'      => 'attachment',
-					'post_status'    => 'inherit',
-					'posts_per_page' => -1,
-					'fields'         => 'ids',
-				)
-			);
-			foreach ( $attachments as $attachment_id ) {
-				$file = get_attached_file( $attachment_id );
-				if ( $file && is_readable( $file ) ) {
-					self::$attachment_hashes[ hash_file( 'sha256', $file ) ] = (int) $attachment_id;
-				}
-			}
+		}
+
+		$attachments = get_posts(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_key'       => '_aeon_flux_hash', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => $remote_hash, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			)
+		);
+		if ( $attachments ) {
+			self::$attachment_hashes[ $remote_hash ] = (int) $attachments[0];
 		}
 
 		return self::$attachment_hashes[ $remote_hash ] ?? 0;
+	}
+
+	/**
+	 * Allow media only from configured WordPress environments.
+	 *
+	 * @param string $url Candidate media URL.
+	 * @return bool Whether the URL is safe for Flux to fetch.
+	 */
+	private static function is_allowed_url( string $url ): bool {
+		$parts = wp_parse_url( $url );
+		if ( ! is_array( $parts ) || empty( $parts['host'] ) || ! in_array( strtolower( $parts['scheme'] ?? '' ), array( 'http', 'https' ), true ) ) {
+			return false;
+		}
+
+		if ( ! wp_http_validate_url( $url ) ) {
+			return false;
+		}
+
+		$allowed_hosts = array( strtolower( (string) wp_parse_url( home_url( '/' ), PHP_URL_HOST ) ) );
+		foreach ( Environment::urls() as $environment_url ) {
+			$host = wp_parse_url( $environment_url, PHP_URL_HOST );
+			if ( $host ) {
+				$allowed_hosts[] = strtolower( (string) $host );
+			}
+		}
+
+		return in_array( strtolower( $parts['host'] ), array_unique( $allowed_hosts ), true );
 	}
 }

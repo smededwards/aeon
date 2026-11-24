@@ -23,7 +23,7 @@ final class Applier {
 	 */
 	public static function apply( int $local_id, array $payload, array $selected = array() ) {
 		$post = get_post( $local_id );
-		if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) || $post->post_type !== $payload['post_type'] ) {
+		if ( ! $post || ! in_array( $post->post_type, array( 'post', 'page' ), true ) || ( $payload['post_type'] ?? '' ) !== $post->post_type ) {
 			return new WP_Error( 'flux_invalid_target', __( 'The local target does not match the remote record.', 'aeon' ) );
 		}
 
@@ -46,19 +46,9 @@ final class Applier {
 				$post_values[ $post_key ] = $key === 'author' ? absint( $fields[ $key ] ) : ( in_array( $key, array( 'content', 'excerpt' ), true ) ? wp_kses_post( $fields[ $key ] ) : sanitize_text_field( $fields[ $key ] ) );
 			}
 		}
-		$updated = wp_update_post( $post_values );
-
-		if ( is_wp_error( $updated ) ) {
-			return $updated;
-		}
-
-		if ( $post->post_type === 'page' && isset( $fields['template'] ) && $use_field( 'fields', 'template' ) ) {
-			$template = sanitize_text_field( $fields['template'] );
-			update_post_meta( $local_id, '_wp_page_template', $template ? $template : 'default' );
-		}
-
+		$registered_meta = get_registered_meta_keys( 'post', $post->post_type );
 		foreach ( (array) ( $payload['meta'] ?? array() ) as $key => $values ) {
-			if ( ! $use_field( 'meta', (string) $key ) ) {
+			if ( ! is_string( $key ) || ! isset( $registered_meta[ $key ] ) || ! $use_field( 'meta', $key ) ) {
 				continue;
 			}
 			if ( str_starts_with( (string) $key, '_' ) ) {
@@ -104,12 +94,17 @@ final class Applier {
 					$content = str_replace( $remote_url, $local_url, $content );
 				}
 			}
-			wp_update_post(
-				array(
-					'ID'           => $local_id,
-					'post_content' => $content,
-				)
-			);
+			$post_values['post_content'] = $content;
+		}
+
+		$updated = wp_update_post( $post_values );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+
+		if ( $post->post_type === 'page' && isset( $fields['template'] ) && $use_field( 'fields', 'template' ) ) {
+			$template = sanitize_text_field( $fields['template'] );
+			update_post_meta( $local_id, '_wp_page_template', $template ? $template : 'default' );
 		}
 
 		return true;

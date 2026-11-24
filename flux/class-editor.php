@@ -207,12 +207,13 @@ final class Editor {
 		if ( ! $mapping || empty( $connection['allow_push'] ) ) {
 			wp_die( esc_html__( 'Flux remote writes are not enabled for this record.', 'aeon' ) );
 		}
-		$response = ( new Client( $connection ) )->update_record( get_post_type( $post_id ), (int) $mapping->remote_id, Payload::from_post( get_post( $post_id ) ) );
+		$payload  = Payload::from_post( get_post( $post_id ) );
+		$response = ( new Client( $connection ) )->update_record( get_post_type( $post_id ), (int) $mapping->remote_id, $payload );
 		if ( is_wp_error( $response ) ) {
 			wp_safe_redirect( add_query_arg( 'aeon_flux_error', rawurlencode( $response->get_error_message() ), get_edit_post_link( $post_id, 'url' ) ) );
 			exit;
 		}
-		Mapping::save( get_post_type( $post_id ), $post_id, (int) $mapping->remote_id, (string) $connection['url'], Payload::snapshot( Payload::from_post( get_post( $post_id ) ) ) );
+		Mapping::save( get_post_type( $post_id ), $post_id, (int) $mapping->remote_id, (string) $connection['url'], Payload::snapshot( $payload ) );
 		Database::log( wp_generate_uuid4(), 'push', get_post_type( $post_id ), $post_id, (int) $mapping->remote_id, 'success' );
 		wp_safe_redirect( add_query_arg( 'aeon_flux_pushed', 1, get_edit_post_link( $post_id, 'url' ) ) );
 		exit;
