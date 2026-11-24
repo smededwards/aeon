@@ -12,7 +12,7 @@ Current release: **0.4.1**.
 - Dashboard environment colours and links to local, development and production sites.
 - Default featured images, SVG upload validation and WebP uploads.
 - Comment and pingback controls for Posts and Pages.
-- Automatic front-end admin-bar hiding while scrolling.
+- Automatic Front-End admin-bar hiding while scrolling.
 - Flux environment synchronisation with signed Post and Page pulls, previews, revisions and guarded pushes.
 
 Detailed feature notes are available in the [Aeon Wiki](https://github.com/smededwards/aeon/wiki/Features), with development guidance in the [Development page](https://github.com/smededwards/aeon/wiki/Development).
@@ -27,7 +27,7 @@ Settings are grouped under **Dashboard**, **Content** and **Flux** tabs. Rune ma
 
 `features/contact/class-submission.php` creates the validated contact-submission value used for delivery. Its private constructor and readonly properties keep construction inside the factory. The factory checks raw input lengths and email line breaks before sanitising; retained invalid values are length-limited for form feedback. `functions-contact.php` exposes `aeon_sanitise_contact_submission()` as a global adapter for the WordPress coding-standard sanitisation rule. PHPCS registers that adapter directly.
 
-Rune's Contact Form block posts to its published Page without front-end JavaScript. Aeon checks the page-bound nonce, honeypot, field types, required values, email syntax, header safety and length limits: 100 characters for names, 254 for email addresses and 5,000 for messages. It sanitises text before sending plain-text mail. The recipient is the administration email in Settings → General. The sender uses `wordpress@` followed by the site hostname; the validated visitor address is used for Reply-To.
+Rune's Contact Form block posts to its published Page without Front-End JavaScript. Aeon checks the page-bound nonce, honeypot, field types, required values, email syntax, header safety and length limits: 100 characters for names, 254 for email addresses and 5,000 for messages. It sanitises text before sending plain-text mail. The recipient is the administration email in Settings → General. The sender uses `wordpress@` followed by the site hostname; the validated visitor address is used for Reply-To.
 
 Validation errors appear on the same page with HTTP 422, and entered values are retained for that request. Successful submissions redirect with HTTP 303 to a readable `?sent=1#contact-form` receipt, preventing a refresh from resubmitting the form. Aeon passes the success state to the block. Submission content is not stored in WordPress. Rate limiting stores a salted hash of the peer address and an attempt counter for up to 15 minutes, allowing five attempts in each window. Forwarded headers are ignored. Contact pages send no-cache headers to keep nonces fresh; exclude them from production page and CDN caches as well.
 
