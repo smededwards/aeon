@@ -21,7 +21,7 @@ All notable changes to Aeon are documented here.
 ### Added
 
 - Duplicate Posts and Pages from the WordPress admin.
-- Hide the front-end admin bar while scrolling, with keyboard and scroll-direction behaviour.
+- Hide the Front-End admin bar while scrolling, with keyboard and scroll-direction behaviour.
 
 ### Changed
 
@@ -30,7 +30,7 @@ All notable changes to Aeon are documented here.
 
 ### Fixed
 
-- Removed emoji assets from the front-end.
+- Removed emoji assets from the Front-End.
 
 ### Documentation
 

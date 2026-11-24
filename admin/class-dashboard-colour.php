@@ -92,7 +92,7 @@ final class DashboardColour {
 	}
 
 	/**
-	 * Apply the environment palette to the block editor canvas without affecting the front end.
+	 * Apply the environment palette to the block editor canvas without affecting the Front-End.
 	 *
 	 * @return void
 	 */
