@@ -13,6 +13,27 @@ use Aeon\Settings;
  * Extends native document titles without replacing core canonical or sitemap output.
  */
 final class Seo {
+	/**
+	 * Post ID represented by the current metadata cache.
+	 *
+	 * @var int|null
+	 */
+	private ?int $metadata_post_id = null;
+
+	/**
+	 * Cached description for the current metadata cache.
+	 *
+	 * @var string
+	 */
+	private string $metadata_description = '';
+
+	/**
+	 * Cached image for the current metadata cache.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private array $metadata_image = array();
+
 	// Native post-meta key for the optional title.
 	public const TITLE = '_aeon_seo_title';
 	// Native post-meta key for the optional description.
@@ -134,11 +155,13 @@ final class Seo {
 		if ( ! $post ) {
 			return;
 		}
-		$title       = $this->plain_text( wp_get_document_title() );
-		$description = $this->description( $post );
-		$url         = is_home() ? get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false ) : wp_get_canonical_url( $post );
-		$url         = $url ? $url : get_permalink( $post );
-		$image       = $this->image( $post->ID );
+		$this->metadata_post_id = null;
+		$title                  = $this->plain_text( wp_get_document_title() );
+		$metadata               = $this->metadata( $post );
+		$description            = $metadata['description'];
+		$url                    = is_home() ? get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false ) : wp_get_canonical_url( $post );
+		$url                    = $url ? $url : get_permalink( $post );
+		$image                  = $metadata['image'];
 		if ( $description ) {
 			printf( '<meta name="description" content="%s">' . "\n", esc_attr( $description ) );
 		}
@@ -222,6 +245,25 @@ final class Seo {
 			return null;
 		}
 		return $post;
+	}
+
+	/**
+	 * Resolve shared metadata once for the current public record.
+	 *
+	 * @param \WP_Post $post Public content item.
+	 * @return array{description:string,image:array<string,mixed>}
+	 */
+	private function metadata( \WP_Post $post ): array {
+		if ( $this->metadata_post_id !== $post->ID ) {
+			$this->metadata_post_id     = $post->ID;
+			$this->metadata_description = $this->description( $post );
+			$this->metadata_image       = $this->image( $post->ID );
+		}
+
+		return array(
+			'description' => $this->metadata_description,
+			'image'       => $this->metadata_image,
+		);
 	}
 
 	/**
@@ -335,8 +377,9 @@ final class Seo {
 			'about'      => array( '@id' => $person_id ),
 			'inLanguage' => get_bloginfo( 'language' ),
 		);
-		$description  = $this->description( $post );
-		$image        = $this->image( $post->ID );
+		$metadata     = $this->metadata( $post );
+		$description  = $metadata['description'];
+		$image        = $metadata['image'];
 		$schema_image = $image && ! $this->is_placeholder_image( $image ) ? $image : array();
 		if ( $description ) {
 			$page['description'] = $description;

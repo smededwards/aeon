@@ -51,9 +51,10 @@ final class Client {
 		$response = wp_remote_get(
 			$this->url . '/wp-json' . $path,
 			array(
-				'timeout'   => 20,
-				'sslverify' => true,
-				'headers'   => array(
+				'timeout'             => 20,
+				'limit_response_size' => 5 * MB_IN_BYTES,
+				'sslverify'           => true,
+				'headers'             => array(
 					'X-Flux-Timestamp'  => $time,
 					'X-Flux-Request-ID' => $id,
 					'X-Flux-Signature'  => Crypto::sign( 'GET', $path, $body, $time, $id, $this->token ),
@@ -91,10 +92,11 @@ final class Client {
 		$response = wp_remote_post(
 			$this->url . '/wp-json' . $path,
 			array(
-				'timeout'   => 20,
-				'sslverify' => true,
-				'body'      => $body,
-				'headers'   => array(
+				'timeout'             => 20,
+				'limit_response_size' => 5 * MB_IN_BYTES,
+				'sslverify'           => true,
+				'body'                => $body,
+				'headers'             => array(
 					'Content-Type'      => 'application/json',
 					'X-Flux-Timestamp'  => $time,
 					'X-Flux-Request-ID' => $id,
