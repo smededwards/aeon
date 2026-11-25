@@ -9,7 +9,7 @@ $aeon_scenarios = array(
 	'priority'    => array(
 		'wp_env'              => 'dev',
 		'wp_environment_type' => 'production',
-		'expected'            => 'development',
+		'expected'            => 'dev',
 	),
 	'fallback'    => array(
 		'wp_env'              => 'staging',
@@ -41,8 +41,10 @@ if ( $aeon_scenario['expected'] !== $aeon_detected ) {
 }
 
 if (
-	$aeon_environment::normalise_environment( 'DEV' ) !== 'development' ||
-	$aeon_environment::normalise_environment( 'prod' ) !== 'production' ||
+	$aeon_environment::normalise_environment( 'DEV' ) !== 'dev' ||
+	$aeon_environment::normalise_environment( 'prod' ) !== 'prod' ||
+	$aeon_environment::normalise_environment( 'development' ) !== 'dev' ||
+	$aeon_environment::normalise_environment( 'production' ) !== 'prod' ||
 	$aeon_environment::normalise_environment( 'preview' ) !== null
 ) {
 	exit( 1 );

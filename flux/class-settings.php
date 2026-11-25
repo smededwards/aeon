@@ -15,7 +15,7 @@ use Aeon\Admin\Environment;
 final class Settings {
 	public const OPTION = 'aeon_flux_connection';
 
-	public const DEFAULT_ENVIRONMENT = 'production';
+	public const DEFAULT_ENVIRONMENT = 'prod';
 
 	/**
 	 * Register the Flux option with the Settings API.
@@ -46,32 +46,11 @@ final class Settings {
 		$token        = isset( $settings['token'] ) ? Crypto::decrypt( $settings['token'] ) : '';
 		$enabled      = ! empty( $settings['enabled'] );
 		$allow_push   = ! empty( $settings['allow_push'] );
-		$environments = array(
-			'local'       => __( 'Local', 'aeon' ),
-			'development' => __( 'Development', 'aeon' ),
-			'production'  => __( 'Production', 'aeon' ),
-		);
-		$options      = '';
-		foreach ( $environments as $key => $label ) {
-			$options .= sprintf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $key ), selected( $environment, $key, false ), esc_html( $label ) );
-		}
+		$url          = $this->connection( $environment )['url'];
+		$environments = Environment::choices();
+		$token_set    = '' !== $token;
 
-		printf( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			'<table class="form-table" role="presentation"><tr><th scope="row"><label for="aeon-flux-enabled">%1$s</label></th><td><label for="aeon-flux-enabled"><input type="checkbox" id="aeon-flux-enabled" name="%2$s[enabled]" value="1"%3$s /> <span class="description">%4$s</span></label></td></tr><tr><th scope="row"><label for="aeon-flux-push">%5$s</label></th><td><label for="aeon-flux-push"><input type="checkbox" id="aeon-flux-push" name="%2$s[allow_push]" value="1"%6$s /> <span class="description">%7$s</span></label></td></tr><tr><th scope="row"><label for="aeon-flux-environment">%8$s</label></th><td><select id="aeon-flux-environment" name="%2$s[environment]">%9$s</select><p class="description">%10$s</p></td></tr><tr><th scope="row"><label for="aeon-flux-token">%11$s</label></th><td><input class="regular-text" type="password" id="aeon-flux-token" name="%2$s[token]" value="%12$s" autocomplete="new-password" required /><p class="description">%13$s</p></td></tr></table>',
-			esc_html__( 'Enable Flux', 'aeon' ),
-			esc_attr( self::OPTION ),
-			checked( $enabled, true, false ),
-			esc_html__( 'Allow the editor to connect to the configured environment.', 'aeon' ),
-			esc_html__( 'Allow Remote Writes', 'aeon' ),
-			checked( $allow_push, true, false ),
-			esc_html__( 'Permit signed local-to-production updates after explicit editor confirmation.', 'aeon' ),
-			esc_html__( 'Remote Environment', 'aeon' ),
-			$options, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			esc_html__( 'Uses the corresponding URL configured in Aeon Dashboard settings.', 'aeon' ),
-			esc_html__( 'Shared Connection Token', 'aeon' ),
-			esc_attr( $token ),
-			esc_html__( 'The token is encrypted with the WordPress authentication salts before storage.', 'aeon' )
-		);
+		require __DIR__ . '/views/settings.php';
 	}
 
 	/**
@@ -108,7 +87,7 @@ final class Settings {
 		$token       = isset( $value['token'] ) ? sanitize_text_field( $value['token'] ) : '';
 		$old         = get_option( self::OPTION, array() );
 		$environment = isset( $value['environment'] ) ? sanitize_key( $value['environment'] ) : ( $old['environment'] ?? self::DEFAULT_ENVIRONMENT );
-		$environment = in_array( $environment, Environment::ENVIRONMENTS, true ) ? $environment : self::DEFAULT_ENVIRONMENT;
+		$environment = Environment::normalise_environment( $environment ) ?? self::DEFAULT_ENVIRONMENT;
 
 		return array(
 			'enabled'     => empty( $value['enabled'] ) ? 0 : 1,
@@ -126,7 +105,7 @@ final class Settings {
 	 */
 	public function connection( ?string $requested_environment = null ): array {
 		$value       = get_option( self::OPTION, array() );
-		$environment = $requested_environment ?? ( $value['environment'] ?? self::DEFAULT_ENVIRONMENT );
+		$environment = Environment::normalise_environment( $requested_environment ?? ( $value['environment'] ?? self::DEFAULT_ENVIRONMENT ) ) ?? self::DEFAULT_ENVIRONMENT;
 		$urls        = Environment::urls();
 		$url         = isset( $urls[ $environment ] ) ? $urls[ $environment ] : '';
 		if ( ! $url && Environment::detected_environment() === $environment ) {
