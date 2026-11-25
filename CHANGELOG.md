@@ -4,6 +4,10 @@ All notable changes to Aeon are documented here.
 
 ## [Unreleased]
 
+Future changes go here.
+
+## [0.5.0] - 2026-11-25
+
 ### Added
 
 - Add Flux environment synchronisation for signed Post and Page payloads, field-level previews, local revisions and guarded remote writes.
