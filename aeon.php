@@ -41,7 +41,7 @@ if ( ! class_exists( \Aeon\Plugin::class ) ) {
 }
 
 // Load new Flux classes when a site's Composer classmap has not been refreshed yet.
-if ( ! class_exists( \Aeon\Flux\Settings::class ) ) {
+if ( ! class_exists( \Aeon\Flux\Cli::class ) ) {
 	foreach ( glob( __DIR__ . '/flux/*.php' ) as $flux_file ) {
 		require_once $flux_file;
 	}
