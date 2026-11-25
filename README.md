@@ -65,10 +65,12 @@ From the Portfolio root, use the project-local WP-CLI wrapper:
 ```sh
 ./scripts/wp aeon flux status
 ./scripts/wp aeon flux status --prod
+./scripts/wp aeon flux status --environment=local
+./scripts/wp aeon flux status --local
 ./scripts/wp aeon flux pull <local-id> <remote-id>
 ```
 
-`status --prod` performs a read-only signed handshake against the configured Production URL. `pull` creates a local revision before applying the remote Post or Page. It can limit the operation with `--post-type=post|page` and `--fields=fields.title,fields.content`. Remote writes remain guarded through the editor until a separate CLI push workflow is agreed.
+`status` performs a read-only signed handshake against the configured Flux target and reports the current site environment separately from that target. Use `--environment=local|development|production`, or the `--local`, `--dev` and `--prod` aliases, to inspect a specific environment. `pull` creates a local revision before applying the remote Post or Page. It can limit the operation with `--post-type=post|page` and `--fields=fields.title,fields.content`. Remote writes remain guarded through the editor until a separate CLI push workflow is agreed.
 
 Develop alongside `portfolio`, `obel` and `rune` using the site containers. Run `composer install` here to create the development autoloader. In production, the site Composer autoloader loads Aeon's classes. If no autoloader is available, Aeon displays an administrator notice. The `vendor` directory is not committed. After adding or moving classes, run `composer dump-autoload` in this directory and refresh the site Composer metadata when updating the site dependency.
 

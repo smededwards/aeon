@@ -4,7 +4,9 @@ All notable changes to Aeon are documented here.
 
 ## [Unreleased]
 
-Future changes go here.
+### Changed
+
+- Clarify Flux status output with separate site and target environments and handshake results.
 
 ## [0.5.0] - 2026-11-25
 

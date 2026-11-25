@@ -52,6 +52,7 @@ final class Client {
 				'timeout'             => 20,
 				'limit_response_size' => 1 * MB_IN_BYTES,
 				'sslverify'           => true,
+				'sslcertificates'     => $this->ssl_certificates(),
 				'headers'             => array(
 					'X-Flux-Timestamp'  => $time,
 					'X-Flux-Request-ID' => $id,
@@ -100,6 +101,7 @@ final class Client {
 				'timeout'             => 20,
 				'limit_response_size' => 5 * MB_IN_BYTES,
 				'sslverify'           => true,
+				'sslcertificates'     => $this->ssl_certificates(),
 				'headers'             => array(
 					'X-Flux-Timestamp'  => $time,
 					'X-Flux-Request-ID' => $id,
@@ -141,6 +143,7 @@ final class Client {
 				'timeout'             => 20,
 				'limit_response_size' => 5 * MB_IN_BYTES,
 				'sslverify'           => true,
+				'sslcertificates'     => $this->ssl_certificates(),
 				'body'                => $body,
 				'headers'             => array(
 					'Content-Type'      => 'application/json',
@@ -163,5 +166,17 @@ final class Client {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Resolve an optional local CA bundle without changing production defaults.
+	 *
+	 * @return string CA bundle path.
+	 */
+	private function ssl_certificates(): string {
+		$default = ABSPATH . WPINC . '/certificates/ca-bundle.crt';
+		$custom  = getenv( 'AEON_FLUX_SSL_CERTIFICATES' );
+
+		return is_string( $custom ) && is_file( $custom ) ? $custom : $default;
 	}
 }

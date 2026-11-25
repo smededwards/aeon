@@ -7,6 +7,7 @@
 
 namespace Aeon\Flux;
 
+use Aeon\Admin\Environment;
 use WP_CLI;
 
 /**
@@ -48,58 +49,125 @@ final class Cli {
 	 * ## EXAMPLES
 	 *
 	 *     wp aeon flux status
+	 *     wp aeon flux status --environment=local
 	 *     wp aeon flux status --prod
+	 *     wp aeon flux status --local
+	 *     wp aeon flux status --dev
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--environment=<environment>]
+	 * : Environment to inspect: local, development or production. Defaults to the configured Flux target.
+	 *
+	 * [--prod]
+	 * : Alias for --environment=production.
+	 *
+	 * [--local]
+	 * : Alias for --environment=local.
+	 *
+	 * [--dev]
+	 * : Alias for --environment=development.
 	 *
 	 * @param array<int,string>   $args       Positional arguments.
 	 * @param array<string,mixed> $assoc_args Named arguments.
 	 * @return void
 	 */
 	public function status( array $args = array(), array $assoc_args = array() ): void {
-		$production = ! empty( $assoc_args['prod'] );
-		$connection = $this->settings->connection( $production ? 'production' : null );
-		$label      = $production ? 'Production' : (string) $connection['environment'];
+		$environment      = $this->requested_environment( $assoc_args );
+		$connection       = $this->settings->connection( $environment );
+		$handshake        = null;
+		$handshake_status = 'Not tested';
 
-		if ( $production && ( empty( $connection['url'] ) || empty( $connection['token'] ) ) ) {
-			WP_CLI::error( 'Production requires a configured URL and shared connection token.' );
+		if ( ! empty( $connection['enabled'] ) && ! empty( $connection['url'] ) && ! empty( $connection['token'] ) ) {
+			$handshake        = ( new Client( $connection ) )->handshake();
+			$handshake_status = is_wp_error( $handshake ) ? 'Failed' : 'Connected';
 		}
 
 		WP_CLI\Utils\format_items(
 			'table',
 			array(
 				array(
+					'field' => 'Site Environment',
+					'value' => Environment::environment_label( Environment::detected_environment() ?? 'unknown' ),
+				),
+				array(
+					'field' => 'Target Environment',
+					'value' => Environment::environment_label( (string) $connection['environment'] ),
+				),
+				array(
+					'field' => 'Target URL',
+					'value' => (string) $connection['url'],
+				),
+				array(
 					'field' => 'Enabled',
 					'value' => empty( $connection['enabled'] ) ? 'No' : 'Yes',
 				),
 				array(
-					'field' => 'Environment',
-					'value' => $label,
-				),
-				array(
-					'field' => 'URL',
-					'value' => (string) $connection['url'],
-				),
-				array(
 					'field' => 'Remote Writes',
-					'value' => empty( $connection['allow_push'] ) ? 'No' : 'Yes',
+					'value' => empty( $connection['allow_push'] ) ? 'Disabled' : 'Enabled',
 				),
 				array(
 					'field' => 'Token',
 					'value' => empty( $connection['token'] ) ? 'Missing' : 'Configured',
 				),
+				array(
+					'field' => 'Handshake',
+					'value' => $handshake_status,
+				),
 			),
 			array( 'field', 'value' )
 		);
 
-		if ( ! $production ) {
+		if ( null === $handshake ) {
+			WP_CLI::warning( 'Handshake not attempted: Flux needs to be enabled with a configured URL and token.' );
 			return;
 		}
 
-		$handshake = ( new Client( $connection ) )->handshake();
 		if ( is_wp_error( $handshake ) ) {
 			WP_CLI::error( $handshake->get_error_message() );
 		}
 
 		WP_CLI::success( sprintf( 'Connected to Flux at %s.', (string) $connection['url'] ) );
+	}
+
+	/**
+	 * Resolve the requested status target from the supported flags.
+	 *
+	 * @param array<string,mixed> $assoc_args Named arguments.
+	 * @return string|null Environment override, or null for the configured target.
+	 */
+	private function requested_environment( array $assoc_args ): ?string {
+		$flags     = array(
+			'prod'  => 'production',
+			'local' => 'local',
+			'dev'   => 'development',
+		);
+		$requested = array();
+
+		foreach ( $flags as $flag => $environment ) {
+			if ( ! empty( $assoc_args[ $flag ] ) ) {
+				$requested[ $flag ] = $environment;
+			}
+		}
+
+		if ( isset( $assoc_args['environment'] ) ) {
+			if ( $requested ) {
+				WP_CLI::error( 'Use --environment or an environment alias, not both.' );
+			}
+
+			$environment = Environment::normalise_environment( sanitize_key( (string) $assoc_args['environment'] ) );
+			if ( null === $environment ) {
+				WP_CLI::error( 'Environment must be local, development or production.' );
+			}
+
+			return $environment;
+		}
+
+		if ( count( $requested ) > 1 ) {
+			WP_CLI::error( 'Choose one environment alias.' );
+		}
+
+		return $requested ? (string) reset( $requested ) : null;
 	}
 
 	/**
