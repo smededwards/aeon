@@ -37,6 +37,52 @@ final class Client {
 	}
 
 	/**
+	 * Test the signed connection to the remote environment.
+	 *
+	 * @return array<string,mixed>|WP_Error
+	 */
+	public function handshake() {
+		$path     = '/flux/v1/handshake';
+		$body     = '';
+		$time     = (string) time();
+		$id       = wp_generate_uuid4();
+		$response = wp_remote_get(
+			$this->url . '/wp-json' . $path,
+			array(
+				'timeout'             => 20,
+				'limit_response_size' => 1 * MB_IN_BYTES,
+				'sslverify'           => true,
+				'headers'             => array(
+					'X-Flux-Timestamp'  => $time,
+					'X-Flux-Request-ID' => $id,
+					'X-Flux-Signature'  => Crypto::sign( 'GET', $path, $body, $time, $id, $this->token ),
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = wp_remote_retrieve_response_code( $response );
+		$data   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 || ! is_array( $data ) ) {
+			return new WP_Error(
+				'flux_handshake_failed',
+				sprintf(
+					/* Translators: %d is the remote HTTP response status. */
+					__( 'The remote Flux handshake failed with HTTP status %d.', 'aeon' ),
+					$status
+				),
+				array( 'status' => $status )
+			);
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Fetch a remote Post or Page payload.
 	 *
 	 * @param string $post_type Post type.

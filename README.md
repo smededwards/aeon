@@ -58,6 +58,18 @@ From the site directory, run `docker compose run --rm -w /workspace/aeon tools e
 
 ## Development and Checks
 
+Flux also exposes a small WP-CLI command group for diagnostics and local pulls:
+
+From the Portfolio root, use the project-local WP-CLI wrapper:
+
+```sh
+./scripts/wp aeon flux status
+./scripts/wp aeon flux status --prod
+./scripts/wp aeon flux pull <local-id> <remote-id>
+```
+
+`status --prod` performs a read-only signed handshake against the configured Production URL. `pull` creates a local revision before applying the remote Post or Page. It can limit the operation with `--post-type=post|page` and `--fields=fields.title,fields.content`. Remote writes remain guarded through the editor until a separate CLI push workflow is agreed.
+
 Develop alongside `portfolio`, `obel` and `rune` using the site containers. Run `composer install` here to create the development autoloader. In production, the site Composer autoloader loads Aeon's classes. If no autoloader is available, Aeon displays an administrator notice. The `vendor` directory is not committed. After adding or moving classes, run `composer dump-autoload` in this directory and refresh the site Composer metadata when updating the site dependency.
 
 Dashboard colours and the featured-image picker are in `src/`. `@wordpress/scripts` and Webpack compile them into the ignored `build/` directory. In this directory, run `npm ci && npm run build`; run `npm run lint:js` and `npm run lint:scss` for lint checks. From the portfolio directory, use `make assets-install assets-build`. CI builds assets before packaging the site. Generated assets are not committed.

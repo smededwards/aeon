@@ -121,11 +121,12 @@ final class Settings {
 	/**
 	 * Return decrypted connection settings.
 	 *
+	 * @param string|null $requested_environment Optional environment override.
 	 * @return array<string,string|int>
 	 */
-	public function connection(): array {
+	public function connection( ?string $requested_environment = null ): array {
 		$value       = get_option( self::OPTION, array() );
-		$environment = isset( $value['environment'] ) ? $value['environment'] : self::DEFAULT_ENVIRONMENT;
+		$environment = $requested_environment ?? ( $value['environment'] ?? self::DEFAULT_ENVIRONMENT );
 		$urls        = Environment::urls();
 		$url         = isset( $urls[ $environment ] ) ? $urls[ $environment ] : '';
 		if ( ! $url && Environment::detected_environment() === $environment ) {

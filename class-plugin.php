@@ -19,6 +19,7 @@ use Aeon\Features\DuplicateContent;
 use Aeon\Features\Emoji;
 use Aeon\Features\MediaUploads;
 use Aeon\Features\Seo;
+use Aeon\Flux\Cli;
 use Aeon\Flux\Database;
 use Aeon\Flux\Editor;
 use Aeon\Flux\Rest;
@@ -53,6 +54,7 @@ final class Plugin {
 		( new DashboardColour() )->register();
 		( new Environment() )->register();
 		$flux_settings->register();
+		( new Cli( $flux_settings ) )->register();
 		( new Rest( $flux_settings ) )->register();
 		( new Editor( $flux_settings ) )->register();
 	}
