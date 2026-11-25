@@ -4,7 +4,11 @@ All notable changes to Aeon are documented here.
 
 ## [Unreleased]
 
-Future changes go here.
+### Added
+
+- Add Flux environment synchronisation for signed Post and Page payloads, field-level previews, local revisions and guarded remote writes.
+- Add Flux to the Aeon settings page as a dedicated tab.
+- Use the existing Aeon environment URLs for Flux connections instead of duplicating them.
 
 ## [0.4.1] - 2026-11-23
 
@@ -17,7 +21,7 @@ Future changes go here.
 ### Added
 
 - Duplicate Posts and Pages from the WordPress admin.
-- Hide the front-end admin bar while scrolling, with keyboard and scroll-direction behaviour.
+- Hide the Front-End admin bar while scrolling, with keyboard and scroll-direction behaviour.
 
 ### Changed
 
@@ -26,7 +30,7 @@ Future changes go here.
 
 ### Fixed
 
-- Removed emoji assets from the front-end.
+- Removed emoji assets from the Front-End.
 
 ### Documentation
 

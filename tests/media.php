@@ -33,11 +33,11 @@ try {
 	$wp_filesystem->put_contents( $aeon_invalid, $aeon_malicious, FS_CHMOD_FILE );
 	wp_set_current_user( (int) $aeon_users[0] );
 	$aeon_mimes = $aeon_uploads->add_mimes( array() );
-	if ( 'image/webp' !== ( $aeon_mimes['webp'] ?? '' ) || 'image/svg+xml' !== ( $aeon_mimes['svg'] ?? '' ) ) {
+	if ( ( $aeon_mimes['webp'] ?? '' ) !== 'image/webp' || ( $aeon_mimes['svg'] ?? '' ) !== 'image/svg+xml' ) {
 		throw new RuntimeException( 'Administrators must receive WebP and SVG upload MIME types.' );
 	}
 	$aeon_webp = $aeon_uploads->check_filetype( array(), '/tmp/aeon.webp', 'aeon.webp', array(), 'image/webp' );
-	if ( 'webp' !== ( $aeon_webp['ext'] ?? '' ) || 'image/webp' !== ( $aeon_webp['type'] ?? '' ) ) {
+	if ( ( $aeon_webp['ext'] ?? '' ) !== 'webp' || ( $aeon_webp['type'] ?? '' ) !== 'image/webp' ) {
 		throw new RuntimeException( 'Valid WebP MIME detection failed.' );
 	}
 	$aeon_wrong_webp = $aeon_uploads->check_filetype( array(), '/tmp/aeon.webp', 'aeon.webp', array(), 'image/png' );
@@ -46,7 +46,7 @@ try {
 	}
 	$aeon_valid_svg = $aeon_uploads->check_filetype( array(), $aeon_valid, 'aeon.svg', array(), false );
 	$aeon_bad_svg   = $aeon_uploads->check_filetype( array(), $aeon_invalid, 'aeon.svg', array(), false );
-	if ( 'svg' !== ( $aeon_valid_svg['ext'] ?? '' ) || 'image/svg+xml' !== ( $aeon_valid_svg['type'] ?? '' ) || $aeon_bad_svg ) {
+	if ( ( $aeon_valid_svg['ext'] ?? '' ) !== 'svg' || ( $aeon_valid_svg['type'] ?? '' ) !== 'image/svg+xml' || $aeon_bad_svg ) {
 		throw new RuntimeException( 'Valid SVG recognition or malicious SVG rejection failed.' );
 	}
 	wp_set_current_user( 0 );

@@ -47,7 +47,7 @@ try {
 		wp_update_attachment_metadata( $aeon_image, wp_generate_attachment_metadata( $aeon_image, $aeon_upload['file'] ) );
 	}
 	set_post_thumbnail( $aeon_id, $aeon_images[0] );
-	$aeon_view   = static function ( int $post_id ): void {
+	$aeon_view      = static function ( int $post_id ): void {
 		wp(
 			array(
 				'p'           => $post_id,
@@ -56,9 +56,14 @@ try {
 			)
 		);
 	};
-	$aeon_markup = static function () use ( $aeon_seo ): string {
+	$aeon_markup    = static function () use ( $aeon_seo ): string {
 		ob_start();
 		$aeon_seo->head();
+		return ob_get_clean();
+	};
+	$aeon_canonical = static function () use ( $aeon_seo ): string {
+		ob_start();
+		$aeon_seo->canonical();
 		return ob_get_clean();
 	};
 	/**
@@ -80,7 +85,7 @@ try {
 	$aeon_head = $aeon_markup();
 	$aeon_assert( str_contains( $aeon_head, 'Native excerpt fallback.' ) && str_contains( $aeon_head, wp_get_attachment_url( $aeon_images[0] ) ), 'Default excerpt or featured-image fallback failed.' );
 	$aeon_assert( ! str_contains( $aeon_head, '<title>' ) && ! str_contains( $aeon_head, 'rel="canonical"' ), 'Aeon must not duplicate core title/canonical output.' );
-	$aeon_assert( false !== has_action( 'wp_head', 'rel_canonical' ), 'Core canonical output was removed.' );
+	$aeon_assert( has_action( 'wp_head', 'rel_canonical' ) !== false, 'Core canonical output was removed.' );
 	$aeon_graph = $aeon_schema_data()['@graph'] ?? array();
 	$aeon_types = array_column( $aeon_graph, '@type' );
 	$aeon_assert( in_array( 'BlogPosting', $aeon_types, true ) && in_array( 'Person', $aeon_types, true ) && in_array( 'WebSite', $aeon_types, true ), 'A public post must emit a valid article, person and website schema graph.' );
@@ -101,7 +106,13 @@ try {
 	$GLOBALS['wp_query']->is_singular       = false;
 	$GLOBALS['wp_query']->queried_object    = get_post( $aeon_page_id );
 	$GLOBALS['wp_query']->queried_object_id = $aeon_page_id;
-	$aeon_index_types                       = array_column( $aeon_schema_data()['@graph'] ?? array(), '@type' );
+	$aeon_index_canonical                   = $aeon_canonical();
+	$aeon_assert(
+		str_contains( $aeon_index_canonical, 'rel="canonical"' )
+		&& str_contains( $aeon_index_canonical, get_pagenum_link( 1, false ) ),
+		'The Posts index must emit a canonical URL.'
+	);
+	$aeon_index_types = array_column( $aeon_schema_data()['@graph'] ?? array(), '@type' );
 	$aeon_assert( in_array( 'WebPage', $aeon_index_types, true ) && ! in_array( 'BlogPosting', $aeon_index_types, true ), 'The Posts index must emit page schema without a duplicate article entity.' );
 	$aeon_view( $aeon_id );
 	update_post_meta( $aeon_id, Seo::TITLE, '<b>SEO override</b>' );
@@ -111,9 +122,9 @@ try {
 	$aeon_head = $aeon_markup();
 	$aeon_assert( str_contains( wp_get_document_title(), 'SEO override' ) && 'SEO fixture' === get_post_field( 'post_title', $aeon_id ), 'SEO titles must not rewrite the native post title.' );
 	$aeon_assert( str_contains( $aeon_head, 'Description &quot;quoted&quot; &amp; safe.' ) && str_contains( $aeon_head, wp_get_attachment_url( $aeon_images[1] ) ), 'Description escaping or custom sharing image failed.' );
-	$aeon_assert( 1 === substr_count( $aeon_head, 'name="description"' ) && 1 === substr_count( $aeon_head, 'property="og:title"' ) && 1 === substr_count( $aeon_head, 'name="twitter:card"' ), 'Metadata was duplicated.' );
+	$aeon_assert( substr_count( $aeon_head, 'name="description"' ) === 1 && substr_count( $aeon_head, 'property="og:title"' ) === 1 && substr_count( $aeon_head, 'name="twitter:card"' ) === 1, 'Metadata was duplicated.' );
 	update_post_meta( $aeon_id, Seo::IMAGE, $aeon_id );
-	$aeon_assert( 0 === (int) get_post_meta( $aeon_id, Seo::IMAGE, true ) && str_contains( $aeon_markup(), wp_get_attachment_url( $aeon_images[0] ) ), 'Non-image IDs must restore the featured-image fallback.' );
+	$aeon_assert( (int) get_post_meta( $aeon_id, Seo::IMAGE, true ) === 0 && str_contains( $aeon_markup(), wp_get_attachment_url( $aeon_images[0] ) ), 'Non-image IDs must restore the featured-image fallback.' );
 	delete_post_meta( $aeon_id, Seo::DESCRIPTION );
 	wp_update_post(
 		array(
@@ -131,7 +142,7 @@ try {
 		)
 	);
 	$aeon_view( $aeon_id );
-	$aeon_assert( '' === $aeon_markup() && ! str_contains( wp_get_document_title(), 'SEO override' ), 'Password-protected content must not leak overrides.' );
+	$aeon_assert( $aeon_markup() === '' && ! str_contains( wp_get_document_title(), 'SEO override' ), 'Password-protected content must not leak overrides.' );
 	wp_update_post(
 		array(
 			'ID'            => $aeon_id,
@@ -140,7 +151,7 @@ try {
 		)
 	);
 	$aeon_view( $aeon_id );
-	$aeon_assert( '' === $aeon_markup(), 'Draft content must not emit sharing metadata.' );
+	$aeon_assert( $aeon_markup() === '', 'Draft content must not emit sharing metadata.' );
 	wp_update_post(
 		array(
 			'ID'          => $aeon_id,
@@ -204,7 +215,7 @@ try {
 	foreach ( $aeon_ids as $aeon_id ) {
 		wp_delete_post( $aeon_id, true );
 	}
-	if ( null === $aeon_posts_page ) {
+	if ( $aeon_posts_page === null ) {
 		delete_option( 'page_for_posts' );
 	} else {
 		update_option( 'page_for_posts', $aeon_posts_page );

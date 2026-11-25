@@ -6,7 +6,9 @@
 	<exclude-pattern>node_modules/*</exclude-pattern>
 	<exclude-pattern>build/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
-	<rule ref="WordPress"/>
+	<rule ref="WordPress">
+		<exclude name="WordPress.PHP.YodaConditions"/>
+	</rule>
 	<config name="minimum_supported_wp_version" value="6.8"/>
 	<!-- Keep the existing SettingsPage class name with a word-separated filename. -->
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">

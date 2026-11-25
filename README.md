@@ -12,7 +12,8 @@ Current release: **0.4.1**.
 - Dashboard environment colours and links to local, development and production sites.
 - Default featured images, SVG upload validation and WebP uploads.
 - Comment and pingback controls for Posts and Pages.
-- Automatic front-end admin-bar hiding while scrolling.
+- Automatic Front-End admin-bar hiding while scrolling.
+- Flux environment synchronisation with signed Post and Page pulls, previews, revisions and guarded pushes.
 
 Detailed feature notes are available in the [Aeon Wiki](https://github.com/smededwards/aeon/wiki/Features), with development guidance in the [Development page](https://github.com/smededwards/aeon/wiki/Development).
 
@@ -20,13 +21,13 @@ Detailed feature notes are available in the [Aeon Wiki](https://github.com/smede
 
 Aeon comes from Greek *aiōn*, meaning an age or extended passage of time. The name reflects functionality that can remain useful as a site changes and the plugin evolves; it does not limit Aeon to time-based features.
 
-Settings are grouped under **Dashboard** and **Content**. Rune manages editor controls and pattern settings under **Settings → Rune**. The site menu is managed through the active block theme's native Navigation editor.
+Settings are grouped under **Dashboard**, **Content** and **Flux** tabs. Rune manages editor controls and pattern settings under **Settings → Rune**. The site menu is managed through the active block theme's native Navigation editor.
 
 ## Contact Submissions
 
 `features/contact/class-submission.php` creates the validated contact-submission value used for delivery. Its private constructor and readonly properties keep construction inside the factory. The factory checks raw input lengths and email line breaks before sanitising; retained invalid values are length-limited for form feedback. `functions-contact.php` exposes `aeon_sanitise_contact_submission()` as a global adapter for the WordPress coding-standard sanitisation rule. PHPCS registers that adapter directly.
 
-Rune’s Contact Form block posts to its published Page without front-end JavaScript. Aeon checks the page-bound nonce, honeypot, field types, required values, email syntax, header safety and length limits: 100 characters for names, 254 for email addresses and 5,000 for messages. It sanitises text before sending plain-text mail. The recipient is the administration email in Settings → General. The sender uses `wordpress@` followed by the site hostname; the validated visitor address is used for Reply-To.
+Rune's Contact Form block posts to its published Page without Front-End JavaScript. Aeon checks the page-bound nonce, honeypot, field types, required values, email syntax, header safety and length limits: 100 characters for names, 254 for email addresses and 5,000 for messages. It sanitises text before sending plain-text mail. The recipient is the administration email in Settings → General. The sender uses `wordpress@` followed by the site hostname; the validated visitor address is used for Reply-To.
 
 Validation errors appear on the same page with HTTP 422, and entered values are retained for that request. Successful submissions redirect with HTTP 303 to a readable `?sent=1#contact-form` receipt, preventing a refresh from resubmitting the form. Aeon passes the success state to the block. Submission content is not stored in WordPress. Rate limiting stores a salted hash of the peer address and an attempt counter for up to 15 minutes, allowing five attempts in each window. Forwarded headers are ignored. Contact pages send no-cache headers to keep nonces fresh; exclude them from production page and CDN caches as well.
 
@@ -45,19 +46,31 @@ Classes use the `Aeon` namespace and responsibility-based directories at the plu
 
 Posts and Pages have a native **Meta Boxes → SEO and Sharing** panel below the block editor (also available in the classic editor):
 
-- **SEO Title** replaces the content portion of WordPress’s document title while keeping the site name, tagline and pagination. The post or page title stays unchanged.
+- **SEO Title** replaces the content portion of WordPress's document title while keeping the site name, tagline and pagination. The post or page title stays unchanged.
 - **Meta Description** replaces the default excerpt or short summary. Core block-excerpt extraction skips Query Loop and no-results content. Aeon omits the description when no useful text is available.
 - **Social Image** uses the Media Library picker. Aeon falls back to the featured image when the field is empty or its saved image is unavailable. It stores an attachment ID and uses the full-size image without generating extra sizes.
 
 Aeon outputs a meta description, Open Graph tags and Twitter Card tags for public Posts and Pages, including the static homepage and configured Posts index. Drafts, previews, password-protected posts and private content are skipped. Values are sanitised when saved and escaped on output. Fields use native post meta, post-level edit permissions, edit-context REST schemas and revision support.
 
-WordPress core supplies the document title, canonical links, robots directives and XML sitemaps. **Settings → Aeon → SEO and Sharing** disables Aeon’s metadata hooks and editor panel while keeping saved fields. Disable Aeon before enabling another SEO provider to prevent duplicate metadata.
+WordPress core supplies the document title, canonical links, robots directives and XML sitemaps. **Settings → Aeon → SEO and Sharing** disables Aeon's metadata hooks and editor panel while keeping saved fields. Disable Aeon before enabling another SEO provider to prevent duplicate metadata.
 
-From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/seo.sh`. The tests restore settings, remove temporary posts and images, and check fallbacks, overrides, escaping, image IDs, protected content, REST/editor persistence, permissions and disabling Aeon’s metadata. Browser checks cover choosing or removing a social image and saving the post in the block editor.
+From the site directory, run `docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfolio/web/wp sh tests/seo.sh`. The tests restore settings, remove temporary posts and images, and check fallbacks, overrides, escaping, image IDs, protected content, REST/editor persistence, permissions and disabling Aeon's metadata. Browser checks cover choosing or removing a social image and saving the post in the block editor.
 
 ## Development and Checks
 
-Develop alongside `portfolio`, `obel` and `rune` using the site containers. Run `composer install` here to create the development autoloader. In production, the site Composer autoloader loads Aeon’s classes. If no autoloader is available, Aeon displays an administrator notice. The `vendor` directory is not committed. After adding or moving classes, run `composer dump-autoload` in this directory and refresh the site Composer metadata when updating the site dependency.
+Flux also exposes a small WP-CLI command group for diagnostics and local pulls:
+
+From the Portfolio root, use the project-local WP-CLI wrapper:
+
+```sh
+./scripts/wp aeon flux status
+./scripts/wp aeon flux status --prod
+./scripts/wp aeon flux pull <local-id> <remote-id>
+```
+
+`status --prod` performs a read-only signed handshake against the configured Production URL. `pull` creates a local revision before applying the remote Post or Page. It can limit the operation with `--post-type=post|page` and `--fields=fields.title,fields.content`. Remote writes remain guarded through the editor until a separate CLI push workflow is agreed.
+
+Develop alongside `portfolio`, `obel` and `rune` using the site containers. Run `composer install` here to create the development autoloader. In production, the site Composer autoloader loads Aeon's classes. If no autoloader is available, Aeon displays an administrator notice. The `vendor` directory is not committed. After adding or moving classes, run `composer dump-autoload` in this directory and refresh the site Composer metadata when updating the site dependency.
 
 Dashboard colours and the featured-image picker are in `src/`. `@wordpress/scripts` and Webpack compile them into the ignored `build/` directory. In this directory, run `npm ci && npm run build`; run `npm run lint:js` and `npm run lint:scss` for lint checks. From the portfolio directory, use `make assets-install assets-build`. CI builds assets before packaging the site. Generated assets are not committed.
 
@@ -71,11 +84,11 @@ docker compose run --rm -w /workspace/aeon tools env WP_PATH=/workspace/portfoli
 
 Run the command from the site directory. The test restores the previous settings and leaves theme files and site content unchanged.
 
-Review code changes locally and get approval before committing, pushing or opening or updating a PR. After checks pass, publish a semantic version tag and update the site’s production Composer lock in a separate change. Local development uses linked working copies; production uses tagged releases.
+Review code changes locally and get approval before committing, pushing or opening or updating a PR. After checks pass, publish a semantic version tag and update the site's production Composer lock in a separate change. Local development uses linked working copies; production uses tagged releases.
 
 ## Emoji Assets
 
-Aeon removes WordPress’s emoji detection scripts, inline styles and image conversion hooks. Emoji characters remain text and use the operating system’s native rendering.
+Aeon removes WordPress's emoji detection scripts, inline styles and image conversion hooks. Emoji characters remain text and use the operating system's native rendering.
 
 ## Contribution Conventions
 
@@ -99,7 +112,7 @@ From the site directory, run `docker compose run --rm -w /workspace/aeon tools e
 
 Under **Settings → Aeon → Dashboard**, select WordPress blue, Production red, Development orange or Local green. Aeon applies the chosen accent to the dashboard and block editor, including component colours and hover and focus states. Bedrock continues to determine the active site environment.
 
-The Dashboard section also stores optional base URLs for Local, Development and Production. The admin toolbar shows the detected environment and links to configured sites, preserving the current path and query where possible. Aeon hides Bedrock’s search-indexing notice. Bedrock’s indexing settings continue to control indexing.
+The Dashboard section also stores optional base URLs for Local, Development and Production. The admin toolbar shows the detected environment and links to configured sites, preserving the current path and query where possible. Aeon hides Bedrock's search-indexing notice. Bedrock's indexing settings continue to control indexing.
 
 Under **Settings → Aeon → Content → Default Featured Image**, choose an optional Media Library image for Posts and Pages that have no featured image. Clearing the setting or deleting the attachment removes the fallback. Aeon selects `placeholder.png` initially if it exists in the Media Library.
 

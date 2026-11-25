@@ -57,7 +57,7 @@ try {
 		update_post_meta( $aeon_source_id, '_aeon_duplicate_value', 'Copied value' );
 		update_post_meta( $aeon_source_id, '_edit_lock', 'Never copy this lock' );
 		set_post_thumbnail( $aeon_source_id, $aeon_image_id );
-		if ( 'post' === $aeon_type ) {
+		if ( $aeon_type === 'post' ) {
 			wp_set_post_categories( $aeon_source_id, array( get_option( 'default_category' ) ) );
 		}
 
@@ -66,14 +66,14 @@ try {
 		$aeon_assert( ! is_wp_error( $aeon_copy_id ), 'Content duplication failed.' );
 		$aeon_ids[] = $aeon_copy_id;
 		$aeon_copy  = get_post( $aeon_copy_id );
-		$aeon_assert( 'draft' === $aeon_copy->post_status, 'Duplicates must be created as Drafts.' );
+		$aeon_assert( $aeon_copy->post_status === 'draft', 'Duplicates must be created as Drafts.' );
 		$aeon_assert( 'Copy of ' . $aeon_source->post_title === $aeon_copy->post_title, 'The duplicate title is incorrect.' );
 		$aeon_assert( $aeon_source->post_content === $aeon_copy->post_content && $aeon_source->post_excerpt === $aeon_copy->post_excerpt, 'Content or excerpt was not copied.' );
-		$aeon_assert( 'Copied value' === get_post_meta( $aeon_copy_id, '_aeon_duplicate_value', true ), 'Custom metadata was not copied.' );
-		$aeon_assert( '' === get_post_meta( $aeon_copy_id, '_edit_lock', true ), 'Editor lock metadata must not be copied.' );
+		$aeon_assert( get_post_meta( $aeon_copy_id, '_aeon_duplicate_value', true ) === 'Copied value', 'Custom metadata was not copied.' );
+		$aeon_assert( get_post_meta( $aeon_copy_id, '_edit_lock', true ) === '', 'Editor lock metadata must not be copied.' );
 		$aeon_thumbnail_id = absint( get_post_meta( $aeon_copy_id, '_thumbnail_id', true ) );
 		$aeon_assert( $aeon_image_id === $aeon_thumbnail_id, 'The featured image was not copied.' );
-		if ( 'post' === $aeon_type ) {
+		if ( $aeon_type === 'post' ) {
 			$aeon_assert( wp_get_post_categories( $aeon_copy_id ) === wp_get_post_categories( $aeon_source_id ), 'Post categories were not copied.' );
 		}
 	}

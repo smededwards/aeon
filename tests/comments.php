@@ -6,7 +6,7 @@
  * @package Aeon
  */
 
-$disabled = 'disabled' === ( $args[0] ?? 'disabled' );
+$disabled = ( $args[0] ?? 'disabled' ) === 'disabled';
 $fixtures = array();
 $assert   = static function ( bool $condition, string $message ): void {
 	if ( ! $condition ) {
@@ -47,14 +47,14 @@ try {
 		$assert( comments_open( $fixtures[ $fixture_type ] ) === ! $disabled, 'Comment availability did not follow the setting.' );
 		$assert( pings_open( $fixtures[ $fixture_type ] ) === ! $disabled, 'Pingback availability did not follow the setting.' );
 		$assert( post_type_supports( $fixture_type, 'comments' ) === ! $disabled, 'Editor support did not follow the setting.' );
-		$assert( 'open' === get_post_field( 'comment_status', $fixtures[ $fixture_type ] ), 'Stored discussion preference was overwritten.' );
+		$assert( get_post_field( 'comment_status', $fixtures[ $fixture_type ] ) === 'open', 'Stored discussion preference was overwritten.' );
 	}
 	$assert( comments_open( $fixtures['aeon_comment_test'] ) && pings_open( $fixtures['aeon_comment_test'] ), 'Unrelated content types were affected.' );
 	$assert( post_type_supports( 'aeon_comment_test', 'comments' ), 'Unrelated editor support was affected.' );
 	$stored  = get_comment( $comment_id );
 	$visible = apply_filters( 'comments_array', array( $stored ), $fixtures['post'] );
 	$assert( count( $visible ) === ( $disabled ? 0 : 1 ), 'Classic comment visibility failed.' );
-	$assert( null !== get_comment( $comment_id ) && 1 === (int) get_post_field( 'comment_count', $fixtures['post'] ), 'Stored comment data was changed.' );
+	$assert( get_comment( $comment_id ) !== null && (int) get_post_field( 'comment_count', $fixtures['post'] ) === 1, 'Stored comment data was changed.' );
 	$assert( (int) get_comments_number( $fixtures['post'] ) === ( $disabled ? 0 : 1 ), 'Visible count failed.' );
 	$columns = apply_filters(
 		'manage_posts_columns',
@@ -92,7 +92,7 @@ try {
 	$request->set_param( 'post', $fixtures['post'] );
 	$request->set_param( 'content', 'Never inserted by this permissions check' );
 	$permission = ( new WP_REST_Comments_Controller() )->create_item_permissions_check( $request );
-	$assert( $disabled ? is_wp_error( $permission ) : true === $permission, 'REST comment permissions did not follow the setting.' );
+		$assert( $disabled ? is_wp_error( $permission ) : $permission === true, 'REST comment permissions did not follow the setting.' );
 	if ( $disabled ) {
 		$response = wp_handle_comment_submission(
 			array(
@@ -100,7 +100,7 @@ try {
 				'comment'         => 'Rejected fixture submission',
 			)
 		);
-		$assert( is_wp_error( $response ) && 'comment_closed' === $response->get_error_code(), 'Classic comment submission was not closed.' );
+		$assert( is_wp_error( $response ) && $response->get_error_code() === 'comment_closed', 'Classic comment submission was not closed.' );
 	}
 	$settings = new Aeon\Settings();
 	$assert( $settings->sanitise( array() )['disable_comments'] === $disabled, 'Partial settings submission changed the preference.' );

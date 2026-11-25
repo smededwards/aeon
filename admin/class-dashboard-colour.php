@@ -44,7 +44,7 @@ final class DashboardColour {
 	 * @return string Sanitised selection or the default WordPress palette.
 	 */
 	public static function sanitise_selection( mixed $selection ): string {
-		if ( 'environment' === $selection ) {
+		if ( $selection === 'environment' ) {
 			return self::DEFAULT_SELECTION;
 		}
 
@@ -92,7 +92,7 @@ final class DashboardColour {
 	}
 
 	/**
-	 * Apply the environment palette to the block editor canvas without affecting the front end.
+	 * Apply the environment palette to the block editor canvas without affecting the Front-End.
 	 *
 	 * @return void
 	 */
@@ -109,23 +109,24 @@ final class DashboardColour {
 	 */
 	private function enqueue_accent_styles(): void {
 		$environment = self::selection();
-		if ( self::DEFAULT_SELECTION === $environment ) {
+		if ( $environment === self::DEFAULT_SELECTION ) {
 			return;
 		}
 
 		$palette_file = sprintf( 'dashboard-colours-%s.css', $environment );
 		$palette_path = dirname( __DIR__ ) . '/build/' . $palette_file;
 		$base_path    = dirname( __DIR__ ) . '/build/dashboard-colours.css';
+		$plugin_file  = dirname( __DIR__ ) . '/aeon.php';
 
 		wp_enqueue_style(
 			'aeon-dashboard-environment',
-			plugins_url( '../build/' . $palette_file, __FILE__ ),
+			plugins_url( 'build/' . $palette_file, $plugin_file ),
 			array( 'colors' ),
 			is_file( $palette_path ) ? (string) filemtime( $palette_path ) : Plugin::VERSION
 		);
 		wp_enqueue_style(
 			'aeon-dashboard-colours',
-			plugins_url( '../build/dashboard-colours.css', __FILE__ ),
+			plugins_url( 'build/dashboard-colours.css', $plugin_file ),
 			array( 'aeon-dashboard-environment' ),
 			is_file( $base_path ) ? (string) filemtime( $base_path ) : Plugin::VERSION
 		);

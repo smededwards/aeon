@@ -57,8 +57,8 @@ final class Submission {
 			$raw = is_string( $input[ $field ] ?? null ) ? $input[ $field ] : '';
 			// Retain only bounded, sanitised text when reporting a validation failure.
 			$bounded          = mb_substr( $raw, 0, $limit + 1 );
-			$values[ $field ] = 'message' === $field ? sanitize_textarea_field( $bounded ) : sanitize_text_field( $bounded );
-			if ( '' === trim( $values[ $field ] ) ) {
+			$values[ $field ] = $field === 'message' ? sanitize_textarea_field( $bounded ) : sanitize_text_field( $bounded );
+			if ( trim( $values[ $field ] ) === '' ) {
 				$errors[ $field ] = __( 'Please complete this field.', 'aeon' );
 			} elseif ( mb_strlen( $raw ) > $limit ) {
 				/* translators: %d: maximum number of characters. */
@@ -66,7 +66,7 @@ final class Submission {
 			}
 		}
 		$subject = is_string( $input['subject'] ?? null ) ? sanitize_key( $input['subject'] ) : '';
-		if ( '' !== $subject && ! isset( self::SUBJECTS[ $subject ] ) ) {
+		if ( $subject !== '' && ! isset( self::SUBJECTS[ $subject ] ) ) {
 			$errors['subject'] = __( 'Choose a valid subject.', 'aeon' );
 		} else {
 			$values['subject'] = $subject;
@@ -80,7 +80,7 @@ final class Submission {
 				$values['email'] = sanitize_email( $email );
 			}
 		}
-		if ( isset( $input['website'] ) && ( ! is_string( $input['website'] ) || '' !== trim( $input['website'] ) ) ) {
+		if ( isset( $input['website'] ) && ( ! is_string( $input['website'] ) || trim( $input['website'] ) !== '' ) ) {
 			$errors['general'] = __( 'Your message could not be sent. Please try again.', 'aeon' );
 		}
 		return new self( $values, $errors, sanitize_text_field( $nonce ) );

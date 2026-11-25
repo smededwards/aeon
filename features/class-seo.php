@@ -13,6 +13,27 @@ use Aeon\Settings;
  * Extends native document titles without replacing core canonical or sitemap output.
  */
 final class Seo {
+	/**
+	 * Post ID represented by the current metadata cache.
+	 *
+	 * @var int|null
+	 */
+	private ?int $metadata_post_id = null;
+
+	/**
+	 * Cached description for the current metadata cache.
+	 *
+	 * @var string
+	 */
+	private string $metadata_description = '';
+
+	/**
+	 * Cached image for the current metadata cache.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private array $metadata_image = array();
+
 	// Native post-meta key for the optional title.
 	public const TITLE = '_aeon_seo_title';
 	// Native post-meta key for the optional description.
@@ -36,8 +57,25 @@ final class Seo {
 		add_action( 'init', array( $this, 'register_meta' ) );
 		if ( $this->settings->is_enabled( 'seo' ) ) {
 			add_filter( 'document_title_parts', array( $this, 'title_parts' ) );
+			add_action( 'wp_head', array( $this, 'canonical' ), 1 );
 			add_action( 'wp_head', array( $this, 'head' ), 5 );
 			add_action( 'wp_head', array( $this, 'schema' ), 30 );
+		}
+	}
+
+	/**
+	 * Output a canonical URL for the Posts archive, which core limits to singular queries.
+	 *
+	 * @return void
+	 */
+	public function canonical(): void {
+		if ( ! is_home() ) {
+			return;
+		}
+
+		$url = get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false );
+		if ( $url ) {
+			printf( '<link rel="canonical" href="%s" />' . "\n", esc_url( $url ) );
 		}
 	}
 
@@ -49,7 +87,7 @@ final class Seo {
 	public function register_meta(): void {
 		foreach ( array( 'post', 'page' ) as $type ) {
 			foreach ( array( self::TITLE, self::DESCRIPTION, self::IMAGE ) as $key ) {
-				$is_image = self::IMAGE === $key;
+				$is_image = $key === self::IMAGE;
 				register_post_meta(
 					$type,
 					$key,
@@ -100,7 +138,7 @@ final class Seo {
 		$post = $this->context();
 		if ( $post ) {
 			$title = get_post_meta( $post->ID, self::TITLE, true );
-			if ( '' !== trim( $title ) ) {
+			if ( trim( $title ) !== '' ) {
 				$parts['title'] = sanitize_text_field( $title );
 			}
 		}
@@ -117,17 +155,19 @@ final class Seo {
 		if ( ! $post ) {
 			return;
 		}
-		$title       = $this->plain_text( wp_get_document_title() );
-		$description = $this->description( $post );
-		$url         = is_home() ? get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false ) : wp_get_canonical_url( $post );
-		$url         = $url ? $url : get_permalink( $post );
-		$image       = $this->image( $post->ID );
+		$this->metadata_post_id = null;
+		$title                  = $this->plain_text( wp_get_document_title() );
+		$metadata               = $this->metadata( $post );
+		$description            = $metadata['description'];
+		$url                    = is_home() ? get_pagenum_link( max( 1, (int) get_query_var( 'paged' ) ), false ) : wp_get_canonical_url( $post );
+		$url                    = $url ? $url : get_permalink( $post );
+		$image                  = $metadata['image'];
 		if ( $description ) {
 			printf( '<meta name="description" content="%s">' . "\n", esc_attr( $description ) );
 		}
 		$properties = array(
 			'og:title'     => $title,
-			'og:type'      => 'post' === $post->post_type ? 'article' : 'website',
+			'og:type'      => $post->post_type === 'post' ? 'article' : 'website',
 			'og:url'       => $url,
 			'og:site_name' => $this->plain_text( get_bloginfo( 'name' ) ),
 			'og:locale'    => str_replace( '-', '_', get_locale() ),
@@ -143,7 +183,7 @@ final class Seo {
 				$properties['og:image:alt'] = $image['alt'];
 			}
 		}
-		if ( 'post' === $post->post_type ) {
+		if ( $post->post_type === 'post' ) {
 			$properties['article:published_time'] = get_post_time( DATE_W3C, false, $post );
 			$properties['article:modified_time']  = get_post_modified_time( DATE_W3C, false, $post );
 		}
@@ -208,6 +248,25 @@ final class Seo {
 	}
 
 	/**
+	 * Resolve shared metadata once for the current public record.
+	 *
+	 * @param \WP_Post $post Public content item.
+	 * @return array{description:string,image:array<string,mixed>}
+	 */
+	private function metadata( \WP_Post $post ): array {
+		if ( $this->metadata_post_id !== $post->ID ) {
+			$this->metadata_post_id     = $post->ID;
+			$this->metadata_description = $this->description( $post );
+			$this->metadata_image       = $this->image( $post->ID );
+		}
+
+		return array(
+			'description' => $this->metadata_description,
+			'image'       => $this->metadata_image,
+		);
+	}
+
+	/**
 	 * Prefer the override, then an excerpt, then a short plain-text content summary.
 	 *
 	 * @param \WP_Post $post Content item.
@@ -258,7 +317,7 @@ final class Seo {
 	 */
 	private function is_placeholder_image( array $image ): bool {
 		$file = get_attached_file( (int) ( $image['id'] ?? 0 ) );
-		return $file && 1 === preg_match( '/^placeholder(?:[-_].*)?\.[a-z0-9]+$/i', basename( $file ) );
+		return $file && preg_match( '/^placeholder(?:[-_].*)?\.[a-z0-9]+$/i', basename( $file ) ) === 1;
 	}
 
 	/**
@@ -318,8 +377,9 @@ final class Seo {
 			'about'      => array( '@id' => $person_id ),
 			'inLanguage' => get_bloginfo( 'language' ),
 		);
-		$description  = $this->description( $post );
-		$image        = $this->image( $post->ID );
+		$metadata     = $this->metadata( $post );
+		$description  = $metadata['description'];
+		$image        = $metadata['image'];
 		$schema_image = $image && ! $this->is_placeholder_image( $image ) ? $image : array();
 		if ( $description ) {
 			$page['description'] = $description;
@@ -335,12 +395,12 @@ final class Seo {
 				$page['primaryImageOfPage']['caption'] = $schema_image['alt'];
 			}
 		}
-		if ( 'ProfilePage' === $page['@type'] ) {
+		if ( $page['@type'] === 'ProfilePage' ) {
 			$page['mainEntity'] = array( '@id' => $person_id );
 		}
 
 		$graph = array( $person, $website, $page );
-		if ( 'post' === $post->post_type ) {
+		if ( $post->post_type === 'post' ) {
 			$headline = get_post_meta( $post->ID, self::TITLE, true );
 			$headline = $this->plain_text( $headline ? $headline : get_the_title( $post ) );
 			$article  = array(
