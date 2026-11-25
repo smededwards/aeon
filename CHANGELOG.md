@@ -4,7 +4,11 @@ All notable changes to Aeon are documented here.
 
 ## [Unreleased]
 
-Future changes go here.
+### Changed
+
+- Use one shared environment label source for Dashboard and Flux settings.
+- Show Flux's resolved URL from the selected Aeon environment.
+- Keep unconfigured environment URLs collapsed and readonly when a Flux token is already set.
 
 ## [0.5.0] - 2026-11-25
 

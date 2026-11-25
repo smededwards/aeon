@@ -21,9 +21,10 @@ final class DashboardColour {
 
 	// Environment accent colours.
 	private const COLOURS = array(
-		'production'  => '#E93845',
-		'local'       => '#269B50',
-		'development' => '#E98220',
+		'default' => '#0073AA',
+		'local'   => '#269B50',
+		'dev'     => '#E98220',
+		'prod'    => '#E93845',
 	);
 
 	/**
@@ -48,7 +49,11 @@ final class DashboardColour {
 			return self::DEFAULT_SELECTION;
 		}
 
-		$allowed = array_merge( array( self::DEFAULT_SELECTION ), array_keys( self::COLOURS ) );
+		$selection = is_string( $selection ) ? array(
+			'development' => 'dev',
+			'production'  => 'prod',
+		)[ strtolower( $selection ) ] ?? $selection : $selection;
+		$allowed   = array_keys( self::COLOURS );
 
 		return is_string( $selection ) && in_array( $selection, $allowed, true )
 			? $selection
@@ -113,7 +118,11 @@ final class DashboardColour {
 			return;
 		}
 
-		$palette_file = sprintf( 'dashboard-colours-%s.css', $environment );
+		$palette_name = array(
+			'dev'  => 'development',
+			'prod' => 'production',
+		)[ $environment ] ?? $environment;
+		$palette_file = sprintf( 'dashboard-colours-%s.css', $palette_name );
 		$palette_path = dirname( __DIR__ ) . '/build/' . $palette_file;
 		$base_path    = dirname( __DIR__ ) . '/build/dashboard-colours.css';
 		$plugin_file  = dirname( __DIR__ ) . '/aeon.php';

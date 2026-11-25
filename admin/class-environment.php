@@ -15,14 +15,27 @@ final class Environment {
 	public const OPTION = 'aeon_environment_urls';
 
 	// Available environment keys.
-	public const ENVIRONMENTS = array( 'local', 'development', 'production' );
+	public const ENVIRONMENTS = array( 'local', 'dev', 'prod' );
 
 	// Empty URLs keep destinations hidden until configured.
 	public const DEFAULT_URLS = array(
-		'local'       => '',
-		'development' => '',
-		'production'  => '',
+		'local' => '',
+		'dev'   => '',
+		'prod'  => '',
 	);
+
+	/**
+	 * Get the supported environments and their translated labels.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function choices(): array {
+		return array(
+			'local' => __( 'Local', 'aeon' ),
+			'dev'   => __( 'Development', 'aeon' ),
+			'prod'  => __( 'Production', 'aeon' ),
+		);
+	}
 
 	/**
 	 * Register the environment tools.
@@ -47,12 +60,19 @@ final class Environment {
 			return $urls;
 		}
 
+		$legacy_keys = array(
+			'dev'  => 'development',
+			'prod' => 'production',
+		);
+
 		foreach ( self::ENVIRONMENTS as $environment ) {
-			if ( ! isset( $submitted[ $environment ] ) || ! is_string( $submitted[ $environment ] ) ) {
+			$key = isset( $submitted[ $environment ] ) ? $environment : ( $legacy_keys[ $environment ] ?? $environment );
+
+			if ( ! isset( $submitted[ $key ] ) || ! is_string( $submitted[ $key ] ) ) {
 				continue;
 			}
 
-			$url = trim( esc_url_raw( $submitted[ $environment ], array( 'http', 'https' ) ) );
+			$url = trim( esc_url_raw( $submitted[ $key ], array( 'http', 'https' ) ) );
 
 			if ( $url === '' ) {
 				continue;
@@ -185,8 +205,8 @@ final class Environment {
 	public static function normalise_environment( string $environment ): ?string {
 		$environment = strtolower( $environment );
 		$environment = array(
-			'prod' => 'production',
-			'dev'  => 'development',
+			'production'  => 'prod',
+			'development' => 'dev',
 		)[ $environment ] ?? $environment;
 
 		return in_array( $environment, self::ENVIRONMENTS, true ) ? $environment : null;
@@ -199,13 +219,7 @@ final class Environment {
 	 * @return string
 	 */
 	public static function environment_label( string $environment ): string {
-		$labels = array(
-			'local'       => __( 'Local', 'aeon' ),
-			'development' => __( 'Development', 'aeon' ),
-			'production'  => __( 'Production', 'aeon' ),
-		);
-
-		return $labels[ $environment ] ?? __( 'Unknown', 'aeon' );
+		return self::choices()[ $environment ] ?? __( 'Unknown', 'aeon' );
 	}
 
 	/**

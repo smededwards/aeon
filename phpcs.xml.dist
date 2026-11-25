@@ -5,6 +5,8 @@
 	<exclude-pattern>vendor/*</exclude-pattern>
 	<exclude-pattern>node_modules/*</exclude-pattern>
 	<exclude-pattern>build/*</exclude-pattern>
+	<!-- Mixed PHP and HTML view files are reviewed as templates rather than classes. -->
+	<exclude-pattern>flux/views/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
 	<rule ref="WordPress">
 		<exclude name="WordPress.PHP.YodaConditions"/>

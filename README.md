@@ -110,9 +110,9 @@ From the site directory, run `docker compose run --rm -w /workspace/aeon tools e
 
 ## Dashboard Environment and Media Defaults
 
-Under **Settings → Aeon → Dashboard**, select WordPress blue, Production red, Development orange or Local green. Aeon applies the chosen accent to the dashboard and block editor, including component colours and hover and focus states. Bedrock continues to determine the active site environment.
+Under **Settings → Aeon → Dashboard**, select Default, Local, Development or Production. Default retains the WordPress blue accent. Aeon applies the selected accent to the dashboard and block editor, including component colours and hover and focus states. These labels use the canonical keys `default`, `local`, `dev` and `prod`.
 
-The Dashboard section also stores optional base URLs for Local, Development and Production. The admin toolbar shows the detected environment and links to configured sites, preserving the current path and query where possible. Aeon hides Bedrock's search-indexing notice. Bedrock's indexing settings continue to control indexing.
+The Dashboard section also stores optional base URLs for Local, Development and Production. Unconfigured non-active environments stay collapsed until added. The admin toolbar shows the detected environment and links to configured sites, preserving the current path and query where possible. Aeon hides Bedrock's search-indexing notice. Bedrock's indexing settings continue to control indexing.
 
 Under **Settings → Aeon → Content → Default Featured Image**, choose an optional Media Library image for Posts and Pages that have no featured image. Clearing the setting or deleting the attachment removes the fallback. Aeon selects `placeholder.png` initially if it exists in the Media Library.
 

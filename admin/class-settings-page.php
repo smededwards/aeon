@@ -174,20 +174,15 @@ final class SettingsPage {
 	 * @return void
 	 */
 	public function dashboard_environment_field(): void {
-		$selection    = DashboardColour::selection();
-		$environments = array(
-			'default'     => __( 'Default', 'aeon' ),
-			'production'  => __( 'Production', 'aeon' ),
-			'development' => __( 'Development', 'aeon' ),
-			'local'       => __( 'Local', 'aeon' ),
-		);
+		$selection = DashboardColour::selection();
 		?>
 		<select id="aeon-dashboard-environment" name="<?php printf( '%s', esc_attr( DashboardColour::OPTION ) ); ?>">
-			<?php foreach ( $environments as $environment => $label ) : ?>
+			<option value="default" <?php selected( $selection, 'default' ); ?>><?php esc_html_e( 'Default', 'aeon' ); ?></option>
+			<?php foreach ( Environment::choices() as $environment => $label ) : ?>
 				<option value="<?php printf( '%s', esc_attr( $environment ) ); ?>" <?php selected( $selection, $environment ); ?>><?php printf( '%s', esc_html( $label ) ); ?></option>
 			<?php endforeach; ?>
 		</select>
-		<p class="description"><?php esc_html_e( 'Default uses the WordPress blue accent. Choose an environment to apply its dashboard colour.', 'aeon' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Default follows the detected site environment. Choose an environment to override it.', 'aeon' ); ?></p>
 		<?php
 	}
 
@@ -243,6 +238,7 @@ final class SettingsPage {
 	public function environment_url_field( array $field ): void {
 		$environment = $field['environment'];
 		$urls        = Environment::urls();
+		$active      = Environment::detected_environment();
 		$name        = Environment::OPTION . '[' . $environment . ']';
 		$id          = 'aeon-environment-url-' . $environment;
 		$value       = $urls[ $environment ];
@@ -250,9 +246,28 @@ final class SettingsPage {
 		if ( $value === '' && DashboardColour::detected_environment() === $environment ) {
 			$value = home_url( '/' );
 		}
+		$collapsed = $value === '' && Environment::detected_environment() !== $environment;
 		?>
+		<?php if ( $collapsed ) : ?>
+			<details>
+				<summary>
+					<?php
+					/* Translators: %s is the environment label. */
+					printf( esc_html__( 'Add %s URL', 'aeon' ), esc_html( Environment::environment_label( $environment ) ) );
+					?>
+				</summary>
+		<?php endif; ?>
 		<input id="<?php printf( '%s', esc_attr( $id ) ); ?>" class="regular-text" type="url" name="<?php printf( '%s', esc_attr( $name ) ); ?>" value="<?php printf( '%s', esc_attr( $value ) ); ?>" placeholder="https://example.com">
-		<p class="description"><?php esc_html_e( 'Enter each environment’s base URL. The active site URL is used automatically when its field is blank.', 'aeon' ); ?></p>
+		<p class="description">
+			<?php if ( $active === $environment ) : ?>
+				<?php esc_html_e( 'The active site URL is used automatically when this field is blank.', 'aeon' ); ?>
+			<?php else : ?>
+				<?php esc_html_e( 'Enter the base URL for this environment.', 'aeon' ); ?>
+			<?php endif; ?>
+		</p>
+		<?php if ( $collapsed ) : ?>
+			</details>
+		<?php endif; ?>
 		<?php
 	}
 
