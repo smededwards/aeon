@@ -4,6 +4,8 @@ on:
     types: [opened, edited, synchronize, reopened]
 permissions:
   contents: read
+  issues: read
+  pull-requests: read
 jobs:
   conventions:
     runs-on: ubuntu-latest
@@ -31,3 +33,35 @@ jobs:
               exit 1
             fi
           done < <(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA")
+      - name: Validate PR labels and milestone
+        shell: bash
+        run: |
+          set -euo pipefail
+          type_count=0
+          area_count=0
+          semver_count=0
+
+          while IFS= read -r label; do
+            case "$label" in
+              type:*) type_count=$(( type_count + 1 )) ;;
+              area:*) area_count=$(( area_count + 1 )) ;;
+              semver:*) semver_count=$(( semver_count + 1 )) ;;
+            esac
+          done < <(jq -r '.pull_request.labels[]?.name' "$GITHUB_EVENT_PATH")
+
+          if [[ "$type_count" -ne 1 ]]; then
+            echo '::error::Add exactly one type:* label to this PR.'
+            exit 1
+          fi
+          if [[ "$area_count" -lt 1 ]]; then
+            echo '::error::Add at least one area:* label to this PR.'
+            exit 1
+          fi
+          if [[ "$semver_count" -ne 1 ]]; then
+            echo '::error::Add exactly one semver:* label to this PR.'
+            exit 1
+          fi
+          if ! jq -e '.pull_request.milestone != null' "$GITHUB_EVENT_PATH" >/dev/null; then
+            echo '::error::Assign this PR to a release, initiative or maintenance milestone.'
+            exit 1
+          fi
