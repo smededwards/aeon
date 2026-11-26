@@ -4,12 +4,20 @@ All notable changes to Aeon are documented here.
 
 ## [Unreleased]
 
+Future changes go here.
+
+## [0.5.1] - 2026-11-26
+
 ### Changed
 
 - Clarify Flux status output with separate site and target environments and handshake results.
 - Use one shared environment label source for Dashboard and Flux settings.
 - Show Flux's resolved URL from the selected Aeon environment.
 - Keep unconfigured environment URLs collapsed and readonly when a Flux token is already set.
+
+### Documentation
+
+- Enforce shared PR labels, milestones and release metadata in CI.
 
 ## [0.5.0] - 2026-11-25
 
