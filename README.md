@@ -92,7 +92,7 @@ Aeon removes WordPress's emoji detection scripts, inline styles and image conver
 
 ## Contribution Conventions
 
-Use Conventional Commit subjects and PR titles. Name the first commit `Initial Commit`. See `AGENTS.md` for the repository conventions.
+Use Conventional Commit subjects and PR titles. Name the first commit `Initial Commit`. Every PR also needs one `type:*` label, at least one `area:*` label, one `semver:*` impact label and a release, initiative or maintenance milestone. See `AGENTS.md` for the repository conventions.
 
 ## Comment Controls
 
